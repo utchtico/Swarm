@@ -1,0 +1,37 @@
+# Entornos virtuales
+venv/
+.venv/
+env/
+ENV/
+
+# Caché de Python y bytecode
+_pycache_/
+*.py[cod]
+*$py.class
+
+# Artefactos de distribución y metadatos
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Archivos de log y cobertura de tests
+*.log
+.coverage
+htmlcov/
+.pytest_cache/
+/Experiments/
+/db/
+/node_modules
+
+# Variables de entorno
+.env
+
+# Configuraciones de editores/IDE
+.vscode/
+.idea/
+*.iml
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db

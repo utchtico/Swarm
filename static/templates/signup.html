@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <title>Registro</title>
+</head>
+<body>
+    <main class="login-bg">
+        <section class="login-section">
+            <h2>Crear cuenta</h2>
+            {% if msg %}
+                <div class="login-error">{{ msg }}</div>
+            {% endif %}
+            <form action="{{ url_for('signup') }}" method="POST" class="login-form" autocomplete="on">
+                <input class="login-input" type="text" id="username" name="username" placeholder="Usuario" autocomplete="username" required value="{{ request.form.username or '' }}">
+                <input class="login-input" type="email" id="email" name="email" placeholder="Email (opcional)" autocomplete="email" value="{{ request.form.email or '' }}">
+                <input class="login-input" type="password" id="password" name="password" placeholder="Contraseña" autocomplete="new-password" required>
+                <button class="login-btn" type="submit">Registrarme</button>
+            </form>
+            <p class="login-bottom-text">
+                ¿Ya tienes cuenta?
+                <a href="/login">Inicia sesión</a>
+            </p>
+        </section>
+    </main>
+</body>
+</html>

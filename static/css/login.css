@@ -1,0 +1,115 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    background: #f6f7fb;
+}
+
+.login-bg {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-section {
+    background: #bebebe36;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px 0 rgba(20, 40, 70, 0.088);
+    padding: 2.5rem 2rem 2rem 2rem;
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-section h2 {
+    color: #28425b;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 1.4rem;
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+
+.login-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.login-input {
+    padding: 0.85em 1em;
+    font-size: 1rem;
+    background: #f6f7fb;
+    border: 1.8px solid #d5dae3;
+    border-radius: 8px;
+    outline: none;
+    transition: border 0.2s;
+    font-family: inherit;
+}
+
+.login-input:focus {
+    border-color: #3569b0;
+    background: #f0f6fa;
+}
+
+.login-btn {
+    background: #285ca5;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.9em;
+    font-size: 1.1em;
+    font-weight: 500;
+    letter-spacing: 0.8px;
+    cursor: pointer;
+    transition: background 0.17s;
+    margin-top: 0.4em;
+}
+
+.login-btn:hover,
+.login-btn:focus {
+    background: #28425b;
+}
+
+.login-bottom-text {
+    margin-top: 2em;
+    font-size: 0.97em;
+    color: #8492a6;
+    text-align: center;
+}
+
+.login-bottom-text a {
+    color: #285ca5;
+    text-decoration: none;
+    font-weight: 500;
+    margin-left: 2px;
+}
+
+.login-bottom-text a:hover {
+    text-decoration: underline;
+}
+
+.login-error {
+    width: 100%;
+    background: #faeaea;
+    color: #be2c2c;
+    padding: 0.8em 1em;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1em;
+    margin-bottom: 1.3em;
+    border: 1.5px solid #f3bebe;
+}
+
+@media (max-width: 500px) {
+    .login-section {
+        max-width: 95vw;
+        padding: 1.5rem 0.8rem 1.2rem 0.8rem;
+    }
+}
+

@@ -1,0 +1,17 @@
+{
+    "functions":{
+      "/**":{
+          "includeFiles": "requirements.txt"
+      }  
+    },
+    "rewrites":[
+        {
+            "source": "/(.*)",
+            "destination":"/main.py"
+        },
+        {
+            "source":"/(.*)",
+            "destination": "/"
+        }
+    ]
+}

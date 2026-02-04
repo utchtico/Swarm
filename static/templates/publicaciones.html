@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" href="/static/css/index.css">
+    <title>Publicaciones</title>
+</head>
+
+<body>
+    <nav class="navbar-principal" role="navigation" aria-label="Navegación principal">
+        <a class="brand" href="/">Algorithms App</a>
+        <button class="nav-toggle" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú">
+            <span class="hamburger" aria-hidden="true"></span>
+        </button>
+
+        {% set role = session.get('role') %}
+        <ul id="menu" class="menu">
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/casoexperimental">Caso Experimental</a></li>
+            <li><a href="/topsis">MCDM</a></li>
+            <li><a href="/pso">PSO</a></li>
+            <li><a href="/ba">BA</a></li>
+            <li><a href="/aco">ACO</a></li>
+            <!-- <li><a href="#" class="soon" aria-disabled="true" hidden="true" data-tip="Próximamente">ABA</a></li> -->
+            <li><a href="/comparacionGeneral">Comparación</a></li>
+            <li><a href="/acercade">Acerca De</a></li>
+            <li><a href="/publicaciones">Publicaciones</a></li>
+            <li class="user-menu">
+                <button class="user-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="user-dropdown"
+                    title="Cuenta">
+                    <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path fill="currentColor" d="M12 12a5 5 0 1 0-5-5a5 5 0 0 0 5 5Z" />
+                        <path fill="currentColor" d="M4 20a8 8 0 1 1 16 0z" />
+                    </svg>
+                </button>
+
+                <ul id="user-dropdown" class="user-dropdown" role="menu">
+                    <li role="none">
+                        {% if role in ('admin','superadmin') %}
+
+                        <a role="menuitem" href="/articulos">Articulos</a>
+
+                        {% endif %}
+                        <form action="/logout" method="POST">
+                            <a role="menuitem" href="/logout">Salir</a>
+                        </form>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+    <h1 class="text-2xl font-semibold text-center mt-6 mb-6">Artículos publicados</h1>
+    <div class="publicacion-section">
+        <section class="publicacion">
+            <div id="publicaciones-root" class="space-y-10"></div>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/publications.js') }}"></script>
+    <script>
+        (function () {
+            const nav = document.querySelector('.navbar-principal');
+            const btn = nav.querySelector('.nav-toggle');
+            const menu = nav.querySelector('#menu');
+
+            // --- Toggle principal (hamburguesa) ---
+            btn.addEventListener('click', () => {
+                const open = nav.classList.toggle('is-open');
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+
+            // --- "Próximamente" (items disabled) ---
+            const SOON_SELECTOR = 'a.soon[aria-disabled="true"]';
+            const timeouts = new WeakMap();
+            function showSoonTip(el) {
+                el.classList.add('show-tip');
+                clearTimeout(timeouts.get(el));
+                const t = setTimeout(() => el.classList.remove('show-tip'), 1400);
+                timeouts.set(el, t);
+            }
+
+            // --- User dropdown ---
+            const userMenu = nav.querySelector('.user-menu');
+            const userBtn = userMenu?.querySelector('.user-btn');
+
+            function closeUserMenu() {
+                if (userMenu && userMenu.classList.contains('open')) {
+                    userMenu.classList.remove('open');
+                    userBtn?.setAttribute('aria-expanded', 'false');
+                }
+            }
+
+            userBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const willOpen = !userMenu.classList.contains('open');
+                // Cierra primero cualquier estado abierto (por limpieza)
+                closeUserMenu();
+                if (willOpen) {
+                    userMenu.classList.add('open');
+                    userBtn.setAttribute('aria-expanded', 'true');
+                }
+            });
+
+            // Cierre al hacer click fuera (incluye dropdown usuario)
+            document.addEventListener('click', (e) => {
+                if (!nav.contains(e.target)) {
+                    nav.classList.remove('is-open');
+                    btn.setAttribute('aria-expanded', 'false');
+                    closeUserMenu();
+                }
+            });
+
+            // Cierre al navegar y manejo de "Próximamente"
+            menu.addEventListener('click', (e) => {
+                const a = e.target.closest('a');
+                if (!a) return;
+
+                // Si es un item "Próximamente", muestra tip y NO cierres
+                if (a.matches(SOON_SELECTOR)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showSoonTip(a);
+                    return;
+                }
+
+                // Si el click fue dentro del dropdown de usuario, se permite cerrar
+                // tras la navegación/envío (mejor UX)
+                nav.classList.remove('is-open');
+                btn.setAttribute('aria-expanded', 'false');
+                closeUserMenu();
+            });
+
+            // Tap en móvil para "Próximamente"
+            menu.addEventListener('touchstart', (e) => {
+                const a = e.target.closest(SOON_SELECTOR);
+                if (a) showSoonTip(a);
+            }, { passive: true });
+
+            // Accesibilidad: cerrar el user menu con Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeUserMenu();
+                    nav.classList.remove('is-open');
+                    btn.setAttribute('aria-expanded', 'false');
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

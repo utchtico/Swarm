@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/index.css">
+
+</head>
+
+<body>
+  <nav class="navbar-principal" role="navigation" aria-label="Navegación principal">
+    <a class="brand" href="/">Algorithms App</a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú">
+      <span class="hamburger" aria-hidden="true"></span>
+    </button>
+
+        {% set role = session.get('role') %}
+<ul id="menu" class="menu">
+      <li><a href="/">Inicio</a></li>
+      <li><a href="/casoexperimental">Caso Experimental</a></li>
+      <li><a href="/topsis">MCDM</a></li>
+      <li><a href="/pso">PSO</a></li>
+      <li><a href="/ba">BA</a></li>
+      <li><a href="/aco">ACO</a></li>
+            <!-- <li><a href="#" class="soon" aria-disabled="true" hidden="true" data-tip="Próximamente">ABA</a></li> -->
+            <li><a href="/comparacionGeneral">Comparación</a></li>
+      <li><a href="/acercade">Acerca De</a></li>
+      <li><a href="/publicaciones">Publicaciones</a></li>
+      <li class="user-menu">
+        <button class="user-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="user-dropdown"
+          title="Cuenta">
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M12 12a5 5 0 1 0-5-5a5 5 0 0 0 5 5Z" />
+            <path fill="currentColor" d="M4 20a8 8 0 1 1 16 0z" />
+          </svg>
+        </button>
+
+        <ul id="user-dropdown" class="user-dropdown" role="menu">
+                    <li role="none">
+                        {% if role in ('admin','superadmin') %}
+
+                        <a role="menuitem" href="/articulos">Articulos</a>
+                        {% endif %}
+
+                        <form action="/logout" method="POST">
+                            <a role="menuitem" href="/logout">Salir</a>
+                        </form>
+                    </li>
+                </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <h1 class="font-semibold text-4xl text-center mt-10">Acerca de Nosotros</h1>
+  <div class="border-t-2 border-gray-300 my-8 text-center ">
+    <h3 class="text-xl text-justify mt-10 mx-auto ml-4 text-wrap" style="margin-right: 2rem;">El equipo de desarrollo se
+      organiza considerando la taxonomía
+      CRediT (Contributor Roles Taxonomy), observandose dos grupos fundamentales: <br> uno enfocado a la investgación y
+      el
+      otro especializado en el desarrollo del
+      Software(Frontend):
+    </h3>
+    <h3 class="text-xl text-justify mx-auto mb-8 ml-4">
+
+
+      <div class="ml-9 mt-5 text-wrap" style="margin-right: 3rem;">
+        <ol class="mt-5"><strong>1 Conceptualización:</strong> Ideas, formulación o evolución de los objetivos y metas
+          generales de
+          la investigación.
+        </ol>
+        <ol class="mt-5"><strong>2 Curación de datos:</strong> Actividades de gestión para anotar (producir metadatos),
+          depurar datos
+          y mantener los
+          datos
+          de la investigación (incluido el código de software, cuando sea necesario para interpretar los propios datos)
+          para
+          su uso inicial y su posterior reutilización.</ol>
+        <ol class="mt-5"><strong>3 Análisis formal:</strong> Aplicación de técnicas estadísticas, matemáticas,
+          computacionales u
+          otras técnicas formales
+          para analizar o sintetizar datos de estudio.</ol>
+        <ol class="mt-5"><strong>4 Adquisición de fondos:</strong> Adquisición del apoyo financiero para el proyecto que
+          conduce a
+          esta publicación.
+        </ol>
+        <ol class="mt-5"><strong>5 Investigación:</strong> Realización de una investigación y proceso de investigación,
+          realizando
+          específicamente los
+          Experiments, o la recolección de datos / evidencia.</ol>
+        <ol class="mt-5"><strong>6 Metodología:</strong> Desarrollo o diseño de la metodología y creación de modelos.
+        </ol>
+        <ol class="mt-5"><strong>7 Administración del proyecto:</strong> Responsabilidad de gestión y coordinación de la
+          planificación de las
+          actividades del investigación.</ol>
+        <ol class="mt-5"><strong>8 Adquisición de financiación y recursos:</strong> Suministro de materiales de estudio,
+          herramientas
+          para el análisis
+          y
+          documentación, así como la Financiación para las publicaciones.</ol>
+        <ol class="mt-5"><strong>9 Supervisión:</strong> Responsabilidad de supervisión y liderazgo en la planificación,
+          así como de
+          la realización de
+          actividades de investigación, lo que incluye la tutoría externa al equipo central.</ol>
+        <ol class="mt-5"><strong>10 Validación:</strong> Verificación, ya sea como parte de la actividad o por separado,
+          de la
+          replicabilidad /
+          reproducción general de los resultados / Experiments u otros productos de la investigación.</ol>
+        <ol class="mt-5"><strong>11 Visualización:</strong> Preparación, creación o presentación del trabajo publicado,
+          específicamente la
+          visualización
+          / presentación de datos.</ol>
+        <ol class="mt-5"><strong>12 Redacción (borrador original):</strong> Preparación, creación o presentación del
+          trabajo
+          publicado,
+          específicamente
+          la redacción del borrador inicial (se incluye la traducción sustantiva).</ol>
+        <ol class="mt-5"><strong>13 Redacción (revisión y edición):</strong> Preparación, creación o presentación del
+          trabajo
+          publicado por los
+          miembros
+          del grupo de investigación original, específicamente revisión crítica, comentario o revisión - se deben
+          incluir
+          las etapas previas o posteriores a la publicación.</ol>
+        <ol class="mt-5"><strong>14 Software:</strong> Programación, desarrollo de software, diseño de programas
+          informáticos,
+          implementación del
+          código
+          informático y de los algoritmos de apoyo, pruebas de los componentes de código existentes. Este se divide en
+          Backend y Frontend. El Backend se encarga del desarrollo de la lógica, el procesamiento de datos de entrada,
+          codificación de algoritmos y producir salidas. Mientras que el Frontend se encarga del desarrollo de la
+          interfaz
+          de usuario, es decir lo que el usuario ve y con lo que interactua.
+        </ol>
+      </div>
+
+
+  </div>
+
+  </h3>
+  <h1 class="font-semibold text-2xl text-center mt-10 mb-8">
+    Investigadores
+  </h1>
+  <div class="border-t-2 border-gray-300 my-8 mx-96"></div>
+  <div class="flex justify-center grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <!-- Card para cada persona -->
+    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
+      <h2 class="text-lg font-semibold mb-2">
+        M.I.S.C. Dynhora Danheyda Ramírez Ochoa
+      </h2>
+      <span class="text-gray-600 mb-2">Conceptualización, Conceptualización, Metodología</span>
+      <span class="text-gray-600 mb-2">Investigación, Curación de datos, Análisis formal</span>
+      <span class="text-gray-600 mb-2">Visualización, Redacción(borrador original), Software(Backend)</span>
+      <div class="flex items-center justify-center space-x-4">
+        <!-- Iconos de redes sociales -->
+        <a href="https://www.linkedin.com/in/dynhora-danheyda-ram%C3%ADrez-ochoa-86b0733a"
+          class="text-gray-600 hover:text-gray-900 text-3xl">
+          <i class="fab fa-linkedin"></i>
+        </a>
+        <a href="https://scholar.google.com/citations?user=4HAFFT0AAAAJ&hl=es&oi=ao"
+          class="text-gray-600 hover:text-gray-900 text-3xl">
+          <i class="fab fa-google"></i>
+        </a>
+        <a href="https://orcid.org/0000-0002-1326-908X" class="text-gray-600 hover:text-gray-900 text-3xl">
+          <i class="fab fa-orcid"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="flex justify-center grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-10">
+    <!-- Card para cada persona -->
+    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
+      <h2 class="text-lg font-semibold mb-2">
+        Dr. Luis Asunción Pérez Domínguez
+      </h2>
+      <span class="text-gray-600 mb-2">Conceptualización, Metodología, Supervisión</span>
+      <span class="text-gray-600 mb-2">Administración del proyecto</span>
+      <span class="text-gray-600 mb-2">Supervisión, Redacción (revisión y edición)</span>
+      <span class="text-gray-600 mb-2">Adquisición de financiación y recursos</span>
+      <span class="text-gray-600 mb-2"> Evaluación de Experiments, Validación</span>
+      <div class="flex items-center justify-center space-x-4">
+        <!-- Iconos de redes sociales -->
+        <a href="https://www.linkedin.com/in/luis-p%C3%A9rez-dom%C3%ADnguez-15228432"
+          class="text-gray-600 hover:text-gray-900 text-3xl">
+          <i class="fab fa-linkedin"></i>
+        </a>
+        <a href="https://scholar.google.com/citations?hl=es&user=iuXlWr4AAAAJ&view_op=list_works&sortby=pubdate"
+          class="text-gray-600 hover:text-gray-900 text-3xl">
+          <i class="fab fa-google"></i>
+        </a>
+        <a href="https://orcid.org/0000-0003-2541-4595" class="text-gray-600 hover:text-gray-900 text-3xl">
+          <i class="fab fa-orcid"></i>
+        </a>
+      </div>
+    </div>
+    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
+      <h2 class="text-lg font-semibold mb-2">
+        Dr. Erwin Adán Martínez Gómez
+      </h2>
+      <span class="text-gray-600 mb-2">Conceptualización, Metodología, Supervisión</span>
+      <span class="text-gray-600 mb-2">Redacción (revisión y edición), Validación</span>
+      <div class="flex items-center justify-center space-x-4">
+        <!-- Iconos de redes sociales -->
+        <a href="https://orcid.org/0000-0002-7753-2545" class="text-gray-600 hover:text-gray-900 text-3xl">
+          <i class="fab fa-orcid"></i>
+        </a>
+      </div>
+    </div>
+
+  </div>
+  <div class="flex justify-center grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-10">
+    <!-- Card para cada persona -->
+    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
+      <h2 class="text-lg font-semibold mb-2">
+        Dr. David Luviano Cruz
+      </h2>
+      <span class="text-gray-600 mb-2">Redacción (revisión y edición) </span>
+      <div class="flex items-center justify-center space-x-4">
+        <!-- Iconos de redes sociales -->
+        <a href="https://scholar.google.com/citations?user=0D99frMAAAAJ&hl=es&oi=ao"
+          class="text-gray-600 hover:text-gray-900 text-3xl">
+          <i class="fab fa-google"></i>
+        </a>
+        <a href="https://orcid.org/0000-0002-4778-8873" class="text-gray-600 hover:text-gray-900 text-3xl">
+          <i class="fab fa-orcid"></i>
+        </a>
+      </div>
+    </div>
+    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
+      <h2 class="text-lg font-semibold mb-2">
+        Dr. Iván Juan Carlos Pérez Olguín
+      </h2>
+      <span class="text-gray-600 mb-2">Redacción (revisión y edición) </span>
+      <div class="flex items-center justify-center space-x-4">
+        <!-- Iconos de redes sociales -->
+        <a href="https://scholar.google.com/citations?user=Jj0ZeoQAAAAJ&hl=es&oi=ao"
+          class="text-gray-600 hover:text-gray-900 text-3xl">
+          <i class="fab fa-google"></i>
+        </a>
+        <a href="https://orcid.org/0000-0003-2445-0500" class="text-gray-600 hover:text-gray-900 text-3xl">
+          <i class="fab fa-orcid"></i>
+        </a>
+      </div>
+    </div>
+    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
+      <h2 class="text-lg font-semibold mb-2">
+        Dra. Linda Lucila Lucero Landeros Martínez
+      </h2>
+      <span class="text-gray-600 mb-2">Validación, Redacción (revisión y edición)</span>
+      <div class="flex items-center justify-center space-x-4">
+        <!-- Iconos de redes sociales -->
+        <a href="https://scholar.google.com/citations?user=eK2n0UgAAAAJ&hl=es&oi=ao"
+          class="text-gray-600 hover:text-gray-900 text-3xl">
+          <i class="fab fa-google"></i>
+        </a>
+        <a href="https://orcid.org/0000-0002-7240-1458" class="text-gray-600 hover:text-gray-900 text-3xl">
+          <i class="fab fa-orcid"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- Sección para el equipo Backend -->
+  <h1 class="font-semibold text-2xl text-center mt-10 mb-8">Frontend</h1>
+  <div class="border-t-2 border-gray-300 my-8 mx-96"></div>
+  <div class="p-5 flex justify-center grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <!-- Aquí van las tarjetas del equipo Backend -->
+    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
+      <h2 class="text-lg font-semibold mb-2">M.S.I. Alfonso Barroso</h2>
+      <span class="text-gray-600 mb-2">(Nov 2022-a la fecha)</span>
+      <!-- Otros detalles -->
+      <div class="flex items-center justify-center space-x-4">
+        <!-- Iconos de redes sociales -->
+        <a href="https://www.linkedin.com/in/alfonso-jos%C3%A9-barroso-barajas-9030541aa"
+          class="text-gray-600 hover:text-gray-900 text-3xl"><i class="fab fa-linkedin"></i></a>
+        <a href="https://github.com/alfonsobarrosobarajas/" class="text-gray-600 hover:text-gray-900 text-3xl"><i
+            class="fab fa-github"></i></a>
+      </div>
+    </div>
+    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
+      <h2 class="text-lg font-semibold mb-2">I.D.S.M. Raúl Aguirre</h2>
+      <span class="text-gray-600 mb-2">(Nov-May 2022)</span>
+      <!-- Otros detalles -->
+      <div class="flex items-center justify-center space-x-4">
+        <!-- Iconos de redes sociales -->
+        <a href="https://www.linkedin.com/in/raul-hermosillo" class="text-gray-600 hover:text-gray-900 text-3xl"><i
+            class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
+      <h2 class="text-lg font-semibold mb-2">Abraham Isaí García Piñón</h2>
+      <span class="text-gray-600 mb-2">(Sep 2023- a la fecha)</span>
+      <!-- Otros detalles -->
+      <div class="flex items-center justify-center space-x-4">
+        <!-- Iconos de redes sociales -->
+        <a href="https://www.linkedin.com/in/abraham-isaí-garcía-2306b7265/"
+          class="text-gray-600 hover:text-gray-900 text-3xl"><i class="fab fa-linkedin"></i></a>
+        <a href="https://github.com/IsaiGp96" class="text-gray-600 hover:text-gray-900 text-3xl"><i
+            class="fab fa-github"></i></a>
+      </div>
+    </div>
+    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
+      <h2 class="text-lg font-semibold mb-2">
+        Alan Enrique Rodriguez Fernandez
+      </h2>
+      <span class="text-gray-600 mb-2">(Nov 2023-a la fecha)</span>
+      <!-- Otros detalles -->
+      <div class="flex items-center justify-center space-x-4">
+        <!-- Iconos de redes sociales -->
+        <a href="https://www.linkedin.com/in/alan-rodriguez-146a62280/"
+          class="text-gray-600 hover:text-gray-900 text-3xl"><i class="fab fa-linkedin"></i></a>
+        <a href="https://github.com/AlanRod7" class="text-gray-600 hover:text-gray-900 text-3xl"><i
+            class="fab fa-github"></i></a>
+      </div>
+    </div>
+    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
+      <h2 class="text-lg font-semibold mb-2">César Armando Marines Licón</h2>
+      <span class="text-gray-600 mb-2">(Nov 2023-a la fecha)</span>
+      <!-- Otros detalles -->
+      <div class="flex items-center justify-center space-x-4">
+        <!-- Iconos de redes sociales -->
+        <a href="https://www.linkedin.com/in/cmarines/" class="text-gray-600 hover:text-gray-900 text-3xl"><i
+            class="fab fa-linkedin"></i></a>
+        <a href="https://github.com/Commmodore64" class="text-gray-600 hover:text-gray-900 text-3xl"><i
+            class="fab fa-github"></i></a>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const nav = document.querySelector('.navbar-principal');
+      const btn = nav.querySelector('.nav-toggle');
+      const menu = nav.querySelector('#menu');
+
+      // --- Toggle principal (hamburguesa) ---
+      btn.addEventListener('click', () => {
+        const open = nav.classList.toggle('is-open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+
+      // --- "Próximamente" (items disabled) ---
+      const SOON_SELECTOR = 'a.soon[aria-disabled="true"]';
+      const timeouts = new WeakMap();
+      function showSoonTip(el) {
+        el.classList.add('show-tip');
+        clearTimeout(timeouts.get(el));
+        const t = setTimeout(() => el.classList.remove('show-tip'), 1400);
+        timeouts.set(el, t);
+      }
+
+      // --- User dropdown ---
+      const userMenu = nav.querySelector('.user-menu');
+      const userBtn = userMenu?.querySelector('.user-btn');
+
+      function closeUserMenu() {
+        if (userMenu && userMenu.classList.contains('open')) {
+          userMenu.classList.remove('open');
+          userBtn?.setAttribute('aria-expanded', 'false');
+        }
+      }
+
+      userBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const willOpen = !userMenu.classList.contains('open');
+        // Cierra primero cualquier estado abierto (por limpieza)
+        closeUserMenu();
+        if (willOpen) {
+          userMenu.classList.add('open');
+          userBtn.setAttribute('aria-expanded', 'true');
+        }
+      });
+
+      // Cierre al hacer click fuera (incluye dropdown usuario)
+      document.addEventListener('click', (e) => {
+        if (!nav.contains(e.target)) {
+          nav.classList.remove('is-open');
+          btn.setAttribute('aria-expanded', 'false');
+          closeUserMenu();
+        }
+      });
+
+      // Cierre al navegar y manejo de "Próximamente"
+      menu.addEventListener('click', (e) => {
+        const a = e.target.closest('a');
+        if (!a) return;
+
+        // Si es un item "Próximamente", muestra tip y NO cierres
+        if (a.matches(SOON_SELECTOR)) {
+          e.preventDefault();
+          e.stopPropagation();
+          showSoonTip(a);
+          return;
+        }
+
+        // Si el click fue dentro del dropdown de usuario, se permite cerrar
+        // tras la navegación/envío (mejor UX)
+        nav.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+        closeUserMenu();
+      });
+
+      // Tap en móvil para "Próximamente"
+      menu.addEventListener('touchstart', (e) => {
+        const a = e.target.closest(SOON_SELECTOR);
+        if (a) showSoonTip(a);
+      }, { passive: true });
+
+      // Accesibilidad: cerrar el user menu con Escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeUserMenu();
+          nav.classList.remove('is-open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    })();
+  </script>
+</body>
+
+</html>

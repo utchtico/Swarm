@@ -1,0 +1,844 @@
+.navbar-principal {
+    position: sticky;
+    display: flex;
+    align-items: center;
+    gap: var(--gap);
+    padding: 12px 16px;
+    background: var(--nav-bg);
+    color: var(--nav-fg);
+    border-radius: var(--nav-radius);
+    position: relative;
+
+    border-radius: 8px;
+    border: 2px solid transparent;
+    box-shadow: 0px 2px 2px 2px rgba(0, 0, 0, 0.088);
+    transition: border;
+    list-style-type: none;
+    margin: 0;
+}
+
+/* Marca + bienvenida */
+.brand {
+    font-size: x-large;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--nav-fg);
+    white-space: nowrap;
+}
+
+.brand:hover {
+    background: rgba(0, 0, 0, .088);
+
+}
+
+.bienvenida {
+    margin: 0;
+    margin-left: 8px;
+    font-weight: 500;
+    color: #374151;
+    /* gris 700 */
+}
+
+/* Botón hamburguesa (visible en móvil) */
+.nav-toggle {
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+.nav-toggle:focus-visible {
+    outline: var(--focus);
+}
+
+.hamburger {
+    display: inline-block;
+    width: 22px;
+    height: 2px;
+    background: currentColor;
+    position: relative;
+    transition: transform .25s ease;
+}
+
+.hamburger::before,
+.hamburger::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 22px;
+    height: 2px;
+    background: currentColor;
+    transition: transform .25s ease, top .25s ease, opacity .25s ease;
+}
+
+.hamburger::before {
+    top: -7px;
+}
+
+.hamburger::after {
+    top: 7px;
+}
+
+/* Menú (móvil: oculto por defecto) */
+.menu {
+    background: #fff;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    /*background: var(--nav-bg);*/
+    border-radius: 0 0 var(--nav-radius) var(--nav-radius);
+    box-shadow: var(--nav-shadow);
+    transform: translateY(-8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+
+}
+
+.menu li {
+    border-top: 1px solid rgba(0, 0, 0, .06);
+}
+
+.menu li:first-child {
+    border-top: none;
+}
+
+.menu a {
+    display: block;
+    padding: 10px 16px;
+    text-decoration: none;
+    color: var(--nav-fg);
+    font-weight: 500;
+}
+
+.menu a:hover {
+    background: rgba(0, 0, 0, .088);
+}
+
+.menu a:focus-visible {
+    outline: var(--focus);
+    outline-offset: -4px;
+}
+
+/* Estado abierto (se aplica con .is-open en .navbar-principal) */
+.navbar-principal.is-open .menu {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.navbar-principal.is-open .hamburger {
+    transform: rotate(45deg);
+}
+
+.navbar-principal.is-open .hamburger::before {
+    top: 0;
+    transform: rotate(90deg);
+}
+
+.navbar-principal.is-open .hamburger::after {
+    top: 0;
+    opacity: 0;
+}
+
+/* >=768px: menú horizontal, sin hamburguesa */
+@media (min-width: 890px) {
+    .navbar-principal {
+        padding: 14px 18px;
+    }
+
+    .nav-toggle {
+        display: none;
+    }
+
+    .menu {
+        position: static;
+        display: flex;
+        gap: var(--gap);
+        background: transparent;
+        box-shadow: none;
+        transform: none;
+        opacity: 1;
+        pointer-events: auto;
+        border-radius: 0;
+        margin-left: auto;
+
+    }
+
+    .menu li {
+        border: 0;
+    }
+
+    .menu a {
+        padding: 8px 10px;
+        border-radius: 8px;
+    }
+
+    .menu a:hover {
+        background: rgba(0, 0, 0, .06);
+    }
+
+    /* empuja el menú a la derecha, mantén "bienvenida" cerca de la marca */
+    .bienvenida {
+        margin-right: auto;
+    }
+}
+
+/* Respeta usuarios con menos animaciones */
+@media (prefers-reduced-motion: reduce) {
+
+    .menu,
+    .hamburger,
+    .hamburger::before,
+    .hamburger::after {
+        transition: none;
+    }
+}
+
+/* Estilo de ítems "deshabilitados" pero interactuables para tooltip */
+.menu a.soon[aria-disabled="true"] {
+    opacity: .55;
+    cursor: not-allowed;
+    position: relative;
+    /* para posicionar el tooltip */
+    user-select: none;
+    pointer-events: auto;
+    /* importante para que reciba hover/click */
+}
+
+/* Ícono/indicador opcional */
+.menu a.soon[aria-disabled="true"]::before {
+    content: "🔒 ";
+    opacity: .9;
+}
+
+/* Tooltip base (usa el contenido de data-tip) */
+.menu a.soon[aria-disabled="true"]::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%) translateY(8px);
+    background: #111;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1;
+    padding: 6px 8px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease, visibility .18s;
+    z-index: 20;
+}
+
+
+.menu a.soon[aria-disabled="true"] .tip {
+    display: none;
+}
+
+/* Triángulo usando un pseudo extra */
+.menu a.soon[aria-disabled="true"]::marker {
+    content: "";
+}
+
+/* Tooltip visible en hover/focus o cuando JS añade .show-tip */
+.menu a.soon[aria-disabled="true"]:hover::after,
+.menu a.soon[aria-disabled="true"]:focus-visible::after,
+.menu a.soon[aria-disabled="true"].show-tip::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(75px);
+}
+
+/* Triangulito (pseudo-elemento extra) */
+.menu a.soon[aria-disabled="true"]::selection {
+    background: none;
+}
+
+/* Usamos un pseudo adicional :focus para el triángulo con ::after+box-shadow */
+.menu a.soon[aria-disabled="true"]::after {
+    /* agregamos la “punta” con sombra: */
+    box-shadow:
+        0 0 0 0 #111,
+        0 -6px 0 -4px #111;
+    /* truco para simular triángulo pequeño arriba */
+}
+
+.experimental a {
+    left: 40px;
+    position: relative;
+    display: inline-block;
+    border-left: solid;
+    border-right: solid;
+}
+
+.experimental a::before,
+.experimental a::after {
+    content: "";
+    position: absolute;
+    height: 2px;
+    width: 0;
+    background-color: #374151;
+    transition: .4s;
+}
+
+.experimental a::before {
+    top: 0;
+    left: 0;
+}
+
+.experimental a::after {
+    bottom: 0;
+    right: 0;
+}
+
+
+
+.experimental a:hover:before,
+.experimental a:hover:after {
+    width: 100%;
+}
+
+.buttons-experiments {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+/* --- Asegura el menú a la derecha en desktop --- */
+@media (min-width: 768px) {
+    .menu {
+        margin-left: auto;
+    }
+}
+
+/* --- User menu / avatar --- */
+.menu .user-menu {
+    position: relative;
+}
+
+.user-btn {
+    border: none;
+    background: transparent;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.user-btn:focus-visible {
+    outline: var(--focus, 2px solid #2563eb);
+}
+
+/* Dropdown base (desktop) */
+.user-dropdown {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 8px 0;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    min-width: 180px;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, .08);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+    display: none;
+    z-index: 60;
+}
+
+.user-menu.open .user-dropdown {
+    display: block;
+}
+
+.user-dropdown a,
+.user-dropdown .logout-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    text-decoration: none;
+    color: #1f2937;
+    background: transparent;
+    border: 0;
+    padding: 10px 14px;
+    font: inherit;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.user-dropdown a:hover,
+.user-dropdown .logout-btn:hover {
+    background: rgba(0, 0, 0, .06);
+}
+
+.user-dropdown a:focus-visible,
+.user-dropdown .logout-btn:focus-visible {
+    outline: var(--focus, 2px solid #2563eb);
+    outline-offset: 2px;
+}
+
+/* Comportamiento móvil: submenu en el flujo del menú colapsado */
+@media (max-width: 767.98px) {
+    .menu .user-menu {
+        width: 100%;
+    }
+
+    .user-dropdown {
+        position: static;
+        box-shadow: none;
+        border: 0;
+        margin: 0;
+        padding: 4px 0 0;
+        display: none;
+        /* se muestra con .open */
+    }
+
+    .user-menu.open .user-dropdown {
+        display: block;
+    }
+}
+
+/* ===== Tarjeta de publicación ===== */
+/* Offset adaptable (navbar + título). Ajusta valores a tu UI real */
+:root {
+    --pub-offset: 160px;
+}
+
+/* desktop */
+@media (max-width: 1024px) {
+    :root {
+        --pub-offset: 140px;
+    }
+}
+
+/* tablet */
+@media (max-width: 640px) {
+    :root {
+        --pub-offset: 120px;
+    }
+}
+
+/* móvil */
+
+.publicacion-section {
+    /* ancho responsivo */
+    width: min(100%, 1500px);
+    margin: 0 auto;
+
+    /* Altura calculada para que SOLO este contenedor scrollee */
+    height: calc(100vh - var(--pub-offset));
+    /* fallback amplio */
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    /* estética */
+    padding: 12px 22px 22px;
+    background-color: transparent;
+}
+
+/* Mejora en navegadores modernos: viewport dinámico (evita “saltos” en móvil) */
+@supports (height: 100dvh) {
+    .publicacion-section {
+        height: calc(100dvh - var(--pub-offset));
+    }
+}
+
+h1.page-title {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(255, 255, 255, .9);
+    backdrop-filter: saturate(180%) blur(4px);
+    padding: 12px 0;
+}
+
+/* Scrollbar sutil (WebKit) */
+.publicacion-section::-webkit-scrollbar {
+    width: 10px;
+}
+
+.publicacion-section::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 8px;
+}
+
+.publicacion-section:hover::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+}
+
+/* ---- Tarjeta de publicación ---- */
+.publicacion {
+    background: #fff;
+    border-radius: 18px;
+    border: 1px solid rgba(17, 24, 39, .06);
+    box-shadow: 0 20px 40px -18px rgba(0, 0, 0, .25);
+    transition: transform .18s, box-shadow .18s, border-color .18s;
+    padding: 22px;
+}
+
+.publicacion:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 28px 50px -18px rgba(0, 0, 0, .28);
+    border-color: rgba(17, 24, 39, .12);
+}
+
+.publicacion+.publicacion {
+    margin-top: 22px;
+}
+
+
+/* Título */
+.publicacion h2 {
+    margin: 0 0 10px;
+    font-size: 1.375rem;
+    line-height: 1.45;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* Resumen */
+.publicacion .resumen,
+.publicacion p.text-gray-800 {
+    color: #374151;
+    line-height: 1.7;
+    margin: 0 0 14px;
+    text-align: justify;
+}
+
+/* Bloque de metadatos (autores/fecha/fuente) */
+.publicacion .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    font-size: .92rem;
+}
+
+@media (max-width: 1024px) {
+    .publicacion .meta-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .publicacion {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .publicacion h2 {
+        font-size: 1.15rem;
+    }
+
+    .publicacion .meta-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+.publicacion .meta-title {
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 6px;
+}
+
+/* Listas de autores */
+.publicacion ul.autores,
+.publicacion ul.corresp,
+.publicacion ul.list-disc {
+    /* compat con tu HTML actual */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.publicacion ul.autores li,
+.publicacion ul.corresp li,
+.publicacion .list-disc li {
+    position: relative;
+    padding-left: 18px;
+    margin: 3px 0;
+}
+
+.publicacion ul.autores li::before,
+.publicacion ul.corresp li::before,
+.publicacion .list-disc li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 2px;
+    color: #6b7280;
+    /* gray-500 */
+}
+
+/* Marca de autor de correspondencia (si decides mostrar ✉️) */
+.publicacion .corresp li::after {
+    content: "✉️";
+    margin-left: 6px;
+    font-size: .85em;
+    opacity: .85;
+}
+
+/* Enlaces */
+.publicacion a {
+    color: #2563eb;
+    /* blue-600 */
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(37, 99, 235, .35);
+    transition: color .15s, border-color .15s, background-color .15s;
+}
+
+.publicacion a:hover {
+    color: #1d4ed8;
+    /* blue-700 */
+    border-bottom-color: transparent;
+    background-color: rgba(37, 99, 235, .06);
+}
+
+/* Separador opcional */
+.publicacion .divider {
+    height: 1px;
+    background: linear-gradient(90deg, rgba(0, 0, 0, .04), rgba(0, 0, 0, .08), rgba(0, 0, 0, .04));
+    margin: 16px 0;
+}
+
+/* Modo oscuro (Versión de prueba) */
+/* @media (prefers-color-scheme: dark) {
+    .publicacion {
+        background: #0b0f12;
+        border-color: rgba(255, 255, 255, .08);
+        box-shadow: 0 20px 40px -18px rgba(0, 0, 0, .6);
+    }
+
+    .publicacion h2 {
+        color: #e5e7eb;
+    }
+
+    .publicacion .resumen,
+    .publicacion p.text-gray-800 {
+        color: #cbd5e1;
+    }
+
+    .publicacion .meta-title {
+        color: #e5e7eb;
+    }
+
+    .publicacion a {
+        color: #60a5fa;
+        border-bottom-color: rgba(96, 165, 250, .4);
+    }
+
+    .publicacion a:hover {
+        color: #93c5fd;
+        background-color: rgba(96, 165, 250, .12);
+    }
+} */
+
+
+/* Formulario de articulos */
+/* General Body and Font Styles */
+
+
+/* Main container for centering the form */
+.main-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+/* Form wrapper/card */
+.form-wrapper {
+    width: 100%;
+    max-width: 42rem;
+    /* max-w-2xl */
+    border-radius: 0.5rem;
+    /* rounded-lg */
+    background-color: white;
+    padding: 2.5rem;
+    /* p-10 */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+/* Top image styling */
+.form-image {
+    margin-bottom: 3rem;
+    /* mb-12 */
+    width: 100%;
+    border-radius: 0.5rem;
+}
+
+/* Header section for title and description */
+.form-header {
+    margin-bottom: 2rem;
+    /* mb-8 */
+    text-align: center;
+}
+
+.form-title {
+    font-size: 1.875rem;
+    /* text-2xl */
+    font-weight: 600;
+    /* font-semibold */
+    color: #1f2937;
+    /* text-gray-800 */
+}
+
+.form-description {
+    margin-top: 0.5rem;
+    /* mt-2 */
+    font-size: 0.875rem;
+    /* text-sm */
+    color: #4b5563;
+    /* text-gray-600 */
+    line-height: 1.5;
+}
+
+/* Container for each form field group */
+.form-group {
+    margin-bottom: 1.5rem;
+    /* mb-6 */
+}
+
+/* Form labels */
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    /* mb-2 */
+    font-size: 0.875rem;
+    /* text-sm */
+    font-weight: 500;
+    /* font-medium */
+    color: #4b5563;
+    /* text-gray-600 */
+}
+
+/* Common styles for input, select, and textarea */
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    border-radius: 0.375rem;
+    /* rounded-md */
+    border: 1px solid #d1d5db;
+    /* border-gray-300 */
+    padding: 0.75rem;
+    /* p-3 */
+    font-size: 0.875rem;
+    /* text-sm */
+    color: #1f2937;
+    /* text-gray-800 */
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    border-color: #2563eb;
+    /* focus:border-indigo-500 */
+    box-shadow: 0 0 0 1px #2563eb;
+    /* focus:ring-1 focus:ring-indigo-500 */
+    outline: none;
+}
+
+/* Radio button group */
+.radio-group {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+}
+
+.form-radio {
+    height: 1rem;
+    width: 1rem;
+    color: #2563eb;
+    margin-right: 0.5rem;
+}
+
+/* Consent Checkbox Group */
+.consent-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.form-checkbox {
+    height: 1rem;
+    width: 1rem;
+    color: #2563eb;
+}
+
+.consent-label {
+    margin-left: 0.5rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+.consent-label a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.consent-label a:hover {
+    text-decoration: underline;
+}
+
+/* Submit Button */
+.submit-btn {
+    width: 100%;
+    border-radius: 0.375rem;
+    background-color: #1f2937;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    color: #d1d5db;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.submit-btn:hover {
+    background-color: #d1d5db;
+    color: #1f2937;
+}
+
+.submit-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5);
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 640px) {
+    .main-container {
+        padding: 1rem;
+    }
+
+    .form-wrapper {
+        padding: 1.5rem;
+    }
+
+    .form-title {
+        font-size: 1.5rem;
+    }
+}

@@ -66,7 +66,7 @@ except Exception as e:
 app = Flask(__name__, template_folder = 'static/templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = '563cebb3aceb49e0a6c79ded5c717235'
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-insecure-key")
 user_root = 'Experiments'
 today_str = date.today().isoformat()
 
@@ -122,8 +122,13 @@ def calcular_pso():
             usuario = user.username
     try:
         # Obtén los datos del formulario
-        w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+        w_input = [request.form.get(f"w{i}", None) for i in range(1, 6)]
+
+        if any(v is None or str(v).strip() == "" for v in w_input):
+            return jsonify({"error": "Faltan valores en w1..w5"}), 400
+
+        w = [float(v) for v in w_input]
+        #input(w)
         wwi = float(request.form['wwi'])
         c1 = float(request.form['c1'])
         c2 = float(request.form['c2'])
@@ -135,8 +140,9 @@ def calcular_pso():
         r2 = [float(num.strip()) for num in r2_input.split(',')]
 
         # Llama a la función de PSO en pso.py
+        print("PERRO",w, wwi, c1, c2, T, r1, r2, usuario)
         datosPso = asyncio.run(ejecutar_pso(w, wwi, c1, c2, T, r1, r2, usuario))
-        print("Resultados de la ejecución:", datosPso)
+        #print("Resultados de la ejecución:", datosPso)
 
         # Obtén los resultados específicos que deseas mostrar
         # dataGBP = resultados['dataGBP']
@@ -146,8 +152,9 @@ def calcular_pso():
         # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
         return jsonify(datosPso)
     except Exception as e:
-        # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
-       print(f'Error en calcular_pso: {str(e)}')
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
     return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
 #-------------------------------------------------------------------------------------------------------------------
 
@@ -1976,4 +1983,8 @@ def publicacion():
 #     return send_from_directory(lastf.parent, lastf.name, as_attachment=True)
  
 if '__main__' == __name__:
-    app.run(port=5000, debug=True)
+    # Cambio para desarrllo
+    #app.run(port=5000, debug=True) 
+    # QA
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)

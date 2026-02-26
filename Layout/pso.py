@@ -217,7 +217,7 @@ async def ejecutar_pso(w, wwi, c1, c2, T, r1, r2, username: str):
                 #print("CPtt",CPtt)
                 #print("Vt12",round((Vt12),3))
                 
-                GBPtt=float(GBP.loc[GBP12])
+                GBPtt = float(GBP.iat[GBP12, i])
                 #rr2=float(r2.iat[tr12])
                 rr2=float(r2[i])
                 #print("c2",c2)

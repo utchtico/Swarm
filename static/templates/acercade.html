@@ -7,7 +7,9 @@
   <title>About</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/index.css">
+  <link rel="stylesheet" href="/static/css/card.css">
 
 </head>
 
@@ -18,16 +20,16 @@
       <span class="hamburger" aria-hidden="true"></span>
     </button>
 
-        {% set role = session.get('role') %}
-<ul id="menu" class="menu">
+    {% set role = session.get('role') %}
+    <ul id="menu" class="menu">
       <li><a href="/">Inicio</a></li>
-      <li><a href="/casoexperimental">Caso Experimental</a></li>
+      <li><a href="/casoexperimental">Casos</a></li>
       <li><a href="/topsis">MCDM</a></li>
       <li><a href="/pso">PSO</a></li>
       <li><a href="/ba">BA</a></li>
       <li><a href="/aco">ACO</a></li>
-            <!-- <li><a href="#" class="soon" aria-disabled="true" hidden="true" data-tip="Próximamente">ABA</a></li> -->
-            <li><a href="/comparacionGeneral">Comparación</a></li>
+      <!-- <li><a href="#" class="soon" aria-disabled="true" hidden="true" data-tip="Próximamente">ABA</a></li> -->
+      <li><a href="/comparacionGeneral">Comparación</a></li>
       <li><a href="/acercade">Acerca De</a></li>
       <li><a href="/publicaciones">Publicaciones</a></li>
       <li class="user-menu">
@@ -40,17 +42,17 @@
         </button>
 
         <ul id="user-dropdown" class="user-dropdown" role="menu">
-                    <li role="none">
-                        {% if role in ('admin','superadmin') %}
+          <li role="none">
+            {% if role in ('admin','superadmin') %}
 
-                        <a role="menuitem" href="/articulos">Articulos</a>
-                        {% endif %}
+            <a role="menuitem" href="/articulos">Articulos</a>
+            {% endif %}
 
-                        <form action="/logout" method="POST">
-                            <a role="menuitem" href="/logout">Salir</a>
-                        </form>
-                    </li>
-                </ul>
+            <form action="/logout" method="POST">
+              <a role="menuitem" href="/logout">Salir</a>
+            </form>
+          </li>
+        </ul>
       </li>
     </ul>
   </nav>
@@ -141,193 +143,325 @@
   </div>
 
   </h3>
-  <h1 class="font-semibold text-2xl text-center mt-10 mb-8">
-    Investigadores
-  </h1>
-  <div class="border-t-2 border-gray-300 my-8 mx-96"></div>
-  <div class="flex justify-center grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-    <!-- Card para cada persona -->
-    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
-      <h2 class="text-lg font-semibold mb-2">
-        M.I.S.C. Dynhora Danheyda Ramírez Ochoa
-      </h2>
-      <span class="text-gray-600 mb-2">Conceptualización, Conceptualización, Metodología</span>
-      <span class="text-gray-600 mb-2">Investigación, Curación de datos, Análisis formal</span>
-      <span class="text-gray-600 mb-2">Visualización, Redacción(borrador original), Software(Backend)</span>
-      <div class="flex items-center justify-center space-x-4">
-        <!-- Iconos de redes sociales -->
-        <a href="https://www.linkedin.com/in/dynhora-danheyda-ram%C3%ADrez-ochoa-86b0733a"
-          class="text-gray-600 hover:text-gray-900 text-3xl">
-          <i class="fab fa-linkedin"></i>
-        </a>
-        <a href="https://scholar.google.com/citations?user=4HAFFT0AAAAJ&hl=es&oi=ao"
-          class="text-gray-600 hover:text-gray-900 text-3xl">
-          <i class="fab fa-google"></i>
-        </a>
-        <a href="https://orcid.org/0000-0002-1326-908X" class="text-gray-600 hover:text-gray-900 text-3xl">
-          <i class="fab fa-orcid"></i>
-        </a>
+  <section class="px-6 py-12">
+    <!-- Título -->
+    <h1 class="font-bold text-3xl text-center text-gray-800 mb-4">
+      Investigadores
+    </h1>
+
+    <!-- Línea decorativa -->
+    <div class="border-t-2 border-gray-300 w-32 mx-auto mb-12"></div>
+
+    <!-- Directora principal -->
+    <section id="members-section" class="members-section">
+      <div class="members-container">
+        <!-- Card principal -->
+        <div class="members-featured">
+          <article class="member-card member-card-featured">
+            <div class="member-card-preview">
+              <div class="member-image-wrapper member-image-wrapper-featured">
+                <img src="static\img\Dr Dynhora.jpeg" alt="Dra. Dynhora Danheyda Ramírez Ochoa" class="member-image">
+              </div>
+
+              <h3 class="member-name member-name-featured">
+                Dra. Dynhora Danheyda Ramírez Ochoa
+              </h3>
+
+              <p class="member-role">Investigadora principal</p>
+            </div>
+
+            <div class="member-details">
+              <div class="member-details-inner">
+                <h4>Aportaciones</h4>
+                <p>Conceptualización, Metodología</p>
+                <p>Investigación, Curación de datos, Análisis formal</p>
+                <p>Visualización, Redacción (borrador original), Software (Backend)</p>
+
+                <div class="member-links">
+                  <a href="https://www.linkedin.com/in/dynhora-danheyda-ram%C3%ADrez-ochoa-86b0733a" target="_blank"
+                    class="member-link linkedin" aria-label="LinkedIn">
+                    <i class="bx bxl-linkedin-square"></i>
+                  </a>
+
+                  <a href="https://scholar.google.com/citations?user=4HAFFT0AAAAJ&hl=es&oi=ao" target="_blank"
+                    class="member-link scholar" aria-label="Google Scholar">
+                    <i class="bx bxl-google"></i>
+                  </a>
+
+                  <a href="https://orcid.org/0000-0002-1326-908X" target="_blank" class="member-link orcid"
+                    aria-label="ORCID">
+                    <i class="bx bx-link-external"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+        <div class="members-grid">
+          <!-- Erwin -->
+          <article class="member-card">
+            <div class="member-card-preview">
+              <div class="member-image-wrapper">
+                <img src="static\img\Dr Erwin.jpeg" alt="Dr. Erwin Adán Martínez Gómez" class="member-image">
+              </div>
+
+              <h3 class="member-name">Dr. Erwin Adán Martínez Gómez</h3>
+            </div>
+
+            <div class="member-details">
+              <div class="member-details-inner">
+                <h4>Aportaciones</h4>
+                <p>Conceptualización, Metodología, Supervisión</p>
+                <p>Redacción (revisión y edición), Validación</p>
+
+                <div class="member-links">
+                  <a href="https://orcid.org/0000-0002-7753-2545" target="_blank" class="member-link orcid"
+                    aria-label="ORCID">
+                    <i class="bx bx-link-external"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- David -->
+          <article class="member-card">
+            <div class="member-card-preview">
+              <div class="member-image-wrapper">
+                <img src="static\img\Dr Luviano.jpeg" alt="Dr. David Luviano Cruz" class="member-image">
+              </div>
+
+              <h3 class="member-name">Dr. David Luviano Cruz</h3>
+            </div>
+
+            <div class="member-details">
+              <div class="member-details-inner">
+                <h4>Aportaciones</h4>
+                <p>Redacción (revisión y edición)</p>
+
+                <div class="member-links">
+                  <a href="https://scholar.google.com/citations?user=0D99frMAAAAJ&hl=es&oi=ao" target="_blank"
+                    class="member-link scholar" aria-label="Google Scholar">
+                    <i class="bx bxl-google"></i>
+                  </a>
+
+                  <a href="https://orcid.org/0000-0002-4778-8873" target="_blank" class="member-link orcid"
+                    aria-label="ORCID">
+                    <i class="bx bx-link-external"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Luis -->
+          <article class="member-card">
+            <div class="member-card-preview">
+              <div class="member-image-wrapper">
+                <img src="static\img\Dr Luis.jpeg" alt="Dr. Luis Asunción Pérez Domínguez" class="member-image">
+              </div>
+
+              <h3 class="member-name">Dr. Luis Asunción Pérez Domínguez</h3>
+            </div>
+
+            <div class="member-details">
+              <div class="member-details-inner">
+                <h4>Aportaciones</h4>
+                <p>Conceptualización, Metodología, Supervisión</p>
+                <p>Administración del proyecto</p>
+                <p>Redacción (revisión y edición)</p>
+                <p>Adquisición de financiación y recursos</p>
+                <p>Evaluación de experimentos, Validación</p>
+
+                <div class="member-links">
+                  <a href="https://www.linkedin.com/in/luis-p%C3%A9rez-dom%C3%ADnguez-15228432" target="_blank"
+                    class="member-link linkedin" aria-label="LinkedIn">
+                    <i class="bx bxl-linkedin-square"></i>
+                  </a>
+
+                  <a href="https://scholar.google.com/citations?hl=es&user=iuXlWr4AAAAJ&view_op=list_works&sortby=pubdate"
+                    target="_blank" class="member-link scholar" aria-label="Google Scholar">
+                    <i class="bx bxl-google"></i>
+                  </a>
+
+                  <a href="https://orcid.org/0000-0003-2541-4595" target="_blank" class="member-link orcid"
+                    aria-label="ORCID">
+                    <i class="bx bx-link-external"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Linda -->
+          <article class="member-card">
+            <div class="member-card-preview">
+              <div class="member-image-wrapper">
+                <img src="static\img\Dra Linda.jpeg" alt="Dra. Linda Lucia Landeros Martinez" class="member-image">
+              </div>
+
+              <h3 class="member-name">Dra. Linda Lucia Landeros Martinez</h3>
+            </div>
+
+            <div class="member-details">
+              <div class="member-details-inner">
+                <h4>Aportaciones</h4>
+                <p>Supervisión</p>
+                <p>Validación de datos</p>
+                <p>Redacción (revisión y edición)</p>
+
+                <div class="member-links">
+                  <a href="https://www.linkedin.com/in/linda-lucila-landeros-martinez-7a845b225?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app"
+                    target="_blank" class="member-link linkedin" aria-label="LinkedIn">
+                    <i class="bx bxl-linkedin-square"></i>
+                  </a>
+
+                  <a href="https://orcid.org/0000-0002-7240-1458" target="_blank" class="member-link orcid"
+                    aria-label="ORCID">
+                    <i class="bx bx-link-external"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
       </div>
-    </div>
-  </div>
-  <div class="flex justify-center grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-10">
-    <!-- Card para cada persona -->
-    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
-      <h2 class="text-lg font-semibold mb-2">
-        Dr. Luis Asunción Pérez Domínguez
-      </h2>
-      <span class="text-gray-600 mb-2">Conceptualización, Metodología, Supervisión</span>
-      <span class="text-gray-600 mb-2">Administración del proyecto</span>
-      <span class="text-gray-600 mb-2">Supervisión, Redacción (revisión y edición)</span>
-      <span class="text-gray-600 mb-2">Adquisición de financiación y recursos</span>
-      <span class="text-gray-600 mb-2"> Evaluación de Experiments, Validación</span>
-      <div class="flex items-center justify-center space-x-4">
-        <!-- Iconos de redes sociales -->
-        <a href="https://www.linkedin.com/in/luis-p%C3%A9rez-dom%C3%ADnguez-15228432"
-          class="text-gray-600 hover:text-gray-900 text-3xl">
-          <i class="fab fa-linkedin"></i>
-        </a>
-        <a href="https://scholar.google.com/citations?hl=es&user=iuXlWr4AAAAJ&view_op=list_works&sortby=pubdate"
-          class="text-gray-600 hover:text-gray-900 text-3xl">
-          <i class="fab fa-google"></i>
-        </a>
-        <a href="https://orcid.org/0000-0003-2541-4595" class="text-gray-600 hover:text-gray-900 text-3xl">
-          <i class="fab fa-orcid"></i>
-        </a>
-      </div>
-    </div>
-    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
-      <h2 class="text-lg font-semibold mb-2">
-        Dr. Erwin Adán Martínez Gómez
-      </h2>
-      <span class="text-gray-600 mb-2">Conceptualización, Metodología, Supervisión</span>
-      <span class="text-gray-600 mb-2">Redacción (revisión y edición), Validación</span>
-      <div class="flex items-center justify-center space-x-4">
-        <!-- Iconos de redes sociales -->
-        <a href="https://orcid.org/0000-0002-7753-2545" class="text-gray-600 hover:text-gray-900 text-3xl">
-          <i class="fab fa-orcid"></i>
-        </a>
-      </div>
-    </div>
+    </section>
+  </section>
 
   </div>
-  <div class="flex justify-center grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-10">
-    <!-- Card para cada persona -->
-    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
-      <h2 class="text-lg font-semibold mb-2">
-        Dr. David Luviano Cruz
-      </h2>
-      <span class="text-gray-600 mb-2">Redacción (revisión y edición) </span>
-      <div class="flex items-center justify-center space-x-4">
-        <!-- Iconos de redes sociales -->
-        <a href="https://scholar.google.com/citations?user=0D99frMAAAAJ&hl=es&oi=ao"
-          class="text-gray-600 hover:text-gray-900 text-3xl">
-          <i class="fab fa-google"></i>
-        </a>
-        <a href="https://orcid.org/0000-0002-4778-8873" class="text-gray-600 hover:text-gray-900 text-3xl">
-          <i class="fab fa-orcid"></i>
-        </a>
+  <!-- Sección Frontend -->
+  <section class="team-section">
+    <div class="team-container">
+      <h1 class="team-title">Frontend</h1>
+      <div class="team-divider"></div>
+
+      <!-- Líder / card principal -->
+      <div class="team-featured">
+        <article class="team-card team-card-featured">
+          <div class="team-card-preview">
+            <div class="team-image-wrapper team-image-wrapper-featured">
+              <img src="static\img\Ing Isai.jpeg" alt="Ing. Abraham Isaí García Piñón" class="team-image" />
+            </div>
+
+
+            <h2 class="team-name team-name-featured">
+              Ing. Abraham Isaí García Piñón
+            </h2>
+
+            <span class="team-period">Líder de desarrollo Frontend e integración</span>
+            <span class="team-period">Sep 2023 — Actualidad</span>
+
+            <div class="team-links">
+              <a href="https://www.linkedin.com/in/abraham-isaí-garcía-2306b7265/" target="_blank"
+                class="team-link linkedin" aria-label="LinkedIn">
+                <i class="bx bxl-linkedin-square"></i>
+              </a>
+              <a href="https://github.com/IsaiGp96" target="_blank" class="team-link github" aria-label="GitHub">
+                <i class="bx bxl-github"></i>
+              </a>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Resto del equipo -->
+      <div class="team-grid">
+
+        <article class="team-card">
+          <div class="team-card-preview">
+            <div class="team-image-wrapper">
+              <img src="static\img\raul.jpeg" alt="I.D.S.M. Raúl Aguirre" class="team-image" />
+            </div>
+
+            <h2 class="team-name">I.D.S.M. Raúl Aguirre</h2>
+            <span class="team-period">Desarrollo Frontend</span>
+            <span class="team-period">Nov 2021 — May 2022</span>
+
+            <div class="team-links">
+              <a href="https://www.linkedin.com/in/raul-hermosillo" target="_blank" class="team-link linkedin"
+                aria-label="LinkedIn">
+                <i class="bx bxl-linkedin-square"></i>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <article class="team-card">
+          <div class="team-card-preview">
+            <div class="team-image-wrapper">
+              <img src="static\img\Dr Alfonso.jpeg" alt="Dr. Alfonso Barroso Barajas" class="team-image" />
+            </div>
+
+            <h2 class="team-name">
+              Dr. Alfonso Barroso Barajas
+            </h2>
+            <span class="team-period">Consultor tecnológico</span>
+            <span class="team-period">Nov 2021 — A la fecha</span>
+
+            <div class="team-links">
+              <a href="https://www.linkedin.com/in/alfonso-jos%C3%A9-barroso-barajas-9030541aa" target="_blank"
+                class="team-link linkedin" aria-label="LinkedIn">
+                <i class="bx bxl-linkedin-square"></i>
+              </a>
+              <a href="https://github.com/alfonsobarrosobarajas/" target="_blank" class="team-link github"
+                aria-label="GitHub">
+                <i class="bx bxl-github"></i>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <article class="team-card">
+          <div class="team-card-preview">
+            <div class="team-image-wrapper">
+              <img src="static\icons\avatar.png" alt="Ing. Alan Enrique Rodriguez Fernandez" class="team-image" />
+            </div>
+
+            <h2 class="team-name">Ing. Alan Enrique Rodriguez Fernandez</h2>
+            <span class="team-period">Desarrollo Frontend</span>
+
+            <span class="team-period">Nov 2023 — Actualidad</span>
+
+            <div class="team-links">
+              <a href="https://www.linkedin.com/in/alan-rodriguez-146a62280/" target="_blank" class="team-link linkedin"
+                aria-label="LinkedIn">
+                <i class="bx bxl-linkedin-square"></i>
+              </a>
+              <a href="https://github.com/AlanRod7" target="_blank" class="team-link github" aria-label="GitHub">
+                <i class="bx bxl-github"></i>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <article class="team-card">
+          <div class="team-card-preview">
+            <div class="team-image-wrapper">
+              <img src="static\img\Ing Cesar.jpeg" alt="Ing. César Armando Marines Licón" class="team-image" />
+            </div>
+
+            <h2 class="team-name">Ing. César Armando Marines Licón</h2>
+            <span class="team-period">Desarrollo Frontend</span>
+
+            <span class="team-period">Sep 2023 — Actualidad</span>
+
+            <div class="team-links">
+              <a href="https://www.linkedin.com/in/cmarines/" target="_blank" class="team-link linkedin"
+                aria-label="LinkedIn">
+                <i class="bx bxl-linkedin-square"></i>
+              </a>
+              <a href="https://github.com/Commmodore64" target="_blank" class="team-link github" aria-label="GitHub">
+                <i class="bx bxl-github"></i>
+              </a>
+            </div>
+          </div>
+        </article>
+
       </div>
     </div>
-    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
-      <h2 class="text-lg font-semibold mb-2">
-        Dr. Iván Juan Carlos Pérez Olguín
-      </h2>
-      <span class="text-gray-600 mb-2">Redacción (revisión y edición) </span>
-      <div class="flex items-center justify-center space-x-4">
-        <!-- Iconos de redes sociales -->
-        <a href="https://scholar.google.com/citations?user=Jj0ZeoQAAAAJ&hl=es&oi=ao"
-          class="text-gray-600 hover:text-gray-900 text-3xl">
-          <i class="fab fa-google"></i>
-        </a>
-        <a href="https://orcid.org/0000-0003-2445-0500" class="text-gray-600 hover:text-gray-900 text-3xl">
-          <i class="fab fa-orcid"></i>
-        </a>
-      </div>
-    </div>
-    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
-      <h2 class="text-lg font-semibold mb-2">
-        Dra. Linda Lucila Lucero Landeros Martínez
-      </h2>
-      <span class="text-gray-600 mb-2">Validación, Redacción (revisión y edición)</span>
-      <div class="flex items-center justify-center space-x-4">
-        <!-- Iconos de redes sociales -->
-        <a href="https://scholar.google.com/citations?user=eK2n0UgAAAAJ&hl=es&oi=ao"
-          class="text-gray-600 hover:text-gray-900 text-3xl">
-          <i class="fab fa-google"></i>
-        </a>
-        <a href="https://orcid.org/0000-0002-7240-1458" class="text-gray-600 hover:text-gray-900 text-3xl">
-          <i class="fab fa-orcid"></i>
-        </a>
-      </div>
-    </div>
-  </div>
-  <!-- Sección para el equipo Backend -->
-  <h1 class="font-semibold text-2xl text-center mt-10 mb-8">Frontend</h1>
-  <div class="border-t-2 border-gray-300 my-8 mx-96"></div>
-  <div class="p-5 flex justify-center grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-    <!-- Aquí van las tarjetas del equipo Backend -->
-    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
-      <h2 class="text-lg font-semibold mb-2">M.S.I. Alfonso Barroso</h2>
-      <span class="text-gray-600 mb-2">(Nov 2022-a la fecha)</span>
-      <!-- Otros detalles -->
-      <div class="flex items-center justify-center space-x-4">
-        <!-- Iconos de redes sociales -->
-        <a href="https://www.linkedin.com/in/alfonso-jos%C3%A9-barroso-barajas-9030541aa"
-          class="text-gray-600 hover:text-gray-900 text-3xl"><i class="fab fa-linkedin"></i></a>
-        <a href="https://github.com/alfonsobarrosobarajas/" class="text-gray-600 hover:text-gray-900 text-3xl"><i
-            class="fab fa-github"></i></a>
-      </div>
-    </div>
-    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
-      <h2 class="text-lg font-semibold mb-2">I.D.S.M. Raúl Aguirre</h2>
-      <span class="text-gray-600 mb-2">(Nov-May 2022)</span>
-      <!-- Otros detalles -->
-      <div class="flex items-center justify-center space-x-4">
-        <!-- Iconos de redes sociales -->
-        <a href="https://www.linkedin.com/in/raul-hermosillo" class="text-gray-600 hover:text-gray-900 text-3xl"><i
-            class="fab fa-linkedin"></i></a>
-      </div>
-    </div>
-    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
-      <h2 class="text-lg font-semibold mb-2">Abraham Isaí García Piñón</h2>
-      <span class="text-gray-600 mb-2">(Sep 2023- a la fecha)</span>
-      <!-- Otros detalles -->
-      <div class="flex items-center justify-center space-x-4">
-        <!-- Iconos de redes sociales -->
-        <a href="https://www.linkedin.com/in/abraham-isaí-garcía-2306b7265/"
-          class="text-gray-600 hover:text-gray-900 text-3xl"><i class="fab fa-linkedin"></i></a>
-        <a href="https://github.com/IsaiGp96" class="text-gray-600 hover:text-gray-900 text-3xl"><i
-            class="fab fa-github"></i></a>
-      </div>
-    </div>
-    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
-      <h2 class="text-lg font-semibold mb-2">
-        Alan Enrique Rodriguez Fernandez
-      </h2>
-      <span class="text-gray-600 mb-2">(Nov 2023-a la fecha)</span>
-      <!-- Otros detalles -->
-      <div class="flex items-center justify-center space-x-4">
-        <!-- Iconos de redes sociales -->
-        <a href="https://www.linkedin.com/in/alan-rodriguez-146a62280/"
-          class="text-gray-600 hover:text-gray-900 text-3xl"><i class="fab fa-linkedin"></i></a>
-        <a href="https://github.com/AlanRod7" class="text-gray-600 hover:text-gray-900 text-3xl"><i
-            class="fab fa-github"></i></a>
-      </div>
-    </div>
-    <div class="bg-white shadow-md rounded-lg p-10 flex flex-col items-center justify-center">
-      <h2 class="text-lg font-semibold mb-2">César Armando Marines Licón</h2>
-      <span class="text-gray-600 mb-2">(Nov 2023-a la fecha)</span>
-      <!-- Otros detalles -->
-      <div class="flex items-center justify-center space-x-4">
-        <!-- Iconos de redes sociales -->
-        <a href="https://www.linkedin.com/in/cmarines/" class="text-gray-600 hover:text-gray-900 text-3xl"><i
-            class="fab fa-linkedin"></i></a>
-        <a href="https://github.com/Commmodore64" class="text-gray-600 hover:text-gray-900 text-3xl"><i
-            class="fab fa-github"></i></a>
-      </div>
-    </div>
-  </div>
+  </section>
+  <script src="static\js\card.js"></script>
   <script>
     (function () {
       const nav = document.querySelector('.navbar-principal');

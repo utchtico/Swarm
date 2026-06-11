@@ -26,21 +26,21 @@ from numpy import ndarray
 from openpyxl import load_workbook
 
 #importacion de algoritmos
-from Layout.aco import ejecutar_aco
-from Layout.ba import ejecutar_ba
-from Layout.da import ejecutar_da
-from Layout.daaco import ejecutar_daaco
-from Layout.daba import ejecutar_daba
-from Layout.dapso import ejecutar_dapso
-from Layout.mooraaco import ejecutar_mooraaco
-from Layout.mooraba import ejecutar_mooraba
-from Layout.moorapso import ejecutar_moorapso
-from Layout.moorav import ejecutar_moorav
 from Layout.pso import ejecutar_pso
-from Layout.topsis import ejecutar_topsis
-from Layout.topsisaco import ejecutar_topsisaco
-from Layout.topsisba import ejecutar_topsisba
-from Layout.topsispso import ejecutar_topsispso
+# from Layout.aco import ejecutar_aco
+# from Layout.ba import ejecutar_ba
+# from Layout.da import ejecutar_da
+# from Layout.daaco import ejecutar_daaco
+# from Layout.daba import ejecutar_daba
+# from Layout.dapso import ejecutar_dapso
+# from Layout.mooraaco import ejecutar_mooraaco
+# from Layout.mooraba import ejecutar_mooraba
+# from Layout.moorapso import ejecutar_moorapso
+# from Layout.moorav import ejecutar_moorav
+# from Layout.topsis import ejecutar_topsis
+# from Layout.topsisaco import ejecutar_topsisaco
+# from Layout.topsisba import ejecutar_topsisba
+# from Layout.topsispso import ejecutar_topsispso
 
 # ----------- BASE DE DATOS: CONFIGURACIÓN ROBUSTA -----------
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -159,539 +159,546 @@ def calcular_pso():
 #-------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------
-@app.route('/dapso')
-@roles_required('user','admin', 'superadmin')
-def dapso():
-    try:
-        # Obtener los datos del formulario
-        w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        wwi = float(request.form['wwi'])
-        c1 = float(request.form['c1'])
-        c2 = float(request.form['c2'])
-        T = int(request.form['T'])
-        r1_input = request.form['r1']
-        r2_input = request.form['r2']
-        r1 = [float(num.strip()) for num in r1_input.split(',')]
-        r2 = [float(num.strip()) for num in r2_input.split(',')]
+
+# @app.route('/dapso')
+# @roles_required('user','admin', 'superadmin')
+# def dapso():
+#     try:
+#         # Obtener los datos del formulario
+#         w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         wwi = float(request.form['wwi'])
+#         c1 = float(request.form['c1'])
+#         c2 = float(request.form['c2'])
+#         T = int(request.form['T'])
+#         r1_input = request.form['r1']
+#         r2_input = request.form['r2']
+#         r1 = [float(num.strip()) for num in r1_input.split(',')]
+#         r2 = [float(num.strip()) for num in r2_input.split(',')]
         
-        # Llamar a la función de procesar_datos en pso.py
-        datosDapso = asyncio.run(ejecutar_dapso(w, wwi, c1, c2, T, r1, r2))
+#         # Llamar a la función de procesar_datos en pso.py
+#         datosDapso = asyncio.run(ejecutar_dapso(w, wwi, c1, c2, T, r1, r2))
 
-        return render_template('dapso.html', datosDapso=datosDapso)
-    except Exception as e:
-        return render_template('dapso.html', error_message=str(e))
+#         return render_template('dapso.html', datosDapso=datosDapso)
+#     except Exception as e:
+#         return render_template('dapso.html', error_message=str(e))
 
-@app.route('/dapso', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_dapso():
-    uid = session.get('user_id')  # <-- string key, NO lista
-    if uid:
-        user = db.session.get(User, uid)   # SQLAlchemy 2.x
-        if user:
-            usuario = user.username
-    try:
-        # Obtén los datos del formulario
-        w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        wwi = float(request.form['wwi'])
-        c1 = float(request.form['c1'])
-        c2 = float(request.form['c2'])
-        T = int(request.form['T'])
-        # Divide las cadenas de texto en listas
-        r1_input = request.form['r1']
-        r2_input = request.form['r2']
-        r1 = [float(num.strip()) for num in r1_input.split(',')]
-        r2 = [float(num.strip()) for num in r2_input.split(',')]
+# @app.route('/dapso', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_dapso():
+#     uid = session.get('user_id')  # <-- string key, NO lista
+#     if uid:
+#         user = db.session.get(User, uid)   # SQLAlchemy 2.x
+#         if user:
+#             usuario = user.username
+#     try:
+#         # Obtén los datos del formulario
+#         w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         wwi = float(request.form['wwi'])
+#         c1 = float(request.form['c1'])
+#         c2 = float(request.form['c2'])
+#         T = int(request.form['T'])
+#         # Divide las cadenas de texto en listas
+#         r1_input = request.form['r1']
+#         r2_input = request.form['r2']
+#         r1 = [float(num.strip()) for num in r1_input.split(',')]
+#         r2 = [float(num.strip()) for num in r2_input.split(',')]
 
-        # Llama a la función de PSO en pso.py
-        datosDapso = asyncio.run(ejecutar_dapso(w, wwi, c1, c2, T, r1, r2, usuario))
-        print("Resultados de la ejecución:", datosDapso)
+#         # Llama a la función de PSO en pso.py
+#         datosDapso = asyncio.run(ejecutar_dapso(w, wwi, c1, c2, T, r1, r2, usuario))
+#         print("Resultados de la ejecución:", datosDapso)
 
-        # Obtén los resultados específicos que deseas mostrar
-        # dataGBP = resultados['dataGBP']
-        # dataGBF = resultados['dataGBF']
-        # dataResult = resultados['dataResult']
+#         # Obtén los resultados específicos que deseas mostrar
+#         # dataGBP = resultados['dataGBP']
+#         # dataGBF = resultados['dataGBF']
+#         # dataResult = resultados['dataResult']
 
-        # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
-        return jsonify(datosDapso)
-    except Exception as e:
-        # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
-        print(f'Error en calcular_dapso: {str(e)}')
-    return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+#         # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
+#         return jsonify(datosDapso)
+#     except Exception as e:
+#         # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
+#         print(f'Error en calcular_dapso: {str(e)}')
+#     return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
 
 #-------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------
 
-@app.route('/moorapso', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_moorapso():
-    uid = session.get('user_id')  # <-- string key, NO lista
-    if uid:
-        user = db.session.get(User, uid)   # SQLAlchemy 2.x
-        if user:
-            usuario = user.username
-    try:
-        # Obtén los datos del formulario
-        w_input = [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        wwi = float(request.form['wwi'])
-        c1 = float(request.form['c1'])
-        c2 = float(request.form['c2'])
-        T = int(request.form['T'])
-        # Divide las cadenas de texto en listas
-        r1_input = request.form['r1']
-        r2_input = request.form['r2']
-        r1 = [float(num.strip()) for num in r1_input.split(',')]
-        r2 = [float(num.strip()) for num in r2_input.split(',')]
+# @app.route('/moorapso', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_moorapso():
+#     uid = session.get('user_id')  # <-- string key, NO lista
+#     if uid:
+#         user = db.session.get(User, uid)   # SQLAlchemy 2.x
+#         if user:
+#             usuario = user.username
+#     try:
+#         # Obtén los datos del formulario
+#         w_input = [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         wwi = float(request.form['wwi'])
+#         c1 = float(request.form['c1'])
+#         c2 = float(request.form['c2'])
+#         T = int(request.form['T'])
+#         # Divide las cadenas de texto en listas
+#         r1_input = request.form['r1']
+#         r2_input = request.form['r2']
+#         r1 = [float(num.strip()) for num in r1_input.split(',')]
+#         r2 = [float(num.strip()) for num in r2_input.split(',')]
 
-        # Llama a la función de PSO en pso.py
-        datosMoorapso = asyncio.run(ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2, usuario))
-        print("Resultados de la ejecución:", datosMoorapso)
+#         # Llama a la función de PSO en pso.py
+#         datosMoorapso = asyncio.run(ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2, usuario))
+#         print("Resultados de la ejecución:", datosMoorapso)
 
-        # Obtén los resultados específicos que deseas mostrar
-        # dataGBP = resultados['dataGBP']
-        # dataGBF = resultados['dataGBF']
-        # dataResult = resultados['dataResult']
+#         # Obtén los resultados específicos que deseas mostrar
+#         # dataGBP = resultados['dataGBP']
+#         # dataGBF = resultados['dataGBF']
+#         # dataResult = resultados['dataResult']
 
-        # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
-        return jsonify(datosMoorapso)
-    except Exception as e:
-        # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
-       print(f'Error en calcular_moorapso: {str(e)}')
-    return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+#         # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
+#         return jsonify(datosMoorapso)
+#     except Exception as e:
+#         # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
+#        print(f'Error en calcular_moorapso: {str(e)}')
+#     return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
 
 
-@app.route('/moorapso')
-@roles_required('user','admin', 'superadmin')
-def moorapso():
-    try:
-        # Obtén los datos del formulario
-        w_input = [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        wwi = float(request.form['wwi'])
-        c1 = float(request.form['c1'])
-        c2 = float(request.form['c2'])
-        T = int(request.form['T'])
-        r1_input = request.form['r1']
-        r2_input = request.form['r2']
-        r1 = [float(num.strip()) for num in r1_input.split(',')]
-        r2 = [float(num.strip()) for num in r2_input.split(',')]
+# @app.route('/moorapso')
+# @roles_required('user','admin', 'superadmin')
+# def moorapso():
+#     try:
+#         # Obtén los datos del formulario
+#         w_input = [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         wwi = float(request.form['wwi'])
+#         c1 = float(request.form['c1'])
+#         c2 = float(request.form['c2'])
+#         T = int(request.form['T'])
+#         r1_input = request.form['r1']
+#         r2_input = request.form['r2']
+#         r1 = [float(num.strip()) for num in r1_input.split(',')]
+#         r2 = [float(num.strip()) for num in r2_input.split(',')]
         
-        # Llama a la función de procesar_datos en pso.py
-        datosMoorapso = asyncio.run(ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2))
+#         # Llama a la función de procesar_datos en pso.py
+#         datosMoorapso = asyncio.run(ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2))
 
-        return render_template('moorapso.html', datosMoorapso=datosMoorapso)
-    except Exception as e:
-        return render_template('moorapso.html', error_message=str(e))
+#         return render_template('moorapso.html', datosMoorapso=datosMoorapso)
+#     except Exception as e:
+#         return render_template('moorapso.html', error_message=str(e))
     
-    #-------------------------------------------------------------------------------------------------------------------
+#     #-------------------------------------------------------------------------------------------------------------------
 
-    #-------------------------------------------------------------------------------------------------------------------
+#     #-------------------------------------------------------------------------------------------------------------------
 
-@app.route('/topsispso')
-@roles_required('user','admin', 'superadmin')
-def topsispso():
-     try:
-        # Obtén los datos del formulario
-        w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        wwi = float(request.form['wwi'])
-        c1 = float(request.form['c1'])
-        c2 = float(request.form['c2'])
-        T = int(request.form['T'])
-        r1_input = request.form['r1']
-        r2_input = request.form['r2']
-        r1 = [float(num.strip()) for num in r1_input.split(',')]
-        r2 = [float(num.strip()) for num in r2_input.split(',')]
+# @app.route('/topsispso')
+# @roles_required('user','admin', 'superadmin')
+# def topsispso():
+#      try:
+#         # Obtén los datos del formulario
+#         w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         wwi = float(request.form['wwi'])
+#         c1 = float(request.form['c1'])
+#         c2 = float(request.form['c2'])
+#         T = int(request.form['T'])
+#         r1_input = request.form['r1']
+#         r2_input = request.form['r2']
+#         r1 = [float(num.strip()) for num in r1_input.split(',')]
+#         r2 = [float(num.strip()) for num in r2_input.split(',')]
         
-        # Llama a la función de procesar_datos en pso.py
-        datosTopsispso = asyncio.run(ejecutar_topsispso(w, wwi, c1, c2, T, r1, r2))
+#         # Llama a la función de procesar_datos en pso.py
+#         datosTopsispso = asyncio.run(ejecutar_topsispso(w, wwi, c1, c2, T, r1, r2))
 
-        return render_template('topsispso.html', datosTopsispso=datosTopsispso)
-     except Exception as e:
-        return render_template('topsispso.html', error_message=str(e))
+#         return render_template('topsispso.html', datosTopsispso=datosTopsispso)
+#      except Exception as e:
+#         return render_template('topsispso.html', error_message=str(e))
 
-@app.route('/topsispso', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_topsispso():
-    uid = session.get('user_id')  # <-- string key, NO lista
-    if uid:
-        user = db.session.get(User, uid)   # SQLAlchemy 2.x
-        if user:
-            usuario = user.username
-    try:
-    # Obtén los datos del formulario
-        w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        wwi = float(request.form['wwi'])
-        c1 = float(request.form['c1'])
-        c2 = float(request.form['c2'])
-        T = int(request.form['T'])
-        # Divide las cadenas de texto en listas
-        r1_input = request.form['r1']
-        r2_input = request.form['r2']
-        r1 = [float(num.strip()) for num in r1_input.split(',')]
-        r2 = [float(num.strip()) for num in r2_input.split(',')]
+# @app.route('/topsispso', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_topsispso():
+#     uid = session.get('user_id')  # <-- string key, NO lista
+#     if uid:
+#         user = db.session.get(User, uid)   # SQLAlchemy 2.x
+#         if user:
+#             usuario = user.username
+#     try:
+#     # Obtén los datos del formulario
+#         w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         wwi = float(request.form['wwi'])
+#         c1 = float(request.form['c1'])
+#         c2 = float(request.form['c2'])
+#         T = int(request.form['T'])
+#         # Divide las cadenas de texto en listas
+#         r1_input = request.form['r1']
+#         r2_input = request.form['r2']
+#         r1 = [float(num.strip()) for num in r1_input.split(',')]
+#         r2 = [float(num.strip()) for num in r2_input.split(',')]
 
-        # Llama a la función de PSO en pso.py
-        datosTopsispso = asyncio.run(ejecutar_topsispso(w, wwi, c1, c2, T, r1, r2, usuario))
-        print("Resultados de la ejecución:", datosTopsispso)
+#         # Llama a la función de PSO en pso.py
+#         datosTopsispso = asyncio.run(ejecutar_topsispso(w, wwi, c1, c2, T, r1, r2, usuario))
+#         print("Resultados de la ejecución:", datosTopsispso)
 
-        # Obtén los resultados específicos que deseas mostrar
-        # dataGBP = resultados['dataGBP']
-        # dataGBF = resultados['dataGBF']
-        # dataResult = resultados['dataResult']
+#         # Obtén los resultados específicos que deseas mostrar
+#         # dataGBP = resultados['dataGBP']
+#         # dataGBF = resultados['dataGBF']
+#         # dataResult = resultados['dataResult']
 
-        # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
-        return jsonify(datosTopsispso)
-    except Exception as e:
-        # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
-       print(f'Error en calcular_topsispso: {str(e)}')
-    return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
-
-#-------------------------------------------------------------------------------------------------------------------
+#         # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
+#         return jsonify(datosTopsispso)
+#     except Exception as e:
+#         # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
+#        print(f'Error en calcular_topsispso: {str(e)}')
+#     return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
 
 #-------------------------------------------------------------------------------------------------------------------
 
+#-------------------------------------------------------------------------------------------------------------------
 
-@app.route('/comparacion')
-@roles_required('user','admin', 'superadmin')
-def comparacionPura():
-    try:
-        # Obtén los datos del formulario
-        w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        wwi = float(request.form['wwi'])
-        c1 = float(request.form['c1'])
-        c2 = float(request.form['c2'])
-        T = int(request.form['T'])
-        r1_input = request.form['r1']
-        r2_input = request.form['r2']
-        r1 = [float(num.strip()) for num in r1_input.split(',')]
-        r2 = [float(num.strip()) for num in r2_input.split(',')]
+
+# @app.route('/comparacion')
+# @roles_required('user','admin', 'superadmin')
+# def comparacionPura():
+#     try:
+#         # Obtén los datos del formulario
+#         w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         wwi = float(request.form['wwi'])
+#         c1 = float(request.form['c1'])
+#         c2 = float(request.form['c2'])
+#         T = int(request.form['T'])
+#         r1_input = request.form['r1']
+#         r2_input = request.form['r2']
+#         r1 = [float(num.strip()) for num in r1_input.split(',')]
+#         r2 = [float(num.strip()) for num in r2_input.split(',')]
         
-        # Llama a la función de procesar_datos en pso.py
-        datosPso = asyncio.run(ejecutar_pso(w, wwi, c1, c2, T, r1, r2))
-        datosDapso = asyncio.run(ejecutar_dapso(w, wwi, c1, c2, T, r1, r2))
-        datosMoorapso = asyncio.run(ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2))
-        datosTopsispso = asyncio.run(ejecutar_topsispso(w, wwi, c1, c2, T, r1, r2))
+#         # Llama a la función de procesar_datos en pso.py
+#         datosPso = asyncio.run(ejecutar_pso(w, wwi, c1, c2, T, r1, r2))
+#         datosDapso = asyncio.run(ejecutar_dapso(w, wwi, c1, c2, T, r1, r2))
+#         datosMoorapso = asyncio.run(ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2))
+#         datosTopsispso = asyncio.run(ejecutar_topsispso(w, wwi, c1, c2, T, r1, r2))
 
-        return render_template('comparacion.html', datosPso=datosPso, datosDapso = datosDapso , datosMoorapso = datosMoorapso, datosTopsispso = datosTopsispso)
-    except Exception as e:
-        return render_template('comparacion.html', error_message=str(e))
+#         return render_template('comparacion.html', datosPso=datosPso, datosDapso = datosDapso , datosMoorapso = datosMoorapso, datosTopsispso = datosTopsispso)
+#     except Exception as e:
+#         return render_template('comparacion.html', error_message=str(e))
 
 
-@app.route('/comparacion', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_comparacionPura():
-    try:
-        # Obtén los datos del formulario
-        w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        wwi = float(request.form['wwi'])
-        c1 = float(request.form['c1'])
-        c2 = float(request.form['c2'])
-        T = int(request.form['T'])
-        # Divide las cadenas de texto en listas
-        r1_input = request.form['r1']
-        r2_input = request.form['r2']
-        r1 = [float(num.strip()) for num in r1_input.split(',')]
-        r2 = [float(num.strip()) for num in r2_input.split(',')]
+# @app.route('/comparacion', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_comparacionPura():
+#     try:
+#         # Obtén los datos del formulario
+#         w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         wwi = float(request.form['wwi'])
+#         c1 = float(request.form['c1'])
+#         c2 = float(request.form['c2'])
+#         T = int(request.form['T'])
+#         # Divide las cadenas de texto en listas
+#         r1_input = request.form['r1']
+#         r2_input = request.form['r2']
+#         r1 = [float(num.strip()) for num in r1_input.split(',')]
+#         r2 = [float(num.strip()) for num in r2_input.split(',')]
 
-        # Llama a la función de PSO en pso.py
-        datosPso = asyncio.run(ejecutar_pso(w, wwi, c1, c2, T, r1, r2))
-        datosDapso = asyncio.run(ejecutar_dapso(w, wwi, c1, c2, T, r1, r2))
-        datosMoorapso = asyncio.run(ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2))
-        datosTopsispso = asyncio.run(ejecutar_topsispso(w, wwi, c1, c2, T, r1, r2))
-        print("Resultados de la ejecución:", datosPso) 
-        print("Resultados de la ejecución:", datosDapso) 
-        print("Resultados de la ejecución:", datosMoorapso) 
-        print("Resultados de la ejecución:", datosTopsispso) 
+#         # Llama a la función de PSO en pso.py
+#         datosPso = asyncio.run(ejecutar_pso(w, wwi, c1, c2, T, r1, r2))
+#         datosDapso = asyncio.run(ejecutar_dapso(w, wwi, c1, c2, T, r1, r2))
+#         datosMoorapso = asyncio.run(ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2))
+#         datosTopsispso = asyncio.run(ejecutar_topsispso(w, wwi, c1, c2, T, r1, r2))
+#         print("Resultados de la ejecución:", datosPso) 
+#         print("Resultados de la ejecución:", datosDapso) 
+#         print("Resultados de la ejecución:", datosMoorapso) 
+#         print("Resultados de la ejecución:", datosTopsispso) 
 
-        # Obtén los resultados específicos que deseas mostrar
-        # dataGBP = resultados['dataGBP']
-        # dataGBF = resultados['dataGBF']
-        # dataResult = resultados['dataResult']
+#         # Obtén los resultados específicos que deseas mostrar
+#         # dataGBP = resultados['dataGBP']
+#         # dataGBF = resultados['dataGBF']
+#         # dataResult = resultados['dataResult']
 
-        # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
-        return jsonify(datosPso, datosDapso, datosMoorapso, datosTopsispso)
-    except Exception as e:
-        # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
-       print(f'Error en calcular_comparacion: {str(e)}')
-    return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+#         # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
+#         return jsonify(datosPso, datosDapso, datosMoorapso, datosTopsispso)
+#     except Exception as e:
+#         # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
+#        print(f'Error en calcular_comparacion: {str(e)}')
+#     return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
 
 #-------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------
 
 
-@app.route('/comparacionPso')
-@roles_required('user','admin', 'superadmin')
-def comparacion():
-    try:
-        # Obtén los datos del formulario
-        w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        wwi = float(request.form['wwi'])
-        c1 = float(request.form['c1'])
-        c2 = float(request.form['c2'])
-        T = int(request.form['T'])
-        r1_input = request.form['r1']
-        r2_input = request.form['r2']
-        r1 = [float(num.strip()) for num in r1_input.split(',')]
-        r2 = [float(num.strip()) for num in r2_input.split(',')]
+# @app.route('/comparacionPso')
+# @roles_required('user','admin', 'superadmin')
+# def comparacion():
+#     try:
+#         # Obtén los datos del formulario
+#         w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         wwi = float(request.form['wwi'])
+#         c1 = float(request.form['c1'])
+#         c2 = float(request.form['c2'])
+#         T = int(request.form['T'])
+#         r1_input = request.form['r1']
+#         r2_input = request.form['r2']
+#         r1 = [float(num.strip()) for num in r1_input.split(',')]
+#         r2 = [float(num.strip()) for num in r2_input.split(',')]
         
-        # Llama a la función de procesar_datos en pso.py
-        datosPso = asyncio.run(ejecutar_pso(w, wwi, c1, c2, T, r1, r2))
-        datosDapso = asyncio.run(ejecutar_dapso(w, wwi, c1, c2, T, r1, r2))
-        datosMoorapso = asyncio.run(ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2))
-        datosTopsispso = asyncio.run(ejecutar_topsispso(w, wwi, c1, c2, T, r1, r2))
+#         # Llama a la función de procesar_datos en pso.py
+#         datosPso = asyncio.run(ejecutar_pso(w, wwi, c1, c2, T, r1, r2))
+#         datosDapso = asyncio.run(ejecutar_dapso(w, wwi, c1, c2, T, r1, r2))
+#         datosMoorapso = asyncio.run(ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2))
+#         datosTopsispso = asyncio.run(ejecutar_topsispso(w, wwi, c1, c2, T, r1, r2))
 
-        return render_template('comparacionPso.html', datosPso=datosPso, datosDapso = datosDapso , datosMoorapso = datosMoorapso, datosTopsispso = datosTopsispso)
-    except Exception as e:
-        return render_template('comparacionPso.html', error_message=str(e))
+#         return render_template('comparacionPso.html', datosPso=datosPso, datosDapso = datosDapso , datosMoorapso = datosMoorapso, datosTopsispso = datosTopsispso)
+#     except Exception as e:
+#         return render_template('comparacionPso.html', error_message=str(e))
 
 
-@app.route('/comparacionPso', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_comparacion():
-    try:
-        # Obtén los datos del formulario
-        w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        wwi = float(request.form['wwi'])
-        c1 = float(request.form['c1'])
-        c2 = float(request.form['c2'])
-        T = int(request.form['T'])
-        # Divide las cadenas de texto en listas
-        r1_input = request.form['r1']
-        r2_input = request.form['r2']
-        r1 = [float(num.strip()) for num in r1_input.split(',')]
-        r2 = [float(num.strip()) for num in r2_input.split(',')]
+# @app.route('/comparacionPso', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_comparacion():
+#     try:
+#         # Obtén los datos del formulario
+#         w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         wwi = float(request.form['wwi'])
+#         c1 = float(request.form['c1'])
+#         c2 = float(request.form['c2'])
+#         T = int(request.form['T'])
+#         # Divide las cadenas de texto en listas
+#         r1_input = request.form['r1']
+#         r2_input = request.form['r2']
+#         r1 = [float(num.strip()) for num in r1_input.split(',')]
+#         r2 = [float(num.strip()) for num in r2_input.split(',')]
 
-        # Llama a la función de PSO en pso.py
-        datosPso = asyncio.run(ejecutar_pso(w, wwi, c1, c2, T, r1, r2))
-        datosDapso = asyncio.run(ejecutar_dapso(w, wwi, c1, c2, T, r1, r2))
-        datosMoorapso = asyncio.run(ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2))
-        datosTopsispso = asyncio.run(ejecutar_topsispso(w, wwi, c1, c2, T, r1, r2))
-        print("Resultados de la ejecución:", datosPso) 
-        print("Resultados de la ejecución:", datosDapso) 
-        print("Resultados de la ejecución:", datosMoorapso) 
-        print("Resultados de la ejecución:", datosTopsispso) 
+#         # Llama a la función de PSO en pso.py
+#         datosPso = asyncio.run(ejecutar_pso(w, wwi, c1, c2, T, r1, r2))
+#         datosDapso = asyncio.run(ejecutar_dapso(w, wwi, c1, c2, T, r1, r2))
+#         datosMoorapso = asyncio.run(ejecutar_moorapso(w, wwi, c1, c2, T, r1, r2))
+#         datosTopsispso = asyncio.run(ejecutar_topsispso(w, wwi, c1, c2, T, r1, r2))
+#         print("Resultados de la ejecución:", datosPso) 
+#         print("Resultados de la ejecución:", datosDapso) 
+#         print("Resultados de la ejecución:", datosMoorapso) 
+#         print("Resultados de la ejecución:", datosTopsispso) 
 
-        # Obtén los resultados específicos que deseas mostrar
-        # dataGBP = resultados['dataGBP']
-        # dataGBF = resultados['dataGBF']
-        # dataResult = resultados['dataResult']
+#         # Obtén los resultados específicos que deseas mostrar
+#         # dataGBP = resultados['dataGBP']
+#         # dataGBF = resultados['dataGBF']
+#         # dataResult = resultados['dataResult']
 
-        # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
-        return jsonify(datosPso, datosDapso, datosMoorapso, datosTopsispso)
-    except Exception as e:
-        # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
-       print(f'Error en calcular_comparacion: {str(e)}')
-    return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+#         # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
+#         return jsonify(datosPso, datosDapso, datosMoorapso, datosTopsispso)
+#     except Exception as e:
+#         # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
+#        print(f'Error en calcular_comparacion: {str(e)}')
+#     return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
 
 #-------------------------------------------------------------------------------------------------------------------
             # Algoritmos BA
 #-------------------------------------------------------------------------------------------------------------------
-@app.route('/ba')
-@roles_required('user','admin', 'superadmin')
-def ba():
-    try:
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        alpha = float(request.form['alpha'])
-        gamma = float(request.form['gamma'])
-        iter_max = int(request.form['T'])
+
+# @app.route('/ba')
+# @roles_required('user','admin', 'superadmin')
+# def ba():
+#     try:
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         alpha = float(request.form['alpha'])
+#         gamma = float(request.form['gamma'])
+#         iter_max = int(request.form['T'])
         
-        # Llama a la función de procesar_datos en pso.py
-        datosBa = asyncio.run(ejecutar_ba(w, alpha, gamma, iter_max))
+#         # Llama a la función de procesar_datos en pso.py
+#         datosBa = asyncio.run(ejecutar_ba(w, alpha, gamma, iter_max))
 
-        return render_template('ba.html', datosBa=datosBa)
-    except Exception as e:
-        return render_template('ba.html', error_message=str(e))
+#         return render_template('ba.html', datosBa=datosBa)
+#     except Exception as e:
+#         return render_template('ba.html', error_message=str(e))
 
 
-@app.route('/ba', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_ba():
-    uid = session.get('user_id')  # <-- string key, NO lista
-    if uid:
-        user = db.session.get(User, uid)   # SQLAlchemy 2.x
-        if user:
-            usuario = user.username
-    try:
-        # Obtén los datos del formulario
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        alpha = float(request.form['alpha'])
-        gamma = float(request.form['gamma'])
-        iter_max = int(request.form['T'])
+# @app.route('/ba', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_ba():
+#     uid = session.get('user_id')  # <-- string key, NO lista
+#     if uid:
+#         user = db.session.get(User, uid)   # SQLAlchemy 2.x
+#         if user:
+#             usuario = user.username
+#     try:
+#         # Obtén los datos del formulario
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         alpha = float(request.form['alpha'])
+#         gamma = float(request.form['gamma'])
+#         iter_max = int(request.form['T'])
 
-        # Llama a la función de PSO en pso.py
-        datosBa = asyncio.run(ejecutar_ba(w, alpha, gamma, iter_max, usuario))
-        print("Resultados de la ejecución:", datosBa)
+#         # Llama a la función de PSO en pso.py
+#         datosBa = asyncio.run(ejecutar_ba(w, alpha, gamma, iter_max, usuario))
+#         print("Resultados de la ejecución:", datosBa)
 
-        # Obtén los resultados específicos que deseas mostrar
-        # dataGBP = resultados['dataGBP']
-        # dataGBF = resultados['dataGBF']
-        # dataResult = resultados['dataResult']
+#         # Obtén los resultados específicos que deseas mostrar
+#         # dataGBP = resultados['dataGBP']
+#         # dataGBF = resultados['dataGBF']
+#         # dataResult = resultados['dataResult']
 
-        # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
-        return jsonify(datosBa)
-    except Exception as e:
-        # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
-       print(f'Error en calcular_ba: {str(e)}')
-    return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+#         # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
+#         return jsonify(datosBa)
+#     except Exception as e:
+#         # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
+#        print(f'Error en calcular_ba: {str(e)}')
+#     return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+
 #-------------------------------------------------------------------------------------------------------------------
             
 #-------------------------------------------------------------------------------------------------------------------
         #Algoritmo_Ruta DA -BA
 
-@app.route('/daba')
-@roles_required('user','admin', 'superadmin')
-def daba():
-    try:
-        # Obtén los datos del formulario
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        alpha = float(request.form['alpha'])
-        gamma = float(request.form['gamma'])
-        iter_max = int(request.form['T'])
+# @app.route('/daba')
+# @roles_required('user','admin', 'superadmin')
+# def daba():
+#     try:
+#         # Obtén los datos del formulario
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         alpha = float(request.form['alpha'])
+#         gamma = float(request.form['gamma'])
+#         iter_max = int(request.form['T'])
         
-        # Llama a la función de procesar_datos en pso.py
-        datosDaba = asyncio.run(ejecutar_daba(w, alpha, gamma, iter_max))
+#         # Llama a la función de procesar_datos en pso.py
+#         datosDaba = asyncio.run(ejecutar_daba(w, alpha, gamma, iter_max))
 
-        return render_template('daba.html', datosDaba=datosDaba)
-    except Exception as e:
-        return render_template('daba.html', error_message=str(e))
+#         return render_template('daba.html', datosDaba=datosDaba)
+#     except Exception as e:
+#         return render_template('daba.html', error_message=str(e))
 
 
-@app.route('/daba', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_daba():
-    uid = session.get('user_id')  # <-- string key, NO lista
-    if uid:
-        user = db.session.get(User, uid)   # SQLAlchemy 2.x
-        if user:
-            usuario = user.username
-    try:
-        # Obtén los datos del formulario de la solicitud POST
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        alpha = float(request.form['alpha'])
-        gamma = float(request.form['gamma'])
-        iter_max = int(request.form['T'])
+# @app.route('/daba', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_daba():
+#     uid = session.get('user_id')  # <-- string key, NO lista
+#     if uid:
+#         user = db.session.get(User, uid)   # SQLAlchemy 2.x
+#         if user:
+#             usuario = user.username
+#     try:
+#         # Obtén los datos del formulario de la solicitud POST
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         alpha = float(request.form['alpha'])
+#         gamma = float(request.form['gamma'])
+#         iter_max = int(request.form['T'])
 
-        # Llama a la función de PSO en pso.py
-        datosDaba = asyncio.run(ejecutar_daba(w, alpha, gamma, iter_max, usuario))
-        print("Resultados de la ejecución:", datosDaba)
+#         # Llama a la función de PSO en pso.py
+#         datosDaba = asyncio.run(ejecutar_daba(w, alpha, gamma, iter_max, usuario))
+#         print("Resultados de la ejecución:", datosDaba)
 
-        # Devuelve los resultados como JSON
-        return jsonify(datosDaba)
-    except Exception as e:
-        # Manejo de errores
-        print(f'Error en calcular_mooraba: {str(e)}')
-        return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+#         # Devuelve los resultados como JSON
+#         return jsonify(datosDaba)
+#     except Exception as e:
+#         # Manejo de errores
+#         print(f'Error en calcular_mooraba: {str(e)}')
+#         return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+
 #-------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------
         #Algoritmo_Ruta MOORA - BA
 
-@app.route('/mooraba')
-@roles_required('user','admin', 'superadmin')
-def mooraba():
-    try:
-        # Obtén los datos del formulario
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        alpha = float(request.form['alpha'])
-        gamma = float(request.form['gamma'])
-        iter_max = int(request.form['T'])
+# @app.route('/mooraba')
+# @roles_required('user','admin', 'superadmin')
+# def mooraba():
+#     try:
+#         # Obtén los datos del formulario
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         alpha = float(request.form['alpha'])
+#         gamma = float(request.form['gamma'])
+#         iter_max = int(request.form['T'])
         
-        # Llama a la función de procesar_datos en pso.py
-        datosMooraba = asyncio.run(ejecutar_mooraba(w, alpha, gamma, iter_max))
+#         # Llama a la función de procesar_datos en pso.py
+#         datosMooraba = asyncio.run(ejecutar_mooraba(w, alpha, gamma, iter_max))
 
-        return render_template('mooraba.html', datosMooraba=datosMooraba)
-    except Exception as e:
-        return render_template('mooraba.html', error_message=str(e))
+#         return render_template('mooraba.html', datosMooraba=datosMooraba)
+#     except Exception as e:
+#         return render_template('mooraba.html', error_message=str(e))
 
 
-@app.route('/mooraba', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_mooraba():
-    uid = session.get('user_id')  # <-- string key, NO lista
-    if uid:
-        user = db.session.get(User, uid)   # SQLAlchemy 2.x
-        if user:
-            usuario = user.username
-    try:
-        # Obtén los datos del formulario de la solicitud POST
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        alpha = float(request.form['alpha'])
-        gamma = float(request.form['gamma'])
-        iter_max = int(request.form['T'])
+# @app.route('/mooraba', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_mooraba():
+#     uid = session.get('user_id')  # <-- string key, NO lista
+#     if uid:
+#         user = db.session.get(User, uid)   # SQLAlchemy 2.x
+#         if user:
+#             usuario = user.username
+#     try:
+#         # Obtén los datos del formulario de la solicitud POST
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         alpha = float(request.form['alpha'])
+#         gamma = float(request.form['gamma'])
+#         iter_max = int(request.form['T'])
 
-        # Llama a la función de PSO en pso.py
-        datosMooraba = asyncio.run(ejecutar_mooraba(w, alpha, gamma, iter_max, usuario))
-        print("Resultados de la ejecución:", datosMooraba)
+#         # Llama a la función de PSO en pso.py
+#         datosMooraba = asyncio.run(ejecutar_mooraba(w, alpha, gamma, iter_max, usuario))
+#         print("Resultados de la ejecución:", datosMooraba)
 
-        # Devuelve los resultados como JSON
-        return jsonify(datosMooraba)
-    except Exception as e:
-        # Manejo de errores
-        print(f'Error en calcular_mooraba: {str(e)}')
-        return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+#         # Devuelve los resultados como JSON
+#         return jsonify(datosMooraba)
+#     except Exception as e:
+#         # Manejo de errores
+#         print(f'Error en calcular_mooraba: {str(e)}')
+#         return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+
 #-------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------
-@app.route('/topsisba')
-@roles_required('user','admin', 'superadmin')
-def topsisba():
-    try:
-        # Obtén los datos del formulario
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        alpha = float(request.form['alpha'])
-        gamma = float(request.form['gamma'])
-        iter_max = int(request.form['T'])
+
+# @app.route('/topsisba')
+# @roles_required('user','admin', 'superadmin')
+# def topsisba():
+#     try:
+#         # Obtén los datos del formulario
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         alpha = float(request.form['alpha'])
+#         gamma = float(request.form['gamma'])
+#         iter_max = int(request.form['T'])
         
-        # Llama a la función de procesar_datos en pso.py
-        datosTopsisba = asyncio.run(ejecutar_topsisba(w, alpha, gamma, iter_max))
+#         # Llama a la función de procesar_datos en pso.py
+#         datosTopsisba = asyncio.run(ejecutar_topsisba(w, alpha, gamma, iter_max))
 
-        return render_template('topsisba.html', datosTopsisba=datosTopsisba)
-    except Exception as e:
-        return render_template('topsisba.html', error_message=str(e))
+#         return render_template('topsisba.html', datosTopsisba=datosTopsisba)
+#     except Exception as e:
+#         return render_template('topsisba.html', error_message=str(e))
 
 
-@app.route('/topsisba', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_topsisba():
-    uid = session.get('user_id')  # <-- string key, NO lista
-    if uid:
-        user = db.session.get(User, uid)   # SQLAlchemy 2.x
-        if user:
-            usuario = user.username
-    try:
-        # Obtén los datos del formulario de la solicitud POST
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        alpha = float(request.form['alpha'])
-        gamma = float(request.form['gamma'])
-        iter_max = int(request.form['T'])
+# @app.route('/topsisba', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_topsisba():
+#     uid = session.get('user_id')  # <-- string key, NO lista
+#     if uid:
+#         user = db.session.get(User, uid)   # SQLAlchemy 2.x
+#         if user:
+#             usuario = user.username
+#     try:
+#         # Obtén los datos del formulario de la solicitud POST
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         alpha = float(request.form['alpha'])
+#         gamma = float(request.form['gamma'])
+#         iter_max = int(request.form['T'])
 
-        # Llama a la función de PSO en pso.py
-        datosTopsisba = asyncio.run(ejecutar_topsisba(w, alpha, gamma, iter_max, usuario))
-        print("Resultados de la ejecución:", datosTopsisba)
+#         # Llama a la función de PSO en pso.py
+#         datosTopsisba = asyncio.run(ejecutar_topsisba(w, alpha, gamma, iter_max, usuario))
+#         print("Resultados de la ejecución:", datosTopsisba)
 
-        # Devuelve los resultados como JSON
-        return jsonify(datosTopsisba)
-    except Exception as e:
-        # Manejo de errores
-        print(f'Error en calcular_topsisBa: {str(e)}')
-        return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+#         # Devuelve los resultados como JSON
+#         return jsonify(datosTopsisba)
+#     except Exception as e:
+#         # Manejo de errores
+#         print(f'Error en calcular_topsisBa: {str(e)}')
+#         return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+
 #-------------------------------------------------------------------------------------------------------------------
 
 #Algoritmos ACO
@@ -699,376 +706,380 @@ def calcular_topsisba():
 #-------------------------------------------------------------------------------------------------------------------
         #Algoritmo_Ruta DA-ACO
 
-@app.route('/daaco')
-@roles_required('user','admin', 'superadmin')
-def daaco():
-    try:
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        alphaAco = int(request.form['alphaAco'])
-        beta = int(request.form['beta'])
-        rho = float(request.form['rho'])
-        Q = int(request.form['Q'])
-        n_ants = int(request.form['n_ants'])
-        iter_max = int(request.form['T'])
+# @app.route('/daaco')
+# @roles_required('user','admin', 'superadmin')
+# def daaco():
+#     try:
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         alphaAco = int(request.form['alphaAco'])
+#         beta = int(request.form['beta'])
+#         rho = float(request.form['rho'])
+#         Q = int(request.form['Q'])
+#         n_ants = int(request.form['n_ants'])
+#         iter_max = int(request.form['T'])
 
         
-        # Llama a la función de procesar_datos 
-        datosDaaco = asyncio.run(ejecutar_daaco(w, alphaAco, beta, rho, Q, n_ants, iter_max))
+#         # Llama a la función de procesar_datos 
+#         datosDaaco = asyncio.run(ejecutar_daaco(w, alphaAco, beta, rho, Q, n_ants, iter_max))
 
-        return render_template('daaco.html', datosDaaco=datosDaaco)
-    except Exception as e:
-        return render_template('daaco.html', error_message=str(e))
+#         return render_template('daaco.html', datosDaaco=datosDaaco)
+#     except Exception as e:
+#         return render_template('daaco.html', error_message=str(e))
 
 
-@app.route('/daaco', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_daaco():
-    uid = session.get('user_id')  # <-- string key, NO lista
-    if uid:
-        user = db.session.get(User, uid)   # SQLAlchemy 2.x
-        if user:
-            usuario = user.username
-    try:
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        alphaAco = int(request.form['alphaAco'])
-        beta = int(request.form['beta'])
-        rho = float(request.form['rho'])
-        Q = int(request.form['Q'])
-        n_ants = int(request.form['n_ants'])
-        iter_max = int(request.form['T'])
+# @app.route('/daaco', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_daaco():
+#     uid = session.get('user_id')  # <-- string key, NO lista
+#     if uid:
+#         user = db.session.get(User, uid)   # SQLAlchemy 2.x
+#         if user:
+#             usuario = user.username
+#     try:
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         alphaAco = int(request.form['alphaAco'])
+#         beta = int(request.form['beta'])
+#         rho = float(request.form['rho'])
+#         Q = int(request.form['Q'])
+#         n_ants = int(request.form['n_ants'])
+#         iter_max = int(request.form['T'])
 
-        # Llama a la función de PSO en pso.py
-        datosDaaco = asyncio.run(ejecutar_daaco(w, alphaAco, beta, rho, Q, n_ants, iter_max, usuario))
-        print("Resultados de la ejecución:", datosDaaco)
+#         # Llama a la función de PSO en pso.py
+#         datosDaaco = asyncio.run(ejecutar_daaco(w, alphaAco, beta, rho, Q, n_ants, iter_max, usuario))
+#         print("Resultados de la ejecución:", datosDaaco)
 
-        # Devuelve los resultados como JSON
-        return jsonify(datosDaaco)
-    except Exception as e:
-        # Manejo de errores
-        print(f'Error en calcular_daaco: {str(e)}')
-        return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+#         # Devuelve los resultados como JSON
+#         return jsonify(datosDaaco)
+#     except Exception as e:
+#         # Manejo de errores
+#         print(f'Error en calcular_daaco: {str(e)}')
+#         return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+
 #-------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------
         #Algoritmo_Ruta MOORA-ACO
 
-@app.route('/mooraaco')
-@roles_required('user','admin', 'superadmin')
-def mooraaco():
-    try:
-        ev_input = request.form['ev']  # Obtén el valor
+# @app.route('/mooraaco')
+# @roles_required('user','admin', 'superadmin')
+# def mooraaco():
+#     try:
+#         ev_input = request.form['ev']  # Obtén el valor
         
-        ev_values = ev_input.split(',')
+#         ev_values = ev_input.split(',')
         
-        EV = [str(value) for value in ev_values if value.strip() != '']
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        alphaAco = int(request.form['alphaAco'])
-        beta = int(request.form['beta'])
-        rho = float(request.form['rho'])
-        Q = int(request.form['Q'])
-        n_ants = int(request.form['n_ants'])
-        iter_max = int(request.form['T'])
+#         EV = [str(value) for value in ev_values if value.strip() != '']
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         alphaAco = int(request.form['alphaAco'])
+#         beta = int(request.form['beta'])
+#         rho = float(request.form['rho'])
+#         Q = int(request.form['Q'])
+#         n_ants = int(request.form['n_ants'])
+#         iter_max = int(request.form['T'])
         
-        # Llama a la función de procesar_datos 
-        datosMooraaco = asyncio.run(ejecutar_mooraaco(EV,w,alphaAco,beta,rho,Q,n_ants,iter_max))
+#         # Llama a la función de procesar_datos 
+#         datosMooraaco = asyncio.run(ejecutar_mooraaco(EV,w,alphaAco,beta,rho,Q,n_ants,iter_max))
 
-        return render_template('mooraaco.html', datosMooraaco=datosMooraaco)
-    except Exception as e:
-        return render_template('mooraaco.html', error_message=str(e))
+#         return render_template('mooraaco.html', datosMooraaco=datosMooraaco)
+#     except Exception as e:
+#         return render_template('mooraaco.html', error_message=str(e))
 
 
-@app.route('/mooraaco', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_mooraaco():
-    uid = session.get('user_id')  # <-- string key, NO lista
-    if uid:
-        user = db.session.get(User, uid)   # SQLAlchemy 2.x
-        if user:
-            usuario = user.username
-    try:
-        ev_input = request.form['ev']  # Obtén el valor
+# @app.route('/mooraaco', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_mooraaco():
+#     uid = session.get('user_id')  # <-- string key, NO lista
+#     if uid:
+#         user = db.session.get(User, uid)   # SQLAlchemy 2.x
+#         if user:
+#             usuario = user.username
+#     try:
+#         ev_input = request.form['ev']  # Obtén el valor
         
-        ev_values = ev_input.split(',')
+#         ev_values = ev_input.split(',')
         
-        EV = [str(value) for value in ev_values if value.strip() != '']
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        alphaAco = int(request.form['alphaAco'])
-        beta = int(request.form['beta'])
-        rho = float(request.form['rho'])
-        Q = int(request.form['Q'])
-        n_ants = int(request.form['n_ants'])
-        iter_max = int(request.form['T'])
+#         EV = [str(value) for value in ev_values if value.strip() != '']
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         alphaAco = int(request.form['alphaAco'])
+#         beta = int(request.form['beta'])
+#         rho = float(request.form['rho'])
+#         Q = int(request.form['Q'])
+#         n_ants = int(request.form['n_ants'])
+#         iter_max = int(request.form['T'])
 
-        # Llama a la función de PSO en pso.py
-        datosMooraaco = asyncio.run(ejecutar_mooraaco(EV,w,alphaAco,beta,rho,Q,n_ants,iter_max, usuario))
-        print("Resultados de la ejecución:", datosMooraaco)
+#         # Llama a la función de PSO en pso.py
+#         datosMooraaco = asyncio.run(ejecutar_mooraaco(EV,w,alphaAco,beta,rho,Q,n_ants,iter_max, usuario))
+#         print("Resultados de la ejecución:", datosMooraaco)
 
-        # Devuelve los resultados como JSON
-        return jsonify(datosMooraaco)
-    except Exception as e:
-        # Manejo de errores
-        print(f'Error en calcular_Mooraaco: {str(e)}')
-        return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+#         # Devuelve los resultados como JSON
+#         return jsonify(datosMooraaco)
+#     except Exception as e:
+#         # Manejo de errores
+#         print(f'Error en calcular_Mooraaco: {str(e)}')
+#         return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+
 #-------------------------------------------------------------------------------------------------------------------
     
     #-------------------------------------------------------------------------------------------------------------------
         #Algoritmo_Ruta TOPSIS-ACO
 
-@app.route('/topsisaco')
-@roles_required('user','admin', 'superadmin')
-def topsisaco():
-    try:
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+# @app.route('/topsisaco')
+# @roles_required('user','admin', 'superadmin')
+# def topsisaco():
+#     try:
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
 
-        alphaAco = int(request.form['alphaAco'])
-        beta = int(request.form['beta'])
-        rho = float(request.form['rho'])
-        Q = int(request.form['Q'])
-        n_ants = int(request.form['n_ants'])
-        iter_max = int(request.form['T'])
+#         alphaAco = int(request.form['alphaAco'])
+#         beta = int(request.form['beta'])
+#         rho = float(request.form['rho'])
+#         Q = int(request.form['Q'])
+#         n_ants = int(request.form['n_ants'])
+#         iter_max = int(request.form['T'])
         
-        # benefit_input = request.form['be']  # Obtén el valor
+#         # benefit_input = request.form['be']  # Obtén el valor
         
-        # benefit_values = benefit_input.split(',')
+#         # benefit_values = benefit_input.split(',')
         
-        # benefit_attributes = [int(value) for value in benefit_values if value.strip() != '']
+#         # benefit_attributes = [int(value) for value in benefit_values if value.strip() != '']
         
-        # Llama a la función de procesar_datos 
-        datosTopsisaco = asyncio.run(ejecutar_topsisaco(w,alphaAco,beta,rho,Q,n_ants,iter_max))
+#         # Llama a la función de procesar_datos 
+#         datosTopsisaco = asyncio.run(ejecutar_topsisaco(w,alphaAco,beta,rho,Q,n_ants,iter_max))
 
-        return render_template('topsisaco.html', datosTopsisaco=datosTopsisaco)
-    except Exception as e:
-        return render_template('topsisaco.html', error_message=str(e))
+#         return render_template('topsisaco.html', datosTopsisaco=datosTopsisaco)
+#     except Exception as e:
+#         return render_template('topsisaco.html', error_message=str(e))
 
 
-@app.route('/topsisaco', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_topsisaco():
-    uid = session.get('user_id')  # <-- string key, NO lista
-    if uid:
-        user = db.session.get(User, uid)   # SQLAlchemy 2.x
-        if user:
-            usuario = user.username
-    try:
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+# @app.route('/topsisaco', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_topsisaco():
+#     uid = session.get('user_id')  # <-- string key, NO lista
+#     if uid:
+#         user = db.session.get(User, uid)   # SQLAlchemy 2.x
+#         if user:
+#             usuario = user.username
+#     try:
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
 
         
-        alphaAco = int(request.form['alphaAco'])
-        beta = int(request.form['beta'])
-        rho = float(request.form['rho'])
-        Q = int(request.form['Q'])
-        n_ants = int(request.form['n_ants'])
-        iter_max = int(request.form['T'])
+#         alphaAco = int(request.form['alphaAco'])
+#         beta = int(request.form['beta'])
+#         rho = float(request.form['rho'])
+#         Q = int(request.form['Q'])
+#         n_ants = int(request.form['n_ants'])
+#         iter_max = int(request.form['T'])
         
-        # benefit_input = request.form['be']  # Obtén el valor
+#         # benefit_input = request.form['be']  # Obtén el valor
         
-        # benefit_values = benefit_input.split(',')
+#         # benefit_values = benefit_input.split(',')
         
-        # benefit_attributes = [int(value) for value in benefit_values if value.strip() != '']
+#         # benefit_attributes = [int(value) for value in benefit_values if value.strip() != '']
 
-        # Llama a la función de PSO en pso.py
-        datosTopsisaco = asyncio.run(ejecutar_topsisaco(w,alphaAco,beta,rho,Q,n_ants,iter_max, usuario))
-        print("Resultados de la ejecución:", datosTopsisaco)
+#         # Llama a la función de PSO en pso.py
+#         datosTopsisaco = asyncio.run(ejecutar_topsisaco(w,alphaAco,beta,rho,Q,n_ants,iter_max, usuario))
+#         print("Resultados de la ejecución:", datosTopsisaco)
 
-        # Devuelve los resultados como JSON
-        return jsonify(datosTopsisaco)
-    except Exception as e:
-        # Manejo de errores
-        print(f'Error en calcular_topsisaco: {str(e)}')
-        return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+#         # Devuelve los resultados como JSON
+#         return jsonify(datosTopsisaco)
+#     except Exception as e:
+#         # Manejo de errores
+#         print(f'Error en calcular_topsisaco: {str(e)}')
+#         return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+
 #-------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------
-@app.route('/comparacionGeneral')
-@roles_required('user','admin', 'superadmin')
-def comparacionGeneral():
-    try:
-        # Generales
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
 
-        #Datos Pso
-        wwi = float(request.form['wwi'])
-        c1 = float(request.form['c1'])
-        c2 = float(request.form['c2'])
-        # Divide las cadenas de texto en listas
-        r1_input = request.form['r1']
-        r2_input = request.form['r2']
-        r1 = [float(num.strip()) for num in r1_input.split(',')]
-        r2 = [float(num.strip()) for num in r2_input.split(',')]
+# @app.route('/comparacionGeneral')
+# @roles_required('user','admin', 'superadmin')
+# def comparacionGeneral():
+#     try:
+#         # Generales
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
 
-        # Datos Ba
-        alpha = float(request.form['alpha'])
-        gamma = float(request.form['gamma'])
+#         #Datos Pso
+#         wwi = float(request.form['wwi'])
+#         c1 = float(request.form['c1'])
+#         c2 = float(request.form['c2'])
+#         # Divide las cadenas de texto en listas
+#         r1_input = request.form['r1']
+#         r2_input = request.form['r2']
+#         r1 = [float(num.strip()) for num in r1_input.split(',')]
+#         r2 = [float(num.strip()) for num in r2_input.split(',')]
+
+#         # Datos Ba
+#         alpha = float(request.form['alpha'])
+#         gamma = float(request.form['gamma'])
         
 
-        #Datos Aco
-        ev_input = request.form['ev']  # Obtén el valor
-        ev_values = ev_input.split(',')
-        EV = [str(value) for value in ev_values if value.strip() != '']
-        alphaAco = int(request.form['alphaAco'])
-        beta = int(request.form['beta'])
-        rho = float(request.form['rho'])
-        Q = int(request.form['Q'])
-        n_ants = int(request.form['n_ants'])
-        iter_max = int(request.form['T'])
+#         #Datos Aco
+#         ev_input = request.form['ev']  # Obtén el valor
+#         ev_values = ev_input.split(',')
+#         EV = [str(value) for value in ev_values if value.strip() != '']
+#         alphaAco = int(request.form['alphaAco'])
+#         beta = int(request.form['beta'])
+#         rho = float(request.form['rho'])
+#         Q = int(request.form['Q'])
+#         n_ants = int(request.form['n_ants'])
+#         iter_max = int(request.form['T'])
         
-        #Llamar a funciones PSO
-        datosDapso = asyncio.run(ejecutar_dapso(w,wwi,c1,c2,r1,r2 ,iter_max))
-        datosMoorapso = asyncio.run(ejecutar_moorapso(w,wwi,c1,c2,r1,r2, iter_max))
-        datosTopsispso = asyncio.run(ejecutar_topsispso(w,wwi,c1,c2,r1,r2 ,iter_max))
-        # Llamar a funciones BA
-        datosDaba = asyncio.run(ejecutar_daba(w, alpha, gamma, iter_max))
-        datosMooraba = asyncio.run(ejecutar_mooraba(w, alpha, gamma, iter_max))
-        datosTopsisba = asyncio.run(ejecutar_topsisba(w, alpha, gamma, iter_max))
-        #Llamar a funciones ACO
-        datosDaaco = asyncio.run(ejecutar_daaco(w, alphaAco, beta, rho, Q, n_ants, iter_max))
-        datosMooraaco = asyncio.run(ejecutar_mooraaco(EV, w, alphaAco, beta, rho, Q, n_ants, iter_max))
-        datosTopsisaco = asyncio.run(ejecutar_topsisaco(w, alphaAco, beta, iter_max))
+#         #Llamar a funciones PSO
+#         datosDapso = asyncio.run(ejecutar_dapso(w,wwi,c1,c2,r1,r2 ,iter_max))
+#         datosMoorapso = asyncio.run(ejecutar_moorapso(w,wwi,c1,c2,r1,r2, iter_max))
+#         datosTopsispso = asyncio.run(ejecutar_topsispso(w,wwi,c1,c2,r1,r2 ,iter_max))
+#         # Llamar a funciones BA
+#         datosDaba = asyncio.run(ejecutar_daba(w, alpha, gamma, iter_max))
+#         datosMooraba = asyncio.run(ejecutar_mooraba(w, alpha, gamma, iter_max))
+#         datosTopsisba = asyncio.run(ejecutar_topsisba(w, alpha, gamma, iter_max))
+#         #Llamar a funciones ACO
+#         datosDaaco = asyncio.run(ejecutar_daaco(w, alphaAco, beta, rho, Q, n_ants, iter_max))
+#         datosMooraaco = asyncio.run(ejecutar_mooraaco(EV, w, alphaAco, beta, rho, Q, n_ants, iter_max))
+#         datosTopsisaco = asyncio.run(ejecutar_topsisaco(w, alphaAco, beta, iter_max))
         
 
-        return render_template('comparacionGeneral.html', datosDapso=datosDapso, datosMoorapso=datosMoorapso, datosTopsispso=datosTopsispso,
-                                datosDaba = datosDaba , datosMooraba = datosMooraba, datosTopsisba = datosTopsisba,
-                                datosDaaco=datosDaaco, datosMooraaco=datosMooraaco, datosTopsisaco=datosTopsisaco)
-    except Exception as e:
-        return render_template('comparacionGeneral.html', error_message=str(e))
+#         return render_template('comparacionGeneral.html', datosDapso=datosDapso, datosMoorapso=datosMoorapso, datosTopsispso=datosTopsispso,
+#                                 datosDaba = datosDaba , datosMooraba = datosMooraba, datosTopsisba = datosTopsisba,
+#                                 datosDaaco=datosDaaco, datosMooraaco=datosMooraaco, datosTopsisaco=datosTopsisaco)
+#     except Exception as e:
+#         return render_template('comparacionGeneral.html', error_message=str(e))
 
 
-@app.route('/comparacionGeneral', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_comparacionGeneral():
-    try:
-        # Obtén los datos del formulario
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-       #Datos Pso
-        wwi = float(request.form['wwi'])
-        c1 = float(request.form['c1'])
-        c2 = float(request.form['c2'])
-        # Divide las cadenas de texto en listas
-        r1_input = request.form['r1']
-        r2_input = request.form['r2']
-        r1 = [float(num.strip()) for num in r1_input.split(',')]
-        r2 = [float(num.strip()) for num in r2_input.split(',')]
+# @app.route('/comparacionGeneral', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_comparacionGeneral():
+#     try:
+#         # Obtén los datos del formulario
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#        #Datos Pso
+#         wwi = float(request.form['wwi'])
+#         c1 = float(request.form['c1'])
+#         c2 = float(request.form['c2'])
+#         # Divide las cadenas de texto en listas
+#         r1_input = request.form['r1']
+#         r2_input = request.form['r2']
+#         r1 = [float(num.strip()) for num in r1_input.split(',')]
+#         r2 = [float(num.strip()) for num in r2_input.split(',')]
 
-        # Datos Ba
-        alpha = float(request.form['alpha'])
-        gamma = float(request.form['gamma'])
+#         # Datos Ba
+#         alpha = float(request.form['alpha'])
+#         gamma = float(request.form['gamma'])
     
 
-        #Datos Aco
-        ev_input = request.form['ev']  # Obtén el valor
-        ev_values = ev_input.split(',')
-        EV = [str(value) for value in ev_values if value.strip() != '']
-        alphaAco = int(request.form['alphaAco'])
-        beta = int(request.form['beta'])
-        rho = float(request.form['rho'])
-        Q = int(request.form['Q'])
-        n_ants = int(request.form['n_ants'])
-        iter_max = int(request.form['T'])
+#         #Datos Aco
+#         ev_input = request.form['ev']  # Obtén el valor
+#         ev_values = ev_input.split(',')
+#         EV = [str(value) for value in ev_values if value.strip() != '']
+#         alphaAco = int(request.form['alphaAco'])
+#         beta = int(request.form['beta'])
+#         rho = float(request.form['rho'])
+#         Q = int(request.form['Q'])
+#         n_ants = int(request.form['n_ants'])
+#         iter_max = int(request.form['T'])
 
-         #Llamar a funciones PSO
-        datosDapso = asyncio.run(ejecutar_dapso(w,wwi,c1,c2,r1,r2 ,iter_max))
-        datosMoorapso = asyncio.run(ejecutar_moorapso(w,wwi,c1,c2,r1,r2 ,iter_max))
-        datosTopsispso = asyncio.run(ejecutar_topsispso(w,wwi,c1,c2,r1,r2 ,iter_max))
-        # Llamar a funciones BA
-        datosDaba = asyncio.run(ejecutar_daba(w, alpha, gamma, iter_max))
-        datosMooraba = asyncio.run(ejecutar_mooraba(w, alpha, gamma, iter_max))
-        datosTopsisba = asyncio.run(ejecutar_topsisba(w, alpha, gamma, iter_max))
-         #Llamar a funciones ACO
-        datosDaaco = asyncio.run(ejecutar_daaco(w, alphaAco, beta, rho, Q, n_ants, iter_max))
-        datosMooraaco = asyncio.run(ejecutar_mooraaco(EV, w, alphaAco, beta, rho, Q, n_ants, iter_max))
-        datosTopsisaco = asyncio.run(ejecutar_topsisaco(w, alphaAco, beta, iter_max))
+#          #Llamar a funciones PSO
+#         datosDapso = asyncio.run(ejecutar_dapso(w,wwi,c1,c2,r1,r2 ,iter_max))
+#         datosMoorapso = asyncio.run(ejecutar_moorapso(w,wwi,c1,c2,r1,r2 ,iter_max))
+#         datosTopsispso = asyncio.run(ejecutar_topsispso(w,wwi,c1,c2,r1,r2 ,iter_max))
+#         # Llamar a funciones BA
+#         datosDaba = asyncio.run(ejecutar_daba(w, alpha, gamma, iter_max))
+#         datosMooraba = asyncio.run(ejecutar_mooraba(w, alpha, gamma, iter_max))
+#         datosTopsisba = asyncio.run(ejecutar_topsisba(w, alpha, gamma, iter_max))
+#          #Llamar a funciones ACO
+#         datosDaaco = asyncio.run(ejecutar_daaco(w, alphaAco, beta, rho, Q, n_ants, iter_max))
+#         datosMooraaco = asyncio.run(ejecutar_mooraaco(EV, w, alphaAco, beta, rho, Q, n_ants, iter_max))
+#         datosTopsisaco = asyncio.run(ejecutar_topsisaco(w, alphaAco, beta, iter_max))
         
         
-        print("Resultados de la ejecución:", datosDapso) 
-        print("Resultados de la ejecución:", datosMoorapso) 
-        print("Resultados de la ejecución:", datosTopsispso) 
-        print("Resultados de la ejecución:", datosDaba) 
-        print("Resultados de la ejecución:", datosMooraba) 
-        print("Resultados de la ejecución:", datosTopsisba) 
-        print("Resultados de la ejecución:", datosDaaco) 
-        print("Resultados de la ejecución:", datosMooraaco) 
-        print("Resultados de la ejecución:", datosTopsisaco) 
+#         print("Resultados de la ejecución:", datosDapso) 
+#         print("Resultados de la ejecución:", datosMoorapso) 
+#         print("Resultados de la ejecución:", datosTopsispso) 
+#         print("Resultados de la ejecución:", datosDaba) 
+#         print("Resultados de la ejecución:", datosMooraba) 
+#         print("Resultados de la ejecución:", datosTopsisba) 
+#         print("Resultados de la ejecución:", datosDaaco) 
+#         print("Resultados de la ejecución:", datosMooraaco) 
+#         print("Resultados de la ejecución:", datosTopsisaco) 
 
-        # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
-        return jsonify(datosDapso,datosMoorapso,datosTopsispso, datosDaba, datosMooraba, datosTopsisba,datosDaaco,datosMooraaco,datosTopsisaco)
-    except Exception as e:
-        # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
-       print(f'Error en calcular_comparacion: {str(e)}')
-    return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+#         # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
+#         return jsonify(datosDapso,datosMoorapso,datosTopsispso, datosDaba, datosMooraba, datosTopsisba,datosDaaco,datosMooraaco,datosTopsisaco)
+#     except Exception as e:
+#         # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
+#        print(f'Error en calcular_comparacion: {str(e)}')
+#     return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
 
 #-------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------
 
-@app.route('/comparacionBa')
-@roles_required('user','admin', 'superadmin')
-def comparacionBa():
-    try:
-        # Obtén los datos del formulario
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        alpha = float(request.form['alpha'])
-        gamma = float(request.form['gamma'])
-        iter_max = int(request.form['T'])
+# @app.route('/comparacionBa')
+# @roles_required('user','admin', 'superadmin')
+# def comparacionBa():
+#     try:
+#         # Obtén los datos del formulario
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         alpha = float(request.form['alpha'])
+#         gamma = float(request.form['gamma'])
+#         iter_max = int(request.form['T'])
         
-        # Llama a la función de procesar_datos en pso.py
-        datosBa = asyncio.run(ejecutar_ba(w, alpha, gamma, iter_max))
-        datosDaba = asyncio.run(ejecutar_daba(w, alpha, gamma, iter_max))
-        datosMooraba = asyncio.run(ejecutar_mooraba(w, alpha, gamma, iter_max))
-        datosTopsisba = asyncio.run(ejecutar_topsisba(w, alpha, gamma, iter_max))
+#         # Llama a la función de procesar_datos en pso.py
+#         datosBa = asyncio.run(ejecutar_ba(w, alpha, gamma, iter_max))
+#         datosDaba = asyncio.run(ejecutar_daba(w, alpha, gamma, iter_max))
+#         datosMooraba = asyncio.run(ejecutar_mooraba(w, alpha, gamma, iter_max))
+#         datosTopsisba = asyncio.run(ejecutar_topsisba(w, alpha, gamma, iter_max))
         
         
         
 
-        return render_template('comparacionBa.html', datosBa=datosBa, datosDaba = datosDaba , datosMooraba = datosMooraba, datosTopsisba = datosTopsisba)
-    except Exception as e:
-        return render_template('comparacionBa.html', error_message=str(e))
+#         return render_template('comparacionBa.html', datosBa=datosBa, datosDaba = datosDaba , datosMooraba = datosMooraba, datosTopsisba = datosTopsisba)
+#     except Exception as e:
+#         return render_template('comparacionBa.html', error_message=str(e))
 
 
-@app.route('/comparacionBa', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_comparacionBa():
-    try:
-        # Obtén los datos del formulario
-        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        alpha = float(request.form['alphaBa'])
-        gamma = float(request.form['gamma'])
-        iter_max = int(request.form['T'])
+# @app.route('/comparacionBa', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_comparacionBa():
+#     try:
+#         # Obtén los datos del formulario
+#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+#         alpha = float(request.form['alphaBa'])
+#         gamma = float(request.form['gamma'])
+#         iter_max = int(request.form['T'])
         
-        # Llama a la función de procesar_datos en pso.py
-        datosBa = asyncio.run(ejecutar_ba(w, alpha, gamma, iter_max))
-        datosDaba = asyncio.run(ejecutar_daba(w, alpha, gamma, iter_max))
-        datosMooraba = asyncio.run(ejecutar_mooraba(w, alpha, gamma, iter_max))
-        datosTopsisba = asyncio.run(ejecutar_topsisba(w, alpha, gamma, iter_max))
+#         # Llama a la función de procesar_datos en pso.py
+#         datosBa = asyncio.run(ejecutar_ba(w, alpha, gamma, iter_max))
+#         datosDaba = asyncio.run(ejecutar_daba(w, alpha, gamma, iter_max))
+#         datosMooraba = asyncio.run(ejecutar_mooraba(w, alpha, gamma, iter_max))
+#         datosTopsisba = asyncio.run(ejecutar_topsisba(w, alpha, gamma, iter_max))
 
-        # Llama a la función de PSO en pso.py
+#         # Llama a la función de PSO en pso.py
         
         
-        print("Resultados de la ejecución:", datosBa) 
-        print("Resultados de la ejecución:", datosDaba) 
-        print("Resultados de la ejecución:", datosMooraba) 
-        print("Resultados de la ejecución:", datosTopsisba) 
+#         print("Resultados de la ejecución:", datosBa) 
+#         print("Resultados de la ejecución:", datosDaba) 
+#         print("Resultados de la ejecución:", datosMooraba) 
+#         print("Resultados de la ejecución:", datosTopsisba) 
 
-        # Obtén los resultados específicos que deseas mostrar
-        # dataGBP = resultados['dataGBP']
-        # dataGBF = resultados['dataGBF']
-        # dataResult = resultados['dataResult']
+#         # Obtén los resultados específicos que deseas mostrar
+#         # dataGBP = resultados['dataGBP']
+#         # dataGBF = resultados['dataGBF']
+#         # dataResult = resultados['dataResult']
 
-        # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
-        return jsonify(datosBa, datosDaba, datosMooraba, datosTopsisba)
-    except Exception as e:
-        # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
-       print(f'Error en calcular_comparacion: {str(e)}')
-    return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+#         # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
+#         return jsonify(datosBa, datosDaba, datosMooraba, datosTopsisba)
+#     except Exception as e:
+#         # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
+#        print(f'Error en calcular_comparacion: {str(e)}')
+#     return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
 
 #-------------------------------------------------------------------------------------------------------------------
 
@@ -1098,44 +1109,44 @@ def calcular_comparacionBa():
 #         return render_template('comparacionAco.html', error_message=str(e))
 
 
-@app.route('/comparacionAco', methods=['GET', 'POST'])
-@roles_required('user','admin', 'superadmin')
-def comparacionAco():
-    if request.method == 'POST':
-        try:
-            ev_input = request.form['ev']  # Obtén el valor
-            ev_values = ev_input.split(',')
-            EV = [str(value) for value in ev_values if value.strip() != '']
+# @app.route('/comparacionAco', methods=['GET', 'POST'])
+# @roles_required('user','admin', 'superadmin')
+# def comparacionAco():
+#     if request.method == 'POST':
+#         try:
+#             ev_input = request.form['ev']  # Obtén el valor
+#             ev_values = ev_input.split(',')
+#             EV = [str(value) for value in ev_values if value.strip() != '']
 
-             # Obtén los datos del formulario
-            w_input = request.form['w']  # Obtén el valor seleccionado del menú desplegable desde el formulario
+#              # Obtén los datos del formulario
+#             w_input = request.form['w']  # Obtén el valor seleccionado del menú desplegable desde el formulario
 
-            # Divide la cadena en una lista de valores usando la coma como separador
-            w_values = w_input.split(',')
+#             # Divide la cadena en una lista de valores usando la coma como separador
+#             w_values = w_input.split(',')
 
-            # Convierte cada valor en la lista a un número flotante, filtrando valores vacíos
-            w = [float(value) for value in w_values if value.strip() != '']     
-            alphaAco = int(request.form['alphaAco'])
-            beta = int(request.form['beta'])
-            rho = float(request.form['rho'])
-            Q = int(request.form['Q'])
-            n_ants = int(request.form['n_ants'])
-            iter_max = int(request.form['T'])
+#             # Convierte cada valor en la lista a un número flotante, filtrando valores vacíos
+#             w = [float(value) for value in w_values if value.strip() != '']     
+#             alphaAco = int(request.form['alphaAco'])
+#             beta = int(request.form['beta'])
+#             rho = float(request.form['rho'])
+#             Q = int(request.form['Q'])
+#             n_ants = int(request.form['n_ants'])
+#             iter_max = int(request.form['T'])
             
-            # Llama a la función de procesar_datos
-            datosAco = asyncio.run(ejecutar_aco(w, alphaAco, beta, rho, Q, n_ants, iter_max))
-            datosDaaco = asyncio.run(ejecutar_daaco(w, alphaAco, beta, rho, Q, n_ants, iter_max))
-            datosMooraaco = asyncio.run(ejecutar_mooraaco(EV, w, alphaAco, beta, rho, Q, n_ants, iter_max))
-            datosTopsisaco = asyncio.run(ejecutar_topsisaco(w, alphaAco, beta, iter_max))
+#             # Llama a la función de procesar_datos
+#             datosAco = asyncio.run(ejecutar_aco(w, alphaAco, beta, rho, Q, n_ants, iter_max))
+#             datosDaaco = asyncio.run(ejecutar_daaco(w, alphaAco, beta, rho, Q, n_ants, iter_max))
+#             datosMooraaco = asyncio.run(ejecutar_mooraaco(EV, w, alphaAco, beta, rho, Q, n_ants, iter_max))
+#             datosTopsisaco = asyncio.run(ejecutar_topsisaco(w, alphaAco, beta, iter_max))
 
-            # Regresa los resultados como JSON
-            return jsonify(datosAco=datosAco, datosDaaco=datosDaaco, datosMooraaco=datosMooraaco, datosTopsisaco=datosTopsisaco)
-        except Exception as e:
-            # Retorna un error JSON detallado
-            return jsonify({'error': str(e)}), 500
-    else:
-        # Para el método GET, solo renderiza el template
-        return render_template('comparacionAco.html')
+#             # Regresa los resultados como JSON
+#             return jsonify(datosAco=datosAco, datosDaaco=datosDaaco, datosMooraaco=datosMooraaco, datosTopsisaco=datosTopsisaco)
+#         except Exception as e:
+#             # Retorna un error JSON detallado
+#             return jsonify({'error': str(e)}), 500
+#     else:
+#         # Para el método GET, solo renderiza el template
+#         return render_template('comparacionAco.html')
 
 #-------------------------------------------------------------------------------------------------------------------
         #Algoritmos MCDM - PUROS
@@ -1143,208 +1154,211 @@ def comparacionAco():
 #-------------------------------------------------------------------------------------------------------------------
         #Algoritmo_Ruta ACO
 
-@app.route('/aco')
-@roles_required('user','admin', 'superadmin')
-def aco():
-    try:
-        # Obtén los datos del formulario
-        w = [0.400, 0.200, 0.030, 0.070, 0.300]
-        alphaAco = int(request.form['alphaAco'])
-        beta = int(request.form['beta'])
-        rho = float(request.form['rho'])
-        Q = int(request.form['Q'])
-        n_ants = int(request.form['n_ants'])
-        iter_max = int(request.form['T'])
+# @app.route('/aco')
+# @roles_required('user','admin', 'superadmin')
+# def aco():
+#     try:
+#         # Obtén los datos del formulario
+#         w = [0.400, 0.200, 0.030, 0.070, 0.300]
+#         alphaAco = int(request.form['alphaAco'])
+#         beta = int(request.form['beta'])
+#         rho = float(request.form['rho'])
+#         Q = int(request.form['Q'])
+#         n_ants = int(request.form['n_ants'])
+#         iter_max = int(request.form['T'])
         
-        # Llama a la función de procesar_datos en pso.py
-        datosAco = asyncio.run(ejecutar_aco(w,alphaAco, beta, rho, Q, n_ants, iter_max))
+#         # Llama a la función de procesar_datos en pso.py
+#         datosAco = asyncio.run(ejecutar_aco(w,alphaAco, beta, rho, Q, n_ants, iter_max))
 
-        return render_template('aco.html', datosAco=datosAco)
-    except Exception as e:
-        return render_template('aco.html', error_message=str(e))
+#         return render_template('aco.html', datosAco=datosAco)
+#     except Exception as e:
+#         return render_template('aco.html', error_message=str(e))
 
 
-@app.route('/aco', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_aco():
-    uid = session.get('user_id')  # <-- string key, NO lista
-    if uid:
-        user = db.session.get(User, uid)   # SQLAlchemy 2.x
-        if user:
-            usuario = user.username
-    try:
-       # Obtén los datos del formulario
-        w = [0.400, 0.200, 0.030, 0.070, 0.300]
-        alphaAco = int(request.form['alphaAco'])
-        beta = int(request.form['beta'])
-        rho = float(request.form['rho'])
-        Q = int(request.form['Q'])
-        n_ants = int(request.form['n_ants'])
-        iter_max = int(request.form['T'])
+# @app.route('/aco', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_aco():
+#     uid = session.get('user_id')  # <-- string key, NO lista
+#     if uid:
+#         user = db.session.get(User, uid)   # SQLAlchemy 2.x
+#         if user:
+#             usuario = user.username
+#     try:
+#        # Obtén los datos del formulario
+#         w = [0.400, 0.200, 0.030, 0.070, 0.300]
+#         alphaAco = int(request.form['alphaAco'])
+#         beta = int(request.form['beta'])
+#         rho = float(request.form['rho'])
+#         Q = int(request.form['Q'])
+#         n_ants = int(request.form['n_ants'])
+#         iter_max = int(request.form['T'])
         
-        # Llama a la función de procesar_datos en pso.py
-        datosAco = asyncio.run(ejecutar_aco(w, alphaAco, beta, rho, Q, n_ants, iter_max, usuario))
-        print("Resultados de la ejecución:", datosAco)
+#         # Llama a la función de procesar_datos en pso.py
+#         datosAco = asyncio.run(ejecutar_aco(w, alphaAco, beta, rho, Q, n_ants, iter_max, usuario))
+#         print("Resultados de la ejecución:", datosAco)
 
-        # Devuelve los resultados como JSON
-        return jsonify(datosAco)
-    except Exception as e:
-        # Manejo de errores
-        print(f'Error en calcular_aco: {str(e)}')
-        return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+#         # Devuelve los resultados como JSON
+#         return jsonify(datosAco)
+#     except Exception as e:
+#         # Manejo de errores
+#         print(f'Error en calcular_aco: {str(e)}')
+#         return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+
 #-------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------
         #Algoritmo_Ruta TOPSIS
 
-@app.route('/topsis')
-@roles_required('user','admin', 'superadmin')
-def topsis():
-    try:
-        # Obtén los datos del formulario
-        w_input = float(request.form.get('w', '')) 
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
+# @app.route('/topsis')
+# @roles_required('user','admin', 'superadmin')
+# def topsis():
+#     try:
+#         # Obtén los datos del formulario
+#         w_input = float(request.form.get('w', '')) 
+#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
        
         
-        # Llama a la función de procesar_datos en pso.py
-        datosTopsis = asyncio.run(ejecutar_topsis(w))
+#         # Llama a la función de procesar_datos en pso.py
+#         datosTopsis = asyncio.run(ejecutar_topsis(w))
 
-        return render_template('topsis.html', datosTopsis=datosTopsis)
-    except Exception as e:
-        return render_template('topsis.html', error_message=str(e))
-
-
-@app.route('/topsis', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_topsis():
-    uid = session.get('user_id')  # <-- string key, NO lista
-    if uid:
-        user = db.session.get(User, uid)   # SQLAlchemy 2.x
-        if user:
-            usuario = user.username
-    try:
-        # Obtén los datos del formulario
-        w_input = request.form.get('w', '')  # Obtiene el valor de 'w' del formulario
-        w_values = w_input.split(",")  # Divide la cadena en valores individuales
-        w = [float(value.strip()) for value in w_values if value.strip()]  # Convierte cada valor a flotante
-
-        # Llama a la función de PSO en pso.py
-        datosTopsis = asyncio.run(ejecutar_topsis(w, usuario))
-        print("Resultados de la ejecución:", datosTopsis)
-
-        # Devuelve los resultados
-        return jsonify(datosTopsis)
-    except Exception as e:
-        print(f'Error en calcular_topsis: {str(e)}')
-        return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+#         return render_template('topsis.html', datosTopsis=datosTopsis)
+#     except Exception as e:
+#         return render_template('topsis.html', error_message=str(e))
 
 
-#-------------------------------------------------------------------------------------------------------------------
+# @app.route('/topsis', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_topsis():
+#     uid = session.get('user_id')  # <-- string key, NO lista
+#     if uid:
+#         user = db.session.get(User, uid)   # SQLAlchemy 2.x
+#         if user:
+#             usuario = user.username
+#     try:
+#         # Obtén los datos del formulario
+#         w_input = request.form.get('w', '')  # Obtiene el valor de 'w' del formulario
+#         w_values = w_input.split(",")  # Divide la cadena en valores individuales
+#         w = [float(value.strip()) for value in w_values if value.strip()]  # Convierte cada valor a flotante
+
+#         # Llama a la función de PSO en pso.py
+#         datosTopsis = asyncio.run(ejecutar_topsis(w, usuario))
+#         print("Resultados de la ejecución:", datosTopsis)
+
+#         # Devuelve los resultados
+#         return jsonify(datosTopsis)
+#     except Exception as e:
+#         print(f'Error en calcular_topsis: {str(e)}')
+#         return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
 
 
 #-------------------------------------------------------------------------------------------------------------------
-        #Algoritmo_Ruta MOORAV
 
-@app.route('/moorav')
-@roles_required('user','admin', 'superadmin')
-def moorav():
-    try:
-        # Obtén los datos del formulario
-        w_input = request.form.get('w', '')  # Obtiene el valor de 'w' del formulario
-        w_values = w_input.split(",")  # Divide la cadena en valores individuales
-        w = [float(value.strip()) for value in w_values if value.strip()]  # Convierte cada valor a flotante
-        
-        
-        # Llama a la función de procesar_datos en pso.py
-        datosMoorav = asyncio.run(ejecutar_moorav(w))
-
-        return render_template('moorav.html', datosMoorav=datosMoorav)
-    except Exception as e:
-        return render_template('moorav.html', error_message=str(e))
-
-
-@app.route('/moorav', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_moorav():
-    uid = session.get('user_id')  # <-- string key, NO lista
-    if uid:
-        user = db.session.get(User, uid)   # SQLAlchemy 2.x
-        if user:
-            usuario = user.username
-    try:
-        # Obtén los datos del formulario
-        w_input = request.form.get('w', '')  # Obtiene el valor de 'w' del formulario
-        w_values = w_input.split(",")  # Divide la cadena en valores individuales
-        w = [float(value.strip()) for value in w_values if value.strip()]  # Convierte cada valor a flotante
-        
-
-        # Llama a la función de PSO en pso.py
-        datosMoorav = asyncio.run(ejecutar_moorav(w, usuario))
-        print("Resultados de la ejecución:", datosMoorav)
-
-        # Obtén los resultados específicos que deseas mostrar
-        # dataGBP = resultados['dataGBP']
-        # dataGBF = resultados['dataGBF']
-        # dataResult = resultados['dataResult']
-
-        # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
-        return jsonify(datosMoorav)
-    except Exception as e:
-        # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
-       print(f'Error en calcular_moorav: {str(e)}')
-    return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
-#-------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------
         #Algoritmo_Ruta MOORAV
 
-@app.route('/da')
-@roles_required('user','admin', 'superadmin')
-def da():
-    try:
-        # Obtén los datos del formulario
-        w_input = request.form.get('w', '')  # Obtiene el valor de 'w' del formulario
-        w_values = w_input.split(",")  # Divide la cadena en valores individuales
-        w = [float(value.strip()) for value in w_values if value.strip()]  # Convierte cada valor a flotante
+# @app.route('/moorav')
+# @roles_required('user','admin', 'superadmin')
+# def moorav():
+#     try:
+#         # Obtén los datos del formulario
+#         w_input = request.form.get('w', '')  # Obtiene el valor de 'w' del formulario
+#         w_values = w_input.split(",")  # Divide la cadena en valores individuales
+#         w = [float(value.strip()) for value in w_values if value.strip()]  # Convierte cada valor a flotante
         
         
-        # Llama a la función de procesar_datos en pso.py
-        datosDa = asyncio.run(ejecutar_da(w))
+#         # Llama a la función de procesar_datos en pso.py
+#         datosMoorav = asyncio.run(ejecutar_moorav(w))
 
-        return render_template('da.html', datosDa=datosDa)
-    except Exception as e:
-        return render_template('da.html', error_message=str(e))
+#         return render_template('moorav.html', datosMoorav=datosMoorav)
+#     except Exception as e:
+#         return render_template('moorav.html', error_message=str(e))
 
 
-@app.route('/da', methods=['POST'])
-@roles_required('user','admin', 'superadmin')
-def calcular_da():
-    uid = session.get('user_id')  # <-- string key, NO lista
-    if uid:
-        user = db.session.get(User, uid)   # SQLAlchemy 2.x
-        if user:
-            usuario = user.username
-    try:
-        # Obtén los datos del formulario
-        w_input = request.form.get('w', '')  # Obtiene el valor de 'w' del formulario
-        w_values = w_input.split(",")  # Divide la cadena en valores individuales
-        w = [float(value.strip()) for value in w_values if value.strip()]  # Convierte cada valor a flotante
+# @app.route('/moorav', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_moorav():
+#     uid = session.get('user_id')  # <-- string key, NO lista
+#     if uid:
+#         user = db.session.get(User, uid)   # SQLAlchemy 2.x
+#         if user:
+#             usuario = user.username
+#     try:
+#         # Obtén los datos del formulario
+#         w_input = request.form.get('w', '')  # Obtiene el valor de 'w' del formulario
+#         w_values = w_input.split(",")  # Divide la cadena en valores individuales
+#         w = [float(value.strip()) for value in w_values if value.strip()]  # Convierte cada valor a flotante
+        
 
-        # Llama a la función de PSO en pso.py
-        datosDa = asyncio.run(ejecutar_da(w, usuario))
-        print("Resultados de la ejecución:", datosDa)
+#         # Llama a la función de PSO en pso.py
+#         datosMoorav = asyncio.run(ejecutar_moorav(w, usuario))
+#         print("Resultados de la ejecución:", datosMoorav)
 
-        # Obtén los resultados específicos que deseas mostrar
-        # dataGBP = resultados['dataGBP']
-        # dataGBF = resultados['dataGBF']
-        # dataResult = resultados['dataResult']
+#         # Obtén los resultados específicos que deseas mostrar
+#         # dataGBP = resultados['dataGBP']
+#         # dataGBF = resultados['dataGBF']
+#         # dataResult = resultados['dataResult']
 
-        # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
-        return jsonify(datosDa)
-    except Exception as e:
-        # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
-       print(f'Error en calcular_Da: {str(e)}')
-    return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+#         # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
+#         return jsonify(datosMoorav)
+#     except Exception as e:
+#         # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
+#        print(f'Error en calcular_moorav: {str(e)}')
+#     return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+
+#-------------------------------------------------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------------------------------------------
+        #Algoritmo_Ruta MOORAV
+
+# @app.route('/da')
+# @roles_required('user','admin', 'superadmin')
+# def da():
+#     try:
+#         # Obtén los datos del formulario
+#         w_input = request.form.get('w', '')  # Obtiene el valor de 'w' del formulario
+#         w_values = w_input.split(",")  # Divide la cadena en valores individuales
+#         w = [float(value.strip()) for value in w_values if value.strip()]  # Convierte cada valor a flotante
+        
+        
+#         # Llama a la función de procesar_datos en pso.py
+#         datosDa = asyncio.run(ejecutar_da(w))
+
+#         return render_template('da.html', datosDa=datosDa)
+#     except Exception as e:
+#         return render_template('da.html', error_message=str(e))
+
+
+# @app.route('/da', methods=['POST'])
+# @roles_required('user','admin', 'superadmin')
+# def calcular_da():
+#     uid = session.get('user_id')  # <-- string key, NO lista
+#     if uid:
+#         user = db.session.get(User, uid)   # SQLAlchemy 2.x
+#         if user:
+#             usuario = user.username
+#     try:
+#         # Obtén los datos del formulario
+#         w_input = request.form.get('w', '')  # Obtiene el valor de 'w' del formulario
+#         w_values = w_input.split(",")  # Divide la cadena en valores individuales
+#         w = [float(value.strip()) for value in w_values if value.strip()]  # Convierte cada valor a flotante
+
+#         # Llama a la función de PSO en pso.py
+#         datosDa = asyncio.run(ejecutar_da(w, usuario))
+#         print("Resultados de la ejecución:", datosDa)
+
+#         # Obtén los resultados específicos que deseas mostrar
+#         # dataGBP = resultados['dataGBP']
+#         # dataGBF = resultados['dataGBF']
+#         # dataResult = resultados['dataResult']
+
+#         # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
+#         return jsonify(datosDa)
+#     except Exception as e:
+#         # Manejo de errores, por ejemplo, mostrar un mensaje de error en la interfaz
+#        print(f'Error en calcular_Da: {str(e)}')
+#     return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+
 #-------------------------------------------------------------------------------------------------------------------
 @app.route('/index', methods=['POST'])
 @roles_required('user','admin', 'superadmin')

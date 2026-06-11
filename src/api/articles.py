@@ -64,7 +64,7 @@ def list_articles():
         q = q.where(Article.visible.is_(True))
 
     # Ordenar por created_at DESC; si hay NULL (filas antiguas), usa NOW para no perder orden
-    q = q.order_by(db.func.coalesce(Article.created_at, db.func.datetime('now')).desc())
+    q = q.order_by(db.func.coalesce(Article.created_at, db.func.now()).desc())
 
     rows = db.session.execute(q).scalars().all()
 
@@ -181,7 +181,7 @@ def list_public_articles():
               selectinload(Article.authors).selectinload(ArticleAuthor.author),
               selectinload(Article.correspondings).selectinload(ArticleCorresponding.author),
           )
-          .order_by(db.func.coalesce(Article.created_at, db.func.datetime('now')).desc())
+          .order_by(db.func.coalesce(Article.created_at, db.func.now()).desc())
     )
     arts = db.session.execute(q).scalars().unique().all()
 

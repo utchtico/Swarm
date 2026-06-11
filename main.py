@@ -15,6 +15,8 @@ from src.models.models import db, init_db
 from src.models.models import User
 from src.api.auth import auth_bp, login_required, roles_required
 from src.api.articles import bp as articles_api
+from src.services.ejecuciones import (MATRIZ_DEFAULT, guardar_ejecucion,
+                                      validar_entrada_pso)
 
 #import jwt
 #import mysql.connector
@@ -26,21 +28,21 @@ from numpy import ndarray
 from openpyxl import load_workbook
 
 #importacion de algoritmos
-from Layout.pso import ejecutar_pso
-# from Layout.aco import ejecutar_aco
-# from Layout.ba import ejecutar_ba
-# from Layout.da import ejecutar_da
-# from Layout.daaco import ejecutar_daaco
-# from Layout.daba import ejecutar_daba
-# from Layout.dapso import ejecutar_dapso
-# from Layout.mooraaco import ejecutar_mooraaco
-# from Layout.mooraba import ejecutar_mooraba
-# from Layout.moorapso import ejecutar_moorapso
-# from Layout.moorav import ejecutar_moorav
-# from Layout.topsis import ejecutar_topsis
-# from Layout.topsisaco import ejecutar_topsisaco
-# from Layout.topsisba import ejecutar_topsisba
-# from Layout.topsispso import ejecutar_topsispso
+from src.algoritmos.pso import ejecutar_pso
+# from src.algoritmos.aco import ejecutar_aco
+# from src.algoritmos.ba import ejecutar_ba
+# from src.algoritmos.da import ejecutar_da
+# from src.algoritmos.daaco import ejecutar_daaco
+# from src.algoritmos.daba import ejecutar_daba
+# from src.algoritmos.dapso import ejecutar_dapso
+# from src.algoritmos.mooraaco import ejecutar_mooraaco
+# from src.algoritmos.mooraba import ejecutar_mooraba
+# from src.algoritmos.moorapso import ejecutar_moorapso
+# from src.algoritmos.moorav import ejecutar_moorav
+# from src.algoritmos.topsis import ejecutar_topsis
+# from src.algoritmos.topsisaco import ejecutar_topsisaco
+# from src.algoritmos.topsisba import ejecutar_topsisba
+# from src.algoritmos.topsispso import ejecutar_topsispso
 
 # ----------- BASE DE DATOS: CONFIGURACIÓN ROBUSTA -----------
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -63,63 +65,63 @@ except Exception as e:
     print('ERROR: No puedo escribir en la carpeta db/:', e)
 
 # ----------- CONFIGURACIÓN DE FLASK Y SQLALCHEMY -----------
-app = Flask(__name__, template_folder = 'static/templates')
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
+from dotenv import load_dotenv
+load_dotenv()
+
+app = Flask(__name__)
+# PostgreSQL vía DATABASE_URL en .env; si no existe, fallback a SQLite (desarrollo)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', f'sqlite:///{DB_PATH}')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-insecure-key")
 user_root = 'Experiments'
 today_str = date.today().isoformat()
 
 db.init_app(app)
+
+# Trazabilidad de migraciones (Alembic): flask db migrate / flask db upgrade
+from flask_migrate import Migrate
+migrate = Migrate(app, db)
+
 init_db(app)
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(articles_api)
 
+# API JSON de algoritmos (contrato nuevo: /api/algoritmos/..., /api/ejecuciones/...)
+from src.api.algoritmos import algoritmos_bp
+app.register_blueprint(algoritmos_bp)
+
+# Vistas (rutas que solo renderizan templates)
+from src.views import views_bp
+app.register_blueprint(views_bp)
+
 print("DB articles:", id(db))
 
 #-------------------------------------------------------------------------------------------------------------------
-@app.route('/acercade')
-def acercade():
-    return render_template('acercade.html')
 
-@app.route('/casoexperimental')
-@roles_required('user','admin', 'superadmin')
-def casoexperimental():
-    return render_template('casoexperimental.html')
                 #Algoritmos PSO
 #-------------------------------------------------------------------------------------------------------------------
 @app.route('/pso')
 @roles_required('user','admin', 'superadmin')
 def pso():
-    try:
-        # Obtén los datos del formulario
-        w_input = [request.form.get(f'w[{i}]', '') for i in range(5)]
-        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
-        wwi = float(request.form['wwi'])
-        c1 = float(request.form['c1'])
-        c2 = float(request.form['c2'])
-        T = int(request.form['T'])
-        r1_input = request.form['r1']
-        r2_input = request.form['r2']
-        r1 = [float(num.strip()) for num in r1_input.split(',')]
-        r2 = [float(num.strip()) for num in r2_input.split(',')]
-        
-        # Llama a la función de procesar_datos en pso.py
-        datosPso = asyncio.run(ejecutar_pso(w, wwi, c1, c2, T, r1, r2))
-
-        return render_template('pso.html', datosPso=datosPso)
-    except Exception as e:
-        return render_template('pso.html', error_message=str(e))
+    # Solo renderiza la vista; los datos viajan por POST (la versión anterior
+    # leía request.form en un GET, que siempre está vacío y caía al except).
+    return render_template('pso.html')
 
 @app.route('/pso', methods=['POST'])
 @roles_required('user','admin', 'superadmin')
 def calcular_pso():
-    uid = session.get('user_id')  # <-- string key, NO lista
-    if uid:
-        user = db.session.get(User, uid)   # SQLAlchemy 2.x
-        if user:
-            usuario = user.username
+    """
+    PUENTE DE COMPATIBILIDAD: el formulario actual (pso.html) aún no envía
+    matriz, así que esta ruta usa MATRIZ_DEFAULT (la 9x5 original) y delega
+    en la implementación nueva. El contrato de respuesta hacia pso.js se
+    mantiene intacto. La ruta nueva con matriz dinámica es
+    POST /api/algoritmos/pso (JSON).
+    """
+    uid = session.get('user_id')
+    user = db.session.get(User, uid) if uid else None
+    if user is None:
+        return jsonify({"error": "Sesión inválida."}), 401
     try:
         # Obtén los datos del formulario
         w_input = [request.form.get(f"w{i}", None) for i in range(1, 6)]
@@ -128,34 +130,39 @@ def calcular_pso():
             return jsonify({"error": "Faltan valores en w1..w5"}), 400
 
         w = [float(v) for v in w_input]
-        #input(w)
         wwi = float(request.form['wwi'])
         c1 = float(request.form['c1'])
         c2 = float(request.form['c2'])
         T = int(request.form['T'])
         # Divide las cadenas de texto en listas
-        r1_input = request.form['r1']
-        r2_input = request.form['r2']
-        r1 = [float(num.strip()) for num in r1_input.split(',')]
-        r2 = [float(num.strip()) for num in r2_input.split(',')]
+        r1 = [float(num.strip()) for num in request.form['r1'].split(',')]
+        r2 = [float(num.strip()) for num in request.form['r2'].split(',')]
 
-        # Llama a la función de PSO en pso.py
-        print("PERRO",w, wwi, c1, c2, T, r1, r2, usuario)
-        datosPso = asyncio.run(ejecutar_pso(w, wwi, c1, c2, T, r1, r2, usuario))
-        #print("Resultados de la ejecución:", datosPso)
+        params = validar_entrada_pso({
+            'matriz': MATRIZ_DEFAULT, 'w': w, 'wwi': wwi,
+            'c1': c1, 'c2': c2, 'T': T, 'r1': r1, 'r2': r2,
+        })
+        datosPso = ejecutar_pso(**params, username=user.username)
+        ejecucion = guardar_ejecucion('PSO', user.id, params, datosPso)
 
-        # Obtén los resultados específicos que deseas mostrar
-        # dataGBP = resultados['dataGBP']
-        # dataGBF = resultados['dataGBF']
-        # dataResult = resultados['dataResult']
-
-        # Puedes hacer lo que quieras con los resultados, por ejemplo, pasarlos al template
-        return jsonify(datosPso)
+        return jsonify({
+            'ejecucion_id': ejecucion.id,
+            'mejor_alternativa': datosPso['mejor_alternativa'],
+            'iteraciones': datosPso['iteraciones'],
+            'hora_inicio': datosPso['hora_inicio'],
+            'fecha_inicio': datosPso['fecha_inicio'],
+            'hora_finalizacion': datosPso['hora_finalizacion'],
+            'tiempo_ejecucion': datosPso['tiempo_ejecucion'],
+            'historico_gbf': datosPso['historico_gbf'],
+        })
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     except Exception as e:
+        db.session.rollback()
         import traceback
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
-    return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
+
 #-------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------
@@ -895,7 +902,6 @@ def calcular_pso():
 #-------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------
-
 # @app.route('/comparacionGeneral')
 # @roles_required('user','admin', 'superadmin')
 # def comparacionGeneral():
@@ -1360,6 +1366,7 @@ def calcular_pso():
 #     return jsonify({'error': 'Ocurrió un error en el servidor'}), 500
 
 #-------------------------------------------------------------------------------------------------------------------
+
 @app.route('/index', methods=['POST'])
 @roles_required('user','admin', 'superadmin')
 def index():
@@ -1675,15 +1682,6 @@ def index():
 
     return render_template('index.html', **context)
 
-@app.route('/')
-@roles_required('user','admin', 'superadmin')
-def home():
-    uid = session.get('user_id')
-    if uid:
-        user = db.session.get(User, uid)
-        if user:
-            usuario = user.username
-    return render_template('index.html', usuario=usuario)
 
 def get_username():
     uid = session.get('user_id')
@@ -1970,20 +1968,6 @@ def signup():
 
     return render_template('signup.html', msg=msg)
 
-@app.route('/articulos')
-@roles_required('admin', 'superadmin')
-def articulos():
-    directorio = 'Experiments/static'  
-    filename = ''
-    return render_template('articulos.html')
-    
-    #return send_from_directory(directorio, filename, as_attachment=True)
-@app.route('/publicaciones')
-@roles_required('user','admin', 'superadmin')
-def publicacion():
-    directorio = 'Experiments/static'  
-    filename = ''
-    return render_template('publicaciones.html')
 
 
 # @app.route('/descargar-ultimo')

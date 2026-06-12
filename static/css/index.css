@@ -842,3 +842,7 @@ h1.page-title {
         font-size: 1.5rem;
     }
 }
+
+p{
+    text-align: justify;
+}

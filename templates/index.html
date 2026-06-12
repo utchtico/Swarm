@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/index.css">
+    <title>Algorithms App</title>
+</head>
+
+<body>
+    <nav class="navbar-principal" role="navigation" aria-label="Navegación principal">
+        <a class="brand" href="/">Algorithms App</a>
+
+        <p id="bienvenida" class="bienvenida">Bienvenido {{ usuario }}</p>
+
+        <!-- Toggle accesible -->
+        <button class="nav-toggle" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú">
+            <span class="hamburger" aria-hidden="true"></span>
+        </button>
+        {% set role = session.get('role') %}
+        <ul id="menu" class="menu">
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/casoexperimental">Caso Experimental</a></li>
+            <li><a href="/topsis">MCDM</a></li>
+            <li><a href="/pso">PSO</a></li>
+            <li><a href="/ba">BA</a></li>
+            <li><a href="/aco">ACO</a></li>
+            <!-- <li><a href="#" class="soon" aria-disabled="true" hidden="true" data-tip="Próximamente">ABA</a></li> -->
+            <li><a href="/comparacionGeneral">Comparación</a></li>
+            <li><a href="/acercade">Acerca De</a></li>
+            <li><a href="/publicaciones">Publicaciones</a></li>
+            <li class="user-menu">
+                <button class="user-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="user-dropdown"
+                    title="Cuenta">
+                    <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path fill="currentColor" d="M12 12a5 5 0 1 0-5-5a5 5 0 0 0 5 5Z" />
+                        <path fill="currentColor" d="M4 20a8 8 0 1 1 16 0z" />
+                    </svg>
+                </button>
+
+                <ul id="user-dropdown" class="user-dropdown" role="menu">
+                    <li role="none">
+                        {% if role in ('admin','superadmin') %}
+
+                        <a role="menuitem" href="/articulos">Articulos</a>
+
+                        {% endif %}
+
+                        <form action="/logout" method="POST">
+                            <a role="menuitem" href="/logout">Salir</a>
+                        </form>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    <!-- ============ HERO ============ -->
+    <header class="bg-white border-b border-slate-200">
+        <div class="max-w-4xl mx-auto px-6 py-12">
+            <h1 class="text-3xl lg:text-4xl font-semibold text-gray-800 leading-tight">
+                Toma de decisiones avanzadas con inteligencia de enjambre en un ambiente multicriterio
+            </h1>
+            <p class="mt-6 text-lg leading-relaxed text-gray-600">
+                Este sitio web ha sido diseñado con el propósito de asistir tanto a individuos como a
+                organizaciones en la toma de decisiones más informadas y eficaces, particularmente en
+                escenarios de alta complejidad donde múltiples factores o criterios deben ser tenidos en cuenta.
+            </p>
+            <p class="mt-4 leading-relaxed text-gray-500">
+                En contraposición a la toma de decisiones basadas en intuición o experiencia exclusivamente,
+                esta herramienta adopta un enfoque más estructurado y avanzado. Para ello, hace uso de
+                algoritmos basados en la inteligencia de enjambre, lo que le permite encontrar soluciones
+                óptimas o cercanas a la perfección en situaciones complejas donde múltiples criterios o
+                factores desempeñan un papel fundamental, y donde estos criterios pueden variar en su
+                importancia relativa.
+            </p>
+            <p class="mt-4 leading-relaxed text-gray-500">
+                Estas herramientas adquieren un valor significativo en la toma de decisiones estratégicas en
+                diversos ámbitos, tales como la gestión empresarial, la inversión financiera, la planificación
+                de proyectos, la selección de productos o servicios, así como en la formulación de políticas
+                gubernamentales. Su utilidad se evidencia especialmente en contextos donde la cantidad de
+                información disponible y las interrelaciones entre los factores involucrados pueden llegar a
+                ser abrumadoras.
+            </p>
+        </div>
+    </header>
+
+    <!-- ============ INTELIGENCIA DE ENJAMBRE ============ -->
+    <main class="max-w-5xl mx-auto px-6 py-12">
+        <h2 class="text-2xl font-semibold text-gray-800">Inteligencia de enjambre</h2>
+        <p class="mt-4 leading-relaxed text-gray-600">
+            La inteligencia de enjambre es un concepto inspirado en la observación del comportamiento de
+            los enjambres de animales en la naturaleza, como las colonias de hormigas, las bandadas de aves
+            y los cardúmenes de peces. Se refiere a la capacidad de un grupo de agentes individuales, que
+            pueden ser considerados como «partículas» o «agentes» virtuales, para colaborar y coordinarse
+            de manera efectiva en la búsqueda de soluciones a problemas complejos. Los agentes en un
+            sistema de inteligencia de enjambre interactúan entre sí y ajustan sus comportamientos en
+            función de las señales que reciben del entorno y de sus compañeros.
+        </p>
+        <p class="mt-4 leading-relaxed text-gray-600">
+            Un componente fundamental de la inteligencia de enjambre son los algoritmos metaheurísticos,
+            que son algoritmos de búsqueda y optimización que se basan en principios inspirados en el
+            comportamiento colectivo de los enjambres. Los metaheurísticos son técnicas de resolución de
+            problemas que no garantizan encontrar la solución óptima, pero son muy eficientes para explorar
+            soluciones en espacios de búsqueda complejos. Algunos ejemplos de metaheurísticas que se
+            utilizan en la inteligencia de enjambre incluyen:
+        </p>
+
+        <div class="mt-8 grid gap-6 lg:grid-cols-3">
+            <article
+                class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-6 flex flex-col">
+                <h3 class="font-semibold text-gray-900 mb-2">Optimización por Enjambre de Partículas (PSO)</h3>
+                <p class="text-sm leading-relaxed text-gray-600 flex-1">El algoritmo de Optimización por Enjambre de
+                    Partículas (PSO, por sus siglas en inglés, Particle Swarm Optimization) es una técnica de
+                    optimización inspirada en el comportamiento de los enjambres y bandadas de aves en la naturaleza.
+                    Fue desarrollado por James Kennedy y Russell Eberhart en la década de 1990 y se utiliza para
+                    encontrar soluciones aproximadas a problemas de optimización en espacios multidimensionales, donde
+                    se busca encontrar el valor mínimo o máximo de una función.
+                    <a href="https://ieeexplore.ieee.org/document/494215" class="text-cyan-600 hover:underline">Leer
+                        más</a>.
+                </p>
+                <a href="/pso"
+                    class="mt-4 inline-block text-sm font-medium text-white bg-slate-700 hover:bg-slate-800 rounded-lg px-4 py-2 self-start">
+                    Ir al algoritmo &rarr;
+                </a>
+            </article>
+            <article
+                class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-6 flex flex-col">
+                <h3 class="font-semibold text-gray-900 mb-2">Algoritmo de Murciélago (BA)</h3>
+                <p class="text-sm leading-relaxed text-gray-600 flex-1">El algoritmo de Murciélago (BA, por sus siglas
+                    en inglés, Bat Algorithm) es una técnica de optimización inspirada en el comportamiento de los
+                    murciélagos en la naturaleza. Fue propuesto por Xin-She Yang en 2010 y se utiliza para encontrar
+                    soluciones aproximadas a problemas de optimización, especialmente en espacios de búsqueda continuos.
+                    Este algoritmo se caracteriza por su capacidad de búsqueda global y su capacidad para adaptarse a
+                    diferentes tipos de problemas de optimización.
+                    <a href="https://link.springer.com/chapter/10.1007/978-3-642-12538-6_6"
+                        class="text-cyan-600 hover:underline">Leer más</a>.
+                </p>
+                <a href="/ba"
+                    class="mt-4 inline-block text-sm font-medium text-white bg-slate-700 hover:bg-slate-800 rounded-lg px-4 py-2 self-start">
+                    Ir al algoritmo &rarr;
+                </a>
+            </article>
+            <article
+                class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-6 flex flex-col">
+                <h3 class="font-semibold text-gray-900 mb-2">Optimización por Colonias de Hormigas (ACO)</h3>
+                <p class="text-sm leading-relaxed text-gray-600 flex-1">El algoritmo de Colonias de Hormigas (ACO, por
+                    sus siglas en inglés, Ant Colony Optimization) es una técnica de optimización y búsqueda inspirada
+                    en el comportamiento de las colonias de hormigas reales. Fue desarrollado por Marco Dorigo en 1996 y
+                    se utiliza para resolver problemas de optimización combinatoria, donde se busca encontrar la mejor
+                    solución entre un conjunto finito de posibles soluciones.
+                    <a href="https://ieeexplore.ieee.org/abstract/document/484436"
+                        class="text-cyan-600 hover:underline">Leer más</a>.
+                </p>
+                <a href="/aco"
+                    class="mt-4 inline-block text-sm font-medium text-white bg-slate-700 hover:bg-slate-800 rounded-lg px-4 py-2 self-start">
+                    Ir al algoritmo &rarr;
+                </a>
+            </article>
+        </div>
+
+        <p class="mt-10 leading-relaxed text-gray-500">
+            En resumen, la inteligencia de enjambre es un enfoque de resolución de problemas que se basa en
+            la colaboración y coordinación de múltiples agentes o partículas para encontrar soluciones a
+            problemas complejos. Los metaheurísticos, como el PSO, BA y el ACO, son técnicas clave dentro
+            de la inteligencia de enjambre que se inspiran en el comportamiento colectivo de los enjambres
+            naturales para resolver problemas en una amplia gama de campos, incluyendo la optimización, la
+            planificación y la toma de decisiones.
+        </p>
+    </main>
+
+    <script>
+        (function () {
+            const nav = document.querySelector('.navbar-principal');
+            const btn = nav.querySelector('.nav-toggle');
+            const menu = nav.querySelector('#menu');
+
+            // --- Toggle principal (hamburguesa) ---
+            btn.addEventListener('click', () => {
+                const open = nav.classList.toggle('is-open');
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+
+            // --- "Próximamente" (items disabled) ---
+            const SOON_SELECTOR = 'a.soon[aria-disabled="true"]';
+            const timeouts = new WeakMap();
+            function showSoonTip(el) {
+                el.classList.add('show-tip');
+                clearTimeout(timeouts.get(el));
+                const t = setTimeout(() => el.classList.remove('show-tip'), 1400);
+                timeouts.set(el, t);
+            }
+
+            // --- User dropdown ---
+            const userMenu = nav.querySelector('.user-menu');
+            const userBtn = userMenu?.querySelector('.user-btn');
+
+            function closeUserMenu() {
+                if (userMenu && userMenu.classList.contains('open')) {
+                    userMenu.classList.remove('open');
+                    userBtn?.setAttribute('aria-expanded', 'false');
+                }
+            }
+
+            userBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const willOpen = !userMenu.classList.contains('open');
+                // Cierra primero cualquier estado abierto (por limpieza)
+                closeUserMenu();
+                if (willOpen) {
+                    userMenu.classList.add('open');
+                    userBtn.setAttribute('aria-expanded', 'true');
+                }
+            });
+
+            // Cierre al hacer click fuera (incluye dropdown usuario)
+            document.addEventListener('click', (e) => {
+                if (!nav.contains(e.target)) {
+                    nav.classList.remove('is-open');
+                    btn.setAttribute('aria-expanded', 'false');
+                    closeUserMenu();
+                }
+            });
+
+            // Cierre al navegar y manejo de "Próximamente"
+            menu.addEventListener('click', (e) => {
+                const a = e.target.closest('a');
+                if (!a) return;
+
+                // Si es un item "Próximamente", muestra tip y NO cierres
+                if (a.matches(SOON_SELECTOR)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showSoonTip(a);
+                    return;
+                }
+
+                // Si el click fue dentro del dropdown de usuario, se permite cerrar
+                // tras la navegación/envío (mejor UX)
+                nav.classList.remove('is-open');
+                btn.setAttribute('aria-expanded', 'false');
+                closeUserMenu();
+            });
+
+            // Tap en móvil para "Próximamente"
+            menu.addEventListener('touchstart', (e) => {
+                const a = e.target.closest(SOON_SELECTOR);
+                if (a) showSoonTip(a);
+            }, { passive: true });
+
+            // Accesibilidad: cerrar el user menu con Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeUserMenu();
+                    nav.classList.remove('is-open');
+                    btn.setAttribute('aria-expanded', 'false');
+                }
+            });
+        })();
+    </script>
+
+</body>
+
+</html>

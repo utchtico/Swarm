@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Articulos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" href="/static/css/index.css">
+
+</head>
+
+<body>
+    <nav class="navbar-principal" role="navigation" aria-label="Navegación principal">
+        <a class="brand" href="/">Algorithms App</a>
+        <button class="nav-toggle" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú">
+            <span class="hamburger" aria-hidden="true"></span>
+        </button>
+
+        {% set role = session.get('role') %}
+<ul id="menu" class="menu">
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/casoexperimental">Caso Experimental</a></li>
+            <li><a href="/topsis">MCDM</a></li>
+            <li><a href="/pso">PSO</a></li>
+            <li><a href="/ba">BA</a></li>
+            <li><a href="/aco">ACO</a></li>
+            <!-- <li><a href="#" class="soon" aria-disabled="true" hidden="true" data-tip="Próximamente">ABA</a></li> -->
+            <li><a href="/comparacionGeneral">Comparación</a></li>
+            <li><a href="/acercade">Acerca De</a></li>
+            <li><a href="/publicaciones">Publicaciones</a></li>
+            <li class="user-menu">
+                <button class="user-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="user-dropdown"
+                    title="Cuenta">
+                    <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path fill="currentColor" d="M12 12a5 5 0 1 0-5-5a5 5 0 0 0 5 5Z" />
+                        <path fill="currentColor" d="M4 20a8 8 0 1 1 16 0z" />
+                    </svg>
+                </button>
+
+                <ul id="user-dropdown" class="user-dropdown" role="menu">
+                    <li role="none">
+                        <a role="menuitem" href="/articulos">Articulos
+                        </a>
+                        <form action="/logout" method="POST">
+                            <a role="menuitem" href="/logout">Salir</a>
+                        </form>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+
+
+    <div class="main-container">
+        <div class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            <!-- ====== FORMULARIO ====== -->
+            <div class="form-wrapper">
+                <h2 class="form-title">Alta de artículos científicos</h2>
+
+                <form id="article-form" class="space-y-4">
+                    <!-- Título -->
+                    <div class="form-group">
+                        <label class="form-label" for="titulo">Título</label>
+                        <input id="titulo" type="text" class="form-input" placeholder="Título" required />
+                    </div>
+
+                    <!-- Autores principales -->
+                    <div class="form-group">
+                        <label class="form-label">Autores</label>
+
+                        <div id="autores-container" class="space-y-2">
+                            <!-- fila autor -->
+                            <div class="grid grid-cols-2 gap-2 author-row">
+                                <input type="text" class="form-input autor-nombre" placeholder="Nombre (s)" />
+                                <div class="flex gap-2">
+                                    <input type="text" class="form-input autor-apellido flex-1"
+                                        placeholder="Apellidos" />
+                                    <button type="button"
+                                        class="px-3 rounded-md border border-gray-300 hover:bg-gray-50 remove-author"
+                                        title="Quitar" aria-label="Quitar autor">×</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="btn-add-autor" type="button" class="mt-2 text-sm text-indigo-600 hover:underline">
+                            Añadir autor +
+                        </button>
+                    </div>
+
+                    <!-- Autores de correspondencia -->
+                    <div class="form-group">
+                        <label class="form-label">Autores de correspondencia</label>
+
+                        <div id="corresp-container" class="space-y-2">
+                            <!-- fila corresponsal -->
+                            <div class="grid grid-cols-2 gap-2 corresp-row">
+                                <input type="text" class="form-input corresp-nombre" placeholder="Nombre (s)" />
+                                <div class="flex gap-2">
+                                    <input type="text" class="form-input corresp-apellido flex-1"
+                                        placeholder="Apellidos" />
+                                    <button type="button"
+                                        class="px-3 rounded-md border border-gray-300 hover:bg-gray-50 remove-corresp"
+                                        title="Quitar" aria-label="Quitar autor de correspondencia">×</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="btn-add-corresp" type="button" class="mt-2 text-sm text-indigo-600 hover:underline">
+                            Añadir autor +
+                        </button>
+                    </div>
+
+                    <!-- Tipo de evento y Lugar -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="form-label" for="tipo_evento">Tipo de evento</label>
+                            <select id="tipo_evento" class="form-select" required>
+                                <option value="" selected disabled>Seleccionar</option>
+                                <option>Congreso</option>
+                                <option>Revista</option>
+                                <option>Workshop</option>
+                                <option>Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="lugar_publicacion">Lugar de publicación</label>
+                            <input id="lugar_publicacion" type="text" class="form-input"
+                                placeholder="Ciudad / Organización" required />
+                        </div>
+                    </div>
+
+                    <!-- URL y Año -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="form-label" for="url_articulo">Enlace del artículo</label>
+                            <input id="url_articulo" type="url" class="form-input"
+                                placeholder="https://ejemplo.com/paper" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="year_publicacion">Año de publicación</label>
+                            <input id="year_publicacion" type="number" min="1900" max="2100" class="form-input"
+                                placeholder="2025" required />
+                        </div>
+                    </div>
+
+                    <!-- Resumen -->
+                    <div class="form-group">
+                        <label class="form-label" for="resumen">Resumen</label>
+                        <textarea id="resumen" rows="6" class="form-textarea" placeholder="Resumen. 300 palabras máx."
+                            required></textarea>
+                        <div class="text-right text-xs text-gray-500 mt-1">
+                            <span id="resumen-count">0</span>/300 palabras
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-4">
+                        <button id="btn-reset" type="button"
+                            class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-50">
+                            Limpiar
+                        </button>
+                        <button id="btn-submit" type="submit" class="submit-btn w-auto">Guardar artículo</button>
+                    </div>
+
+                    <p id="form-msg" class="text-sm mt-2"></p>
+                </form>
+            </div>
+
+            <!-- ====== LISTA (Artículos publicados) ====== -->
+            <div class="form-wrapper">
+                <h2 class="form-title text-center">Artículos publicados</h2>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="text-left py-2 pr-4">Título</th>
+                                <th class="text-left py-2 pr-4">Descripción</th>
+                                <th class="text-left py-2 pr-4">Fecha</th>
+                                <th class="text-left py-2">Mostrar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="articles-body">
+                            <!-- filas dinámicas -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex items-center justify-end mt-6 gap-4">
+                    <button id="btn-reload" type="button"
+                        class="experimental px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-50">
+                        Recargar
+                    </button>
+                    <button id="btn-save-visibility" type="button" class="submit-btn w-auto">Guardar</button>
+                </div>
+                <p id="list-msg" class="text-sm mt-2"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/articles.js') }}"></script>
+    <script>
+        (function () {
+            const nav = document.querySelector('.navbar-principal');
+            const btn = nav.querySelector('.nav-toggle');
+            const menu = nav.querySelector('#menu');
+
+            // --- Toggle principal (hamburguesa) ---
+            btn.addEventListener('click', () => {
+                const open = nav.classList.toggle('is-open');
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+
+            // --- "Próximamente" (items disabled) ---
+            const SOON_SELECTOR = 'a.soon[aria-disabled="true"]';
+            const timeouts = new WeakMap();
+            function showSoonTip(el) {
+                el.classList.add('show-tip');
+                clearTimeout(timeouts.get(el));
+                const t = setTimeout(() => el.classList.remove('show-tip'), 1400);
+                timeouts.set(el, t);
+            }
+
+            // --- User dropdown ---
+            const userMenu = nav.querySelector('.user-menu');
+            const userBtn = userMenu?.querySelector('.user-btn');
+
+            function closeUserMenu() {
+                if (userMenu && userMenu.classList.contains('open')) {
+                    userMenu.classList.remove('open');
+                    userBtn?.setAttribute('aria-expanded', 'false');
+                }
+            }
+
+            userBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const willOpen = !userMenu.classList.contains('open');
+                // Cierra primero cualquier estado abierto (por limpieza)
+                closeUserMenu();
+                if (willOpen) {
+                    userMenu.classList.add('open');
+                    userBtn.setAttribute('aria-expanded', 'true');
+                }
+            });
+
+            // Cierre al hacer click fuera (incluye dropdown usuario)
+            document.addEventListener('click', (e) => {
+                if (!nav.contains(e.target)) {
+                    nav.classList.remove('is-open');
+                    btn.setAttribute('aria-expanded', 'false');
+                    closeUserMenu();
+                }
+            });
+
+            // Cierre al navegar y manejo de "Próximamente"
+            menu.addEventListener('click', (e) => {
+                const a = e.target.closest('a');
+                if (!a) return;
+
+                // Si es un item "Próximamente", muestra tip y NO cierres
+                if (a.matches(SOON_SELECTOR)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showSoonTip(a);
+                    return;
+                }
+
+                // Si el click fue dentro del dropdown de usuario, se permite cerrar
+                // tras la navegación/envío (mejor UX)
+                nav.classList.remove('is-open');
+                btn.setAttribute('aria-expanded', 'false');
+                closeUserMenu();
+            });
+
+            // Tap en móvil para "Próximamente"
+            menu.addEventListener('touchstart', (e) => {
+                const a = e.target.closest(SOON_SELECTOR);
+                if (a) showSoonTip(a);
+            }, { passive: true });
+
+            // Accesibilidad: cerrar el user menu con Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeUserMenu();
+                    nav.classList.remove('is-open');
+                    btn.setAttribute('aria-expanded', 'false');
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

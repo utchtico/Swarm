@@ -13,7 +13,9 @@ from src.api.auth import roles_required
 from src.models.models import db, Ejecucion, User
 from src.services.ejecuciones import (
     exportar_ejecucion_excel,
+    generar_plantilla_excel,
     guardar_ejecucion,
+    parsear_plantilla_excel,
     validar_entrada_pso,
 )
 
@@ -80,6 +82,44 @@ def api_calcular_pso():
         'n_criterios': datos['n_criterios'],
         'n_alternativas': datos['n_alternativas'],
     })
+
+
+@algoritmos_bp.get('/algoritmos/pso/plantilla')
+@roles_required('user', 'admin', 'superadmin')
+def api_descargar_plantilla():
+    """Machote de Excel para capturar el experimento offline."""
+    try:
+        n = int(request.args.get('criterios', 5))
+        a = int(request.args.get('alternativas', 9))
+    except ValueError:
+        return jsonify({'error': 'criterios y alternativas deben ser enteros.'}), 400
+    buffer = generar_plantilla_excel(n, a)
+    return send_file(
+        buffer, as_attachment=True,
+        download_name='plantilla_pso.xlsx',
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+
+
+@algoritmos_bp.post('/algoritmos/pso/plantilla')
+@roles_required('user', 'admin', 'superadmin')
+def api_cargar_plantilla():
+    """
+    Recibe el machote llenado y devuelve el payload parseado (sin ejecutar):
+    el frontend lo usa para poblar la interfaz y el usuario revisa antes
+    de presionar Calcular.
+    """
+    archivo = request.files.get('archivo')
+    if archivo is None or archivo.filename == '':
+        return jsonify({'error': 'No se recibió ningún archivo.'}), 400
+    if not archivo.filename.lower().endswith('.xlsx'):
+        return jsonify({'error': 'El archivo debe ser un .xlsx.'}), 400
+    try:
+        payload = parsear_plantilla_excel(archivo)
+        params = validar_entrada_pso(payload)  # misma validación que la ejecución
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    return jsonify(params)
 
 
 @algoritmos_bp.get('/ejecuciones')

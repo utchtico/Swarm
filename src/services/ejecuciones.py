@@ -118,6 +118,104 @@ def validar_entrada_pso(payload: dict) -> dict:
             'T': T, 'r1': r1, 'r2': r2}
 
 
+def generar_plantilla_excel(n_criterios: int = 5, n_alternativas: int = 9) -> BytesIO:
+    """
+    Genera el machote de Excel para capturar un experimento offline.
+    Hojas: Instrucciones, Matriz (a x n), Parametros (w/R1/R2 por criterio
+    + escalares wwi/c1/c2/T). Se puede ampliar agregando filas/columnas
+    directamente en el archivo: al subirlo, las dimensiones se leen de la hoja.
+    """
+    n = max(n_criterios, MIN_CRITERIOS)
+    a = max(n_alternativas, MIN_ALTERNATIVAS)
+    cols = [f'C{i+1}' for i in range(n)]
+    idx = [f'A{j+1}' for j in range(a)]
+
+    # Prellenado con el caso de estudio donde aplica, 0.050 en celdas nuevas
+    valores = [[MATRIZ_DEFAULT[f][c] if f < len(MATRIZ_DEFAULT) and c < len(MATRIZ_DEFAULT[0])
+                else 0.050 for c in range(n)] for f in range(a)]
+    w_def = [0.400, 0.200, 0.030, 0.070, 0.300]
+    r1_def = [0.4657, 0.8956, 0.3877, 0.4902, 0.5039]
+    r2_def = [0.5319, 0.8185, 0.8331, 0.7677, 0.1708]
+    rellena = lambda base, largo, defecto: [base[i] if i < len(base) else defecto
+                                            for i in range(largo)]
+
+    buffer = BytesIO()
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        pd.DataFrame({'Instrucciones': [
+            'PLANTILLA DE EXPERIMENTO PSO',
+            '',
+            '1. Hoja "Matriz": capture la matriz de decisión.',
+            '   - Filas = alternativas (A1, A2, ...), columnas = criterios (C1, C2, ...).',
+            f'   - Puede agregar filas y columnas (mínimo {MIN_ALTERNATIVAS} x {MIN_CRITERIOS}).',
+            '   - Mantenga los encabezados con el formato A# / C#.',
+            '2. Hoja "Parametros": capture w, R1 y R2 (un valor por criterio,',
+            '   las columnas deben coincidir con las de la Matriz) y los',
+            '   escalares wwi, c1, c2 y T.',
+            '3. Guarde el archivo y súbalo en la sección Laboratorio con',
+            '   el botón "Cargar plantilla".',
+        ]}).to_excel(writer, sheet_name='Instrucciones', index=False)
+
+        pd.DataFrame(valores, columns=cols, index=idx).to_excel(writer, sheet_name='Matriz')
+
+        param_filas = pd.DataFrame(
+            [rellena(w_def, n, 0.100), rellena(r1_def, n, 0.5000), rellena(r2_def, n, 0.5000)],
+            columns=cols, index=['w', 'R1', 'R2'])
+        param_filas.to_excel(writer, sheet_name='Parametros', startrow=0)
+        pd.DataFrame({'Parametro': ['wwi', 'c1', 'c2', 'T'],
+                      'Valor': [0.7, 2.5, 2.5, 10]}).to_excel(
+            writer, sheet_name='Parametros', startrow=6, index=False)
+
+    buffer.seek(0)
+    return buffer
+
+
+def parsear_plantilla_excel(archivo) -> dict:
+    """
+    Lee un machote llenado y devuelve el payload listo para validar_entrada_pso.
+    archivo: file-like (request.files['archivo']).
+    Lanza ValueError con mensaje claro ante cualquier problema de formato.
+    """
+    try:
+        matriz_df = pd.read_excel(archivo, sheet_name='Matriz', index_col=0)
+        archivo.seek(0)
+        params_df = pd.read_excel(archivo, sheet_name='Parametros', index_col=0, nrows=3)
+        archivo.seek(0)
+        escalares_df = pd.read_excel(archivo, sheet_name='Parametros', skiprows=6)
+    except ValueError as e:
+        raise ValueError(f"No se pudo leer la plantilla: {e}. "
+                         "Verifique que existan las hojas 'Matriz' y 'Parametros'.")
+
+    matriz_df = matriz_df.dropna(how='all').dropna(axis=1, how='all')
+    if matriz_df.isna().any().any():
+        raise ValueError("La hoja 'Matriz' tiene celdas vacías dentro del rango de datos.")
+
+    n = matriz_df.shape[1]
+
+    def _fila_param(nombre):
+        if nombre not in params_df.index:
+            raise ValueError(f"Falta la fila '{nombre}' en la hoja 'Parametros'.")
+        fila = params_df.loc[nombre].dropna()
+        if len(fila) != n:
+            raise ValueError(f"'{nombre}' tiene {len(fila)} valores; la matriz tiene {n} criterios.")
+        return [float(v) for v in fila]
+
+    escalares = dict(zip(escalares_df.iloc[:, 0], escalares_df.iloc[:, 1]))
+    for clave in ('wwi', 'c1', 'c2', 'T'):
+        if clave not in escalares or pd.isna(escalares[clave]):
+            raise ValueError(f"Falta el valor de '{clave}' en la hoja 'Parametros'.")
+
+    return {
+        'matriz': [[float(v) for v in fila] for fila in matriz_df.values],
+        'w': _fila_param('w'),
+        'r1': _fila_param('R1'),
+        'r2': _fila_param('R2'),
+        'wwi': float(escalares['wwi']),
+        'c1': float(escalares['c1']),
+        'c2': float(escalares['c2']),
+        'T': int(escalares['T']),
+    }
+
+
 def guardar_ejecucion(algoritmo: str, user_id: int, params: dict, datos: dict) -> Ejecucion:
     """
     Persiste en PostgreSQL el resultado devuelto por un algoritmo.
@@ -217,6 +315,26 @@ def exportar_ejecucion_excel(ejecucion_id: int) -> BytesIO:
             pd.DataFrame(hist['Fx'], columns=['Fx']).to_excel(writer, sheet_name='Fx')
         pd.DataFrame(ejecucion.historico_gbf, columns=['GBF']).to_excel(
             writer, sheet_name='GBF')
+        # Gráfica de convergencia nativa sobre los datos de la hoja GBF
+        n_iter = len(ejecucion.historico_gbf)
+        if n_iter > 1:
+            libro = writer.book
+            chart = libro.add_chart({'type': 'line'})
+            chart.add_series({
+                'name': 'GBF (Global Best Fitness)',
+                'categories': ['GBF', 1, 0, n_iter, 0],
+                'values': ['GBF', 1, 1, n_iter, 1],
+                'line': {'color': '#3B82F6', 'width': 2.25},
+                'marker': {'type': 'circle', 'size': 5,
+                           'fill': {'color': '#3B82F6'}},
+            })
+            chart.set_title({'name': 'Convergencia del algoritmo'})
+            chart.set_x_axis({'name': 'Iteración'})
+            chart.set_y_axis({'name': 'GBF'})
+            chart.set_legend({'none': True})
+            chart.set_size({'width': 640, 'height': 380})
+            writer.sheets['GBF'].insert_chart('D2', chart)
+
         if hist.get('gbest'):
             pd.DataFrame(hist['gbest'], columns=['gbest']).to_excel(
                 writer, sheet_name='gbest')
@@ -227,3 +345,139 @@ def exportar_ejecucion_excel(ejecucion_id: int) -> BytesIO:
 
     buffer.seek(0)
     return buffer
+
+
+# =====================================================================
+# PLANTILLA EXCEL ("machote"): descarga para llenar offline y re-subida
+# =====================================================================
+
+def generar_plantilla_excel(n_criterios: int = MIN_CRITERIOS,
+                            n_alternativas: int = MIN_ALTERNATIVAS) -> BytesIO:
+    """
+    Genera un libro con 4 hojas para capturar un experimento offline:
+      Instrucciones | Matriz | Vectores (w, R1, R2) | Parametros
+    Las celdas a llenar van en azul (convención: entradas del usuario).
+    """
+    n = max(int(n_criterios), MIN_CRITERIOS)
+    a = max(int(n_alternativas), MIN_ALTERNATIVAS)
+    cols = [f'C{i+1}' for i in range(n)]
+    filas = [f'A{j+1}' for j in range(a)]
+
+    buffer = BytesIO()
+    import xlsxwriter
+    libro = xlsxwriter.Workbook(buffer, {'in_memory': True})
+    fmt_titulo = libro.add_format({'bold': True, 'font_name': 'Arial', 'font_size': 12})
+    fmt_texto = libro.add_format({'font_name': 'Arial', 'text_wrap': True, 'valign': 'top'})
+    fmt_header = libro.add_format({'bold': True, 'font_name': 'Arial',
+                                   'bg_color': '#E2E8F0', 'border': 1,
+                                   'align': 'center'})
+    fmt_entrada = libro.add_format({'font_name': 'Arial', 'font_color': '#0000FF',
+                                    'border': 1, 'num_format': '0.000'})
+    fmt_param = libro.add_format({'font_name': 'Arial', 'border': 1})
+
+    # --- Instrucciones ---
+    h = libro.add_worksheet('Instrucciones')
+    h.set_column('A:A', 90)
+    h.write('A1', 'Plantilla de experimento PSO', fmt_titulo)
+    instrucciones = [
+        '1. Hoja "Matriz": capture la matriz de decisión. Filas = alternativas (A), '
+        'columnas = criterios (C). Solo edite las celdas en azul.',
+        '2. Hoja "Vectores": capture el peso w y los vectores R1 y R2, un valor por criterio.',
+        '3. Hoja "Parametros": capture el peso de inercia (wwi), c1, c2 y la cantidad '
+        'de iteraciones (T).',
+        '4. No cambie el nombre de las hojas ni elimine encabezados; el sistema los usa '
+        'para leer el archivo.',
+        '5. Guarde el archivo y súbalo en la sección Laboratorio del algoritmo PSO.',
+    ]
+    for i, t in enumerate(instrucciones):
+        h.write(i + 2, 0, t, fmt_texto)
+
+    # --- Matriz ---
+    h = libro.add_worksheet('Matriz')
+    h.write(0, 0, '', fmt_header)
+    for c, nombre in enumerate(cols):
+        h.write(0, c + 1, nombre, fmt_header)
+        h.set_column(c + 1, c + 1, 10)
+    for f, nombre in enumerate(filas):
+        h.write(f + 1, 0, nombre, fmt_header)
+        for c in range(n):
+            h.write_blank(f + 1, c + 1, None, fmt_entrada)
+
+    # --- Vectores ---
+    h = libro.add_worksheet('Vectores')
+    h.write(0, 0, '', fmt_header)
+    for c, nombre in enumerate(cols):
+        h.write(0, c + 1, nombre, fmt_header)
+        h.set_column(c + 1, c + 1, 10)
+    for f, nombre in enumerate(['w', 'R1', 'R2']):
+        h.write(f + 1, 0, nombre, fmt_header)
+        for c in range(n):
+            h.write_blank(f + 1, c + 1, None, fmt_entrada)
+
+    # --- Parametros ---
+    h = libro.add_worksheet('Parametros')
+    h.set_column('A:A', 28)
+    h.set_column('B:B', 12)
+    h.write(0, 0, 'Parametro', fmt_header)
+    h.write(0, 1, 'Valor', fmt_header)
+    defaults = [('wwi (peso de inercia)', 0.7), ('c1', 2.5), ('c2', 2.5),
+                ('T (iteraciones)', 10)]
+    for i, (nombre, valor) in enumerate(defaults):
+        h.write(i + 1, 0, nombre, fmt_param)
+        h.write(i + 1, 1, valor, fmt_entrada)
+
+    libro.close()
+    buffer.seek(0)
+    return buffer
+
+
+def parsear_plantilla_excel(archivo) -> dict:
+    """
+    Lee una plantilla llenada y devuelve el payload listo para validar_entrada_pso.
+    Lanza ValueError con mensajes claros si el archivo no cumple el formato.
+    """
+    try:
+        hojas = pd.read_excel(archivo, sheet_name=None, index_col=0)
+    except Exception:
+        raise ValueError("No se pudo leer el archivo. Verifique que sea un .xlsx válido.")
+
+    for requerida in ('Matriz', 'Vectores', 'Parametros'):
+        if requerida not in hojas:
+            raise ValueError(f"Falta la hoja '{requerida}' en la plantilla.")
+
+    dfm = hojas['Matriz']
+    if dfm.isna().any().any():
+        raise ValueError("La hoja 'Matriz' tiene celdas vacías; complete todos los valores.")
+    try:
+        matriz = [[float(v) for v in fila] for fila in dfm.values.tolist()]
+    except (TypeError, ValueError):
+        raise ValueError("La hoja 'Matriz' contiene valores no numéricos.")
+
+    dfv = hojas['Vectores']
+    if dfv.isna().any().any():
+        raise ValueError("La hoja 'Vectores' tiene celdas vacías; complete w, R1 y R2.")
+    vectores = {str(idx).strip().lower(): fila for idx, fila in
+                zip(dfv.index, dfv.values.tolist())}
+    faltantes = [v for v in ('w', 'r1', 'r2') if v not in vectores]
+    if faltantes:
+        raise ValueError(f"En la hoja 'Vectores' faltan las filas: {', '.join(faltantes)}.")
+
+    dfp = hojas['Parametros']
+    valores = {}
+    for idx, fila in zip(dfp.index, dfp.values.tolist()):
+        clave = str(idx).split('(')[0].strip().lower()
+        valores[clave] = fila[0]
+    for p in ('wwi', 'c1', 'c2', 't'):
+        if p not in valores or pd.isna(valores[p]):
+            raise ValueError(f"En la hoja 'Parametros' falta el valor de '{p}'.")
+
+    return {
+        'matriz': matriz,
+        'w':  [float(v) for v in vectores['w']],
+        'r1': [float(v) for v in vectores['r1']],
+        'r2': [float(v) for v in vectores['r2']],
+        'wwi': float(valores['wwi']),
+        'c1': float(valores['c1']),
+        'c2': float(valores['c2']),
+        'T': int(valores['t']),
+    }

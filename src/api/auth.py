@@ -24,7 +24,7 @@ def login():
             today_str = date.today().isoformat()  # 'YYYY-MM-DD'
             path = os.path.join(user_root, username, today_str)
             os.makedirs(path, exist_ok=True) 
-            return redirect(url_for('home'))
+            return redirect(url_for('views.home'))
         else:
             msg = 'Credenciales incorrectas'
     return render_template('login.html', msg=msg)

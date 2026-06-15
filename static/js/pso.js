@@ -3,6 +3,13 @@
 // plantilla Excel (descarga/carga), stepper y gráfica de convergencia.
 
 document.addEventListener('DOMContentLoaded', function () {
+  // ===================== CONFIGURACIÓN DEL ALGORITMO =====================
+  // Cada template hijo define window.ALGO_CONFIG antes de cargar este script
+  const CFG = window.ALGO_CONFIG || {};
+  const ALGORITMO = CFG.algoritmo || 'PSO';
+  const ENDPOINT = CFG.endpoint || '/api/algoritmos/pso';
+  const TIENE_R1R2 = CFG.tiene_r1r2 !== false;  // default: true (PSO los usa)
+
   // ===================== TABS (Teoría es el tab inicial) =====================
   const tabs = {
     teo: { btn: document.getElementById('tabTeo'), panel: document.getElementById('panelTeo') },
@@ -83,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const matrizBody = document.getElementById('matrizBody');
   const matrizVectores = document.getElementById('matrizVectores');
   const dimsLabel = document.getElementById('dimensionesMatriz');
-  const btnEjecutar = document.getElementById('ejecutarPso');
+  const btnEjecutar = document.getElementById('ejecutarAlgo');
   const msgError = document.getElementById('mensajeError');
   const msgErrorPlantilla = document.getElementById('mensajeErrorPlantilla');
 
@@ -251,10 +258,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const histError = document.getElementById('histError');
   const histTablaWrap = document.getElementById('histTablaWrap');
   const histCuerpo = document.getElementById('histCuerpo');
-  const filtroMias = document.getElementById('filtroMias');
   let histCache = null;  // evita recargar al alternar tabs; el filtro sí recarga
-
-  filtroMias.addEventListener('change', () => { histCache = null; cargarHistorial(); });
 
   function estadoHistorial(mostrar) {
     for (const [el, vis] of [[histCargando, 'cargando'], [histVacio, 'vacio'],
@@ -273,8 +277,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function cargarHistorial() {
     if (histCache) return;  // ya renderizado
     estadoHistorial('cargando');
-    const mias = filtroMias.checked ? '&mias=1' : '';
-    fetch(`/api/ejecuciones?algoritmo=PSO${mias}`)
+    fetch(`/api/ejecuciones?algoritmo=${ALGORITMO}`)
       .then(async (resp) => {
         const data = await resp.json();
         if (!resp.ok) throw new Error(data.error || `Error ${resp.status}`);
@@ -439,7 +442,7 @@ document.addEventListener('DOMContentLoaded', function () {
     btnEjecutar.disabled = true;
     btnEjecutar.textContent = 'Calculando…';
 
-    fetch('/api/algoritmos/pso', {
+    fetch(ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

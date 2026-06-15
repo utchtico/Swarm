@@ -1,0 +1,110 @@
+{% extends "_laboratorio_base.html" %}
+
+{% block titulo %}PSO{% endblock %}
+
+{% block encabezado %}
+PSO <span class="font-normal text-gray-400">· Optimización por enjambre de partículas</span>
+{% endblock %}
+
+{% block chips_familia %}
+<a href="/pso" class="px-3 py-1.5 rounded-full bg-slate-700 text-white" aria-current="page">PSO</a>
+<a href="/dapso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">DA-PSO</a>
+<a href="/moorapso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">MOORA-PSO</a>
+<a href="/topsispso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">TOPSIS-PSO</a>
+<a href="/comparacionPso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">Comparación</a>
+{% endblock %}
+
+{% block teoria %}
+<!-- Introducción -->
+<p class="text-lg leading-relaxed text-gray-700">
+  La Optimización por Enjambre de Partículas (PSO, por sus siglas en inglés,
+  <em>Particle Swarm Optimization</em>) es un algoritmo de optimización inspirado en el
+  comportamiento de enjambres y bandadas de aves en la naturaleza. Desarrollado en 1995 por
+  James Kennedy y Russell Eberhart, el PSO se ha convertido en una valiosa técnica para
+  encontrar soluciones aproximadas a problemas de optimización en espacios
+  multidimensionales, donde se busca el valor mínimo o máximo de una función.
+  <a href="https://ieeexplore.ieee.org/document/494215" class="text-cyan-600 hover:underline">Leer el artículo
+    original</a>.
+</p>
+
+<h2 class="mt-12 mb-6 text-xl font-semibold text-gray-800">¿Cómo funciona el algoritmo?</h2>
+
+<div class="grid gap-5 sm:grid-cols-2">
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Partículas</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      En el corazón del PSO se encuentra una población de «partículas» virtuales, cada una
+      representando una solución candidata al problema de optimización. Estas partículas se
+      colocan inicialmente de manera aleatoria en el espacio de búsqueda.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Velocidades y posiciones</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Cada partícula tiene dos componentes clave: su posición actual en el espacio de búsqueda
+      y su velocidad. La posición representa una posible solución al problema, mientras que la
+      velocidad determina la dirección y la magnitud del movimiento de la partícula en el espacio.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Mejor posición personal (pbest)</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Cada partícula lleva un registro de la mejor posición que ha encontrado hasta ese momento,
+      conocida como «pbest» (<em>personal best</em>). Inicialmente, el pbest de cada partícula es
+      su posición inicial.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Mejor posición global (gbest)</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Además de su mejor posición personal, las partículas también están al tanto de la mejor
+      posición encontrada por cualquier partícula en todo el enjambre, denominada «gbest»
+      (<em>global best</em>).
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Movimiento de las partículas</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      En cada iteración, las partículas ajustan su velocidad y posición siguiendo dos influencias
+      clave: su pbest y el gbest. La velocidad de cada partícula se actualiza en función de su
+      velocidad anterior, su distancia a su pbest y su distancia al gbest; la posición se
+      actualiza en función de su posición anterior y su nueva velocidad.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Exploración y explotación</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      El PSO logra un equilibrio entre la exploración (buscar nuevas áreas del espacio de
+      búsqueda) y la explotación (refinar las áreas prometedoras). Las partículas tienden a
+      moverse hacia las regiones del espacio de búsqueda donde se han encontrado buenas soluciones.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5 sm:col-span-2">
+    <h3 class="font-semibold text-gray-900 mb-2">Criterio de parada</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      El algoritmo PSO se ejecuta durante un número fijo de iteraciones o hasta que se cumple un
+      criterio de parada predefinido, como alcanzar un valor objetivo o una tolerancia específica.
+    </p>
+  </article>
+</div>
+
+<p class="mt-10 leading-relaxed text-gray-600">
+  El PSO es especialmente efectivo en problemas de optimización continua y multidimensional,
+  como la optimización de funciones matemáticas complejas o la sintonización de parámetros en
+  algoritmos de aprendizaje automático. Su capacidad para mantener un equilibrio entre la
+  exploración y la explotación lo hace útil en una amplia gama de aplicaciones, desde la
+  ingeniería hasta la optimización de carteras de inversión y la búsqueda de rutas óptimas.
+  Este enfoque, inspirado en la naturaleza, ha demostrado ser una valiosa herramienta en la
+  resolución de problemas de optimización.
+</p>
+{% endblock %}
+
+{% block algo_config %}
+<script>
+  window.ALGO_CONFIG = {
+    algoritmo: 'PSO',
+    endpoint: '/api/algoritmos/pso',
+    tiene_r1r2: true,
+  };
+</script>
+{% endblock %}

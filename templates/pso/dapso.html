@@ -1,0 +1,84 @@
+{% extends "_laboratorio_base.html" %}
+
+{% block titulo %}DA-PSO{% endblock %}
+
+{% block encabezado %}
+DA-PSO <span class="font-normal text-gray-400">· Decision Approach + Optimización por enjambre de partículas</span>
+{% endblock %}
+
+{% block chips_familia %}
+<a href="/pso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">PSO</a>
+<a href="/dapso" class="px-3 py-1.5 rounded-full bg-slate-700 text-white" aria-current="page">DA-PSO</a>
+<a href="/moorapso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">MOORA-PSO</a>
+<a href="/topsispso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">TOPSIS-PSO</a>
+<a href="/comparacionPso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">Comparación</a>
+{% endblock %}
+
+{% block nota_vectores %}
+— los vectores R1 y R2 son derivados automáticamente por el algoritmo DA.
+{% endblock %}
+
+{% block teoria %}
+<!-- Introducción -->
+<p class="text-lg leading-relaxed text-gray-700">
+    El algoritmo <strong>DA-PSO</strong> (<em>Decision Approach — Particle Swarm Optimization</em>) es un método
+    híbrido que combina el análisis multicriterio del enfoque de decisión DA con la búsqueda global del PSO.
+    El componente DA calcula un índice de similitud para cada alternativa en función de su distancia a la
+    solución ideal, y los resultados de este ranking inicializan y guían las posiciones de referencia del enjambre
+    en lugar de los vectores R1 y R2 definidos manualmente.
+</p>
+
+<h2 class="mt-12 mb-6 text-xl font-semibold text-gray-800">¿Cómo funciona el algoritmo?</h2>
+
+<div class="grid gap-5 sm:grid-cols-2">
+    <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+        <h3 class="font-semibold text-gray-900 mb-2">Fase DA — Ranking inicial</h3>
+        <p class="text-sm leading-relaxed text-gray-600">
+            Antes de iniciar el enjambre, DA calcula la solución ideal como el promedio de cada criterio.
+            Luego obtiene el índice de similitud de cada alternativa: el producto sucesivo de
+            (xi / si)^wi, donde xi es el valor de la alternativa, si la solución ideal y wi el peso del criterio.
+            Las dos mejores alternativas se convierten en R1 y R2.
+        </p>
+    </article>
+    <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+        <h3 class="font-semibold text-gray-900 mb-2">Fase PSO — Búsqueda global</h3>
+        <p class="text-sm leading-relaxed text-gray-600">
+            Con R1 y R2 inicializados por DA, el enjambre evoluciona usando las ecuaciones estándar de PSO:
+            actualización de velocidad con los coeficientes de inercia (wwi), cognitivo (c1) y social (c2),
+            seguida de actualización de posición. La función objetivo es el índice de similitud DA, no la
+            función cuadrática de PSO puro.
+        </p>
+    </article>
+    <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+        <h3 class="font-semibold text-gray-900 mb-2">Actualización de R1 y R2</h3>
+        <p class="text-sm leading-relaxed text-gray-600">
+            En cada iteración, R1 y R2 se recalculan con el ranking DA sobre las posiciones actuales del enjambre,
+            manteniendo la guía de DA activa durante toda la búsqueda en lugar de usar valores fijos.
+        </p>
+    </article>
+    <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+        <h3 class="font-semibold text-gray-900 mb-2">Ventaja del enfoque híbrido</h3>
+        <p class="text-sm leading-relaxed text-gray-600">
+            Al combinar un método de decisión multicriterio con la exploración del enjambre, DA-PSO reduce la
+            sensibilidad a los valores iniciales de R1 y R2, que en PSO puro deben definirse manualmente y afectan
+            significativamente la convergencia.
+        </p>
+    </article>
+</div>
+
+<p class="mt-10 leading-relaxed text-gray-600">
+    El resultado es un algoritmo más robusto para problemas donde los criterios tienen pesos distintos y la
+    solución ideal no es conocida a priori, lo que es precisamente el caso de los escenarios de decisión
+    multicriterio en los que se aplica este sistema.
+</p>
+{% endblock %}
+
+{% block algo_config %}
+<script>
+    window.ALGO_CONFIG = {
+        algoritmo: 'DAPSO',
+        endpoint: '/api/algoritmos/dapso',
+        tiene_r1r2: false,
+    };
+</script>
+{% endblock %}

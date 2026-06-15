@@ -1,0 +1,84 @@
+{% extends "_laboratorio_base.html" %}
+
+{% block titulo %}MOORA-PSO{% endblock %}
+
+{% block encabezado %}
+MOORA-PSO <span class="font-normal text-gray-400">· Multi-Objective Optimization on the Basis of Ratio Analysis +
+    PSO</span>
+{% endblock %}
+
+{% block chips_familia %}
+<a href="/pso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">PSO</a>
+<a href="/dapso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">DA-PSO</a>
+<a href="/moorapso" class="px-3 py-1.5 rounded-full bg-slate-700 text-white" aria-current="page">MOORA-PSO</a>
+<a href="/topsispso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">TOPSIS-PSO</a>
+<a href="/comparacionPso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">Comparación</a>
+{% endblock %}
+
+{% block nota_vectores %}
+— los vectores R1 y R2 son derivados automáticamente por el ranking MOORA.
+{% endblock %}
+
+{% block teoria %}
+<p class="text-lg leading-relaxed text-gray-700">
+    <strong>MOORA-PSO</strong> es un método híbrido que integra el análisis de ratio multiobjetivo (MOORA)
+    con la optimización por enjambre de partículas (PSO). MOORA normaliza la matriz de decisión mediante
+    distancia euclidiana, pondera los criterios y genera un ranking de alternativas que inicializa y actualiza
+    las posiciones de referencia R1 y R2 del enjambre en cada iteración.
+</p>
+
+<h2 class="mt-12 mb-6 text-xl font-semibold text-gray-800">¿Cómo funciona el algoritmo?</h2>
+
+<div class="grid gap-5 sm:grid-cols-2">
+    <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+        <h3 class="font-semibold text-gray-900 mb-2">Normalización euclidiana</h3>
+        <p class="text-sm leading-relaxed text-gray-600">
+            Cada valor de la matriz se divide entre la norma euclidiana de su fila, obteniendo
+            una matriz normalizada sin unidades que permite comparar criterios de distinta escala.
+        </p>
+    </article>
+    <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+        <h3 class="font-semibold text-gray-900 mb-2">Ponderación y puntuación global</h3>
+        <p class="text-sm leading-relaxed text-gray-600">
+            La matriz normalizada se multiplica por los pesos de los criterios. La puntuación
+            global de cada alternativa suma los valores ponderados de criterios a maximizar y
+            resta los de minimizar, generando un ranking comparativo.
+        </p>
+    </article>
+    <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+        <h3 class="font-semibold text-gray-900 mb-2">Inicialización del enjambre</h3>
+        <p class="text-sm leading-relaxed text-gray-600">
+            Las dos mejores alternativas según MOORA se convierten en R1 y R2 del enjambre PSO.
+            Esto reemplaza la asignación aleatoria tradicional por una guía fundamentada en la
+            calidad de las alternativas conocidas.
+        </p>
+    </article>
+    <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+        <h3 class="font-semibold text-gray-900 mb-2">Actualización iterativa</h3>
+        <p class="text-sm leading-relaxed text-gray-600">
+            En cada iteración el enjambre evoluciona con las ecuaciones PSO estándar y luego
+            MOORA re-evalúa las posiciones actuales para actualizar R1 y R2, manteniendo la
+            guía adaptativa durante toda la búsqueda.
+        </p>
+    </article>
+    <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5 sm:col-span-2">
+        <h3 class="font-semibold text-gray-900 mb-2">Interpretación de la convergencia</h3>
+        <p class="text-sm leading-relaxed text-gray-600">
+            A diferencia de PSO puro, la función objetivo de MOORA produce valores negativos
+            cuando todos los criterios son de tipo "minimizar" — valores más negativos indican
+            mejores alternativas. La gráfica de convergencia muestra esta tendencia descendente.
+        </p>
+    </article>
+</div>
+{% endblock %}
+
+{% block algo_config %}
+<script>
+    window.ALGO_CONFIG = {
+        algoritmo: 'MOORAPSO',
+        endpoint: '/api/algoritmos/moorapso',
+        tiene_r1r2: false,
+        etiqueta_gbf: 'Puntuación MOORA (↓ mejor)',
+    };
+</script>
+{% endblock %}

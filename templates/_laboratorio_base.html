@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block titulo %}Algoritmo{% endblock %} — Swarm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" href="/static/css/index.css">
+</head>
+
+<body>
+    {% include '_navbar.html' %}
+
+    <!-- ============ ENCABEZADO + CHIPS DE FAMILIA ============ -->
+    <header class="bg-white border-b border-slate-200">
+        <div class="max-w-5xl mx-auto px-6 pt-8 pb-4">
+            <h1 class="text-2xl lg:text-3xl font-semibold text-gray-800">
+                {% block encabezado %}{% endblock %}
+            </h1>
+
+            <div class="mt-4 flex flex-wrap gap-2 text-sm" aria-label="Variantes de la familia">
+                {% block chips_familia %}{% endblock %}
+            </div>
+
+            <div role="tablist" aria-label="Secciones" class="mt-6 flex gap-6 -mb-px">
+                <button role="tab" id="tabTeo" aria-selected="true" aria-controls="panelTeo"
+                    class="tab-btn pb-3 border-b-2 border-slate-700 font-medium text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                    Teoría
+                </button>
+                <button role="tab" id="tabLab" aria-selected="false" aria-controls="panelLab"
+                    class="tab-btn pb-3 border-b-2 border-transparent text-gray-500 hover:text-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                    Laboratorio
+                </button>
+                <button role="tab" id="tabHist" aria-selected="false" aria-controls="panelHist"
+                    class="tab-btn pb-3 border-b-2 border-transparent text-gray-500 hover:text-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                    Historial
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========================= TAB: TEORÍA ========================= -->
+    <div id="panelTeo" role="tabpanel" aria-labelledby="tabTeo" class="max-w-4xl mx-auto px-6 py-10">
+        {% block teoria %}{% endblock %}
+        <div class="mt-10 text-center">
+            <button type="button" id="irLaboratorio"
+                class="text-white font-medium rounded-lg text-sm px-6 py-2.5 bg-slate-700 hover:bg-slate-800">
+                Ir al laboratorio &rarr;
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================= TAB: LABORATORIO ========================= -->
+    <main id="panelLab" role="tabpanel" aria-labelledby="tabLab" class="hidden max-w-5xl mx-auto px-6 py-8">
+
+        <!-- Stepper -->
+        <ol class="flex items-center gap-0 mb-8 select-none" aria-label="Pasos del experimento">
+            <li class="flex items-center">
+                <button type="button" data-paso="1"
+                    class="paso-btn flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-lg px-1">
+                    <span
+                        class="paso-circulo w-8 h-8 rounded-full grid place-items-center text-sm font-semibold bg-slate-700 text-white">1</span>
+                    <span class="paso-texto text-sm font-medium text-gray-900">Datos</span>
+                </button>
+            </li>
+            <li class="flex-1 h-px bg-slate-300 mx-3" aria-hidden="true"></li>
+            <li class="flex items-center">
+                <button type="button" data-paso="2"
+                    class="paso-btn flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-lg px-1">
+                    <span
+                        class="paso-circulo w-8 h-8 rounded-full grid place-items-center text-sm font-semibold bg-slate-200 text-gray-600">2</span>
+                    <span class="paso-texto text-sm text-gray-500">Parámetros</span>
+                </button>
+            </li>
+            <li class="flex-1 h-px bg-slate-300 mx-3" aria-hidden="true"></li>
+            <li class="flex items-center">
+                <button type="button" data-paso="3"
+                    class="paso-btn flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-lg px-1">
+                    <span
+                        class="paso-circulo w-8 h-8 rounded-full grid place-items-center text-sm font-semibold bg-slate-200 text-gray-600">3</span>
+                    <span class="paso-texto text-sm text-gray-500">Resultados</span>
+                </button>
+            </li>
+        </ol>
+
+        <!-- PASO 1: DATOS -->
+        <section id="paso1" class="paso rounded-xl bg-white px-8 py-8 shadow-2xl">
+            <div class="flex flex-wrap items-baseline justify-between gap-2 mb-1">
+                <h2 class="font-semibold text-lg">Datos del experimento</h2>
+                <span id="dimensionesMatriz" class="text-sm text-gray-500"></span>
+            </div>
+            <p class="text-sm text-gray-500 mb-4">
+                Matriz de decisión (filas = alternativas, columnas = criterios; mínimo 9 &times; 5)
+                junto con el peso <span class="font-medium">w</span>
+                {% block nota_vectores %}
+                y los vectores <span class="font-medium">R1</span> y <span class="font-medium">R2</span> por criterio.
+                {% endblock %}
+            </p>
+
+            <div class="flex flex-wrap gap-2 mb-4">
+                <button type="button" id="btnAddCriterio"
+                    class="text-black text-sm px-4 py-2 rounded-lg bg-slate-400 hover:bg-slate-500">+ Criterio</button>
+                <button type="button" id="btnDelCriterio"
+                    class="text-black text-sm px-4 py-2 rounded-lg bg-slate-300 hover:bg-slate-400">&minus;
+                    Criterio</button>
+                <button type="button" id="btnAddAlternativa"
+                    class="text-black text-sm px-4 py-2 rounded-lg bg-slate-400 hover:bg-slate-500">+
+                    Alternativa</button>
+                <button type="button" id="btnDelAlternativa"
+                    class="text-black text-sm px-4 py-2 rounded-lg bg-slate-300 hover:bg-slate-400">&minus;
+                    Alternativa</button>
+                <span class="flex-1"></span>
+                <a id="descargarPlantilla" href="#" download
+                    class="text-gray-700 text-sm px-4 py-2 rounded-lg bg-slate-200 hover:bg-slate-300">
+                    Descargar plantilla
+                </a>
+                <label
+                    class="text-gray-700 text-sm px-4 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 cursor-pointer">
+                    Subir plantilla
+                    <input type="file" id="archivoPlantilla" accept=".xlsx" class="hidden" />
+                </label>
+            </div>
+
+            <p id="estadoPlantilla" class="mb-3 text-sm text-green-700"></p>
+            <p id="mensajeErrorPlantilla" class="hidden mb-3 text-sm text-red-600"></p>
+
+            <div class="overflow-x-auto">
+                <table id="tablaMatriz" class="table-auto border-separate border border-slate-400 text-sm">
+                    <thead>
+                        <tr id="matrizHead"></tr>
+                    </thead>
+                    <tbody id="matrizBody"></tbody>
+                    <tbody id="matrizVectores"></tbody>
+                </table>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button type="button" data-ir="2"
+                    class="ir-paso text-black font-medium rounded-lg text-sm px-5 py-2.5 bg-slate-400 hover:bg-slate-500">
+                    Siguiente: parámetros &rarr;
+                </button>
+            </div>
+        </section>
+
+        <!-- PASO 2: PARÁMETROS -->
+        <section id="paso2" class="paso hidden rounded-xl bg-white px-8 py-8 shadow-2xl">
+            <form method="POST" id="algoForm">
+                <h2 class="font-semibold text-lg mb-4">Parámetros de control</h2>
+                <div class="grid gap-6 mb-6 lg:grid-cols-2">
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-gray-900">Peso de inercia (wwi)</label>
+                        <input type="number" step="any" value="0.7" id="wwi" name="wwi"
+                            class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                            required />
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-gray-900">c1</label>
+                        <input type="number" step="any" value="2.5" id="c1" name="c1"
+                            class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                            required />
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-gray-900">c2</label>
+                        <input type="number" step="any" value="2.5" id="c2" name="c2"
+                            class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                            required />
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-gray-900">Cantidad de iteraciones (T)</label>
+                        <input type="number" step="1" min="1" value="10" id="T" name="T"
+                            class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                            required />
+                    </div>
+                    {% block params_extra %}{% endblock %}
+                </div>
+                <p id="mensajeError" class="hidden mb-4 text-sm text-red-600"></p>
+                <div class="flex justify-between">
+                    <button type="button" data-ir="1"
+                        class="ir-paso text-gray-700 font-medium rounded-lg text-sm px-5 py-2.5 bg-slate-200 hover:bg-slate-300">
+                        &larr; Datos
+                    </button>
+                    <button type="button" id="ejecutarAlgo"
+                        class="text-white font-medium rounded-lg text-sm px-6 py-2.5 bg-slate-700 hover:bg-slate-800 disabled:opacity-50">
+                        Calcular
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- PASO 3: RESULTADOS -->
+        <section id="paso3" class="paso hidden rounded-xl bg-white px-8 py-8 shadow-2xl">
+            <h2 class="font-semibold text-lg mb-4">Resultados de la ejecución</h2>
+            <div id="resultadosVacio" class="text-sm text-gray-500 py-8 text-center">
+                Aún no hay ejecución. Complete los datos y los parámetros, y presione
+                <span class="font-medium">Calcular</span>.
+            </div>
+            <div id="seccionResultados" class="hidden">
+                <div class="grid gap-6 mb-8 lg:grid-cols-2">
+                    <div class="overflow-y-auto max-h-96">
+                        <table class="w-full table-auto border-separate border border-slate-400 text-sm">
+                            <thead>
+                                <tr>
+                                    <th class="border border-slate-300 text-center px-2">Iteración</th>
+                                    <th class="border border-slate-300 text-center px-2">Mejor alternativa</th>
+                                    <th class="border border-slate-300 text-center px-2">GBF</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaResultados"></tbody>
+                        </table>
+                    </div>
+                    <div><canvas id="graficaConvergencia"></canvas></div>
+                </div>
+                <div class="grid gap-4 mb-6 lg:grid-cols-3 text-sm">
+                    <div><span class="font-medium">Iteraciones:</span> <span id="cantidadIteraciones">—</span></div>
+                    <div><span class="font-medium">Fecha de inicio:</span> <span id="fechaInicio">—</span></div>
+                    <div><span class="font-medium">Hora de inicio:</span> <span id="horaInicio">—</span></div>
+                    <div><span class="font-medium">Hora de finalización:</span> <span id="horaFinalizacion">—</span>
+                    </div>
+                    <div><span class="font-medium">Tiempo de ejecución:</span> <span id="tiempoEjecucion">—</span></div>
+                    <div><span class="font-medium">Mejor alternativa final:</span> <span id="mejorFinal"
+                            class="font-semibold">—</span></div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <button type="button" data-ir="2"
+                        class="ir-paso text-gray-700 font-medium rounded-lg text-sm px-5 py-2.5 bg-slate-200 hover:bg-slate-300">
+                        &larr; Ajustar y repetir
+                    </button>
+                    <a id="descargarExcel" href="#"
+                        class="hidden text-black font-medium rounded-lg text-sm px-5 py-2.5 bg-slate-400 hover:bg-slate-500 inline-block">
+                        Descargar XLSX
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========================= TAB: HISTORIAL ========================= -->
+    <div id="panelHist" role="tabpanel" aria-labelledby="tabHist" class="hidden max-w-5xl mx-auto px-6 py-8">
+        <div class="rounded-xl bg-white px-8 py-8 shadow-2xl">
+            <h2 class="font-semibold text-lg mb-1">Ejecuciones anteriores</h2>
+            <p class="text-sm text-gray-500 mb-4">
+                Consulte los resultados de una ejecución previa o reutilice sus datos de entrada
+                para un nuevo experimento sin volver a capturarlos.
+            </p>
+            <p id="histCargando" class="text-sm text-gray-500 py-8 text-center">Cargando historial…</p>
+            <p id="histVacio" class="hidden text-sm text-gray-500 py-8 text-center">
+                Aún no hay ejecuciones guardadas. Corra su primer experimento en el
+                <span class="font-medium">Laboratorio</span> y aparecerá aquí.
+            </p>
+            <p id="histError" class="hidden text-sm text-red-600 py-4 text-center"></p>
+            <div id="histTablaWrap" class="hidden overflow-x-auto">
+                <table class="w-full table-auto text-sm">
+                    <thead>
+                        <tr class="text-left text-gray-500 border-b border-slate-200">
+                            <th class="py-2 pr-3 font-medium">#</th>
+                            <th class="py-2 pr-3 font-medium">Fecha</th>
+                            <th class="py-2 pr-3 font-medium">Usuario</th>
+                            <th class="py-2 pr-3 font-medium">Matriz</th>
+                            <th class="py-2 pr-3 font-medium">T</th>
+                            <th class="py-2 pr-3 font-medium">GBF final</th>
+                            <th class="py-2 pr-3 font-medium">Mejor alt.</th>
+                            <th class="py-2 pr-3 font-medium">Duración</th>
+                            <th class="py-2 font-medium text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="histCuerpo"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+    <!-- Configuración del algoritmo — debe definir window.ALGO_CONFIG antes del JS -->
+    {% block algo_config %}{% endblock %}
+
+    <script src="{{ url_for('static', filename='js/laboratorio.js') }}"></script>
+</body>
+
+</html>

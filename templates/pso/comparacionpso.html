@@ -1,0 +1,28 @@
+{% extends "_laboratorio_base.html" %}
+{% block titulo %}Comparación PSO{% endblock %}
+{% block encabezado %}
+Comparación PSO <span class="font-normal text-gray-400">· Próximamente</span>
+{% endblock %}
+{% block chips_familia %}
+<a href="/pso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">PSO</a>
+<a href="/dapso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">DA-PSO</a>
+<a href="/moorapso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">MOORA-PSO</a>
+<a href="/topsispso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">TOPSIS-PSO</a>
+<a href="/comparacionPso" class="px-3 py-1.5 rounded-full bg-slate-700 text-white" aria-current="page">Comparación</a>
+{% endblock %}
+{% block teoria %}
+<div class="text-center py-12">
+    <div
+        class="inline-flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-6 py-4 text-sm font-medium">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        Este módulo está en desarrollo. Estará disponible próximamente.
+    </div>
+</div>
+{% endblock %}
+{% block algo_config %}
+<script>window.ALGO_CONFIG = { algoritmo: 'COMPARACIONPSO', endpoint: '/api/algoritmos/comparacionpso', tiene_r1r2: false };</script>
+{% endblock %}

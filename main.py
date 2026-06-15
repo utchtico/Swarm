@@ -13,6 +13,8 @@ from sqlalchemy.exc import IntegrityError
 from pathlib import Path
 from src.models.models import db, init_db
 from src.models.models import User
+from src.security import init_security
+from src.services.email import mail
 from src.api.auth import auth_bp, login_required, roles_required
 from src.api.articles import bp as articles_api
 from src.services.ejecuciones import (MATRIZ_DEFAULT, guardar_ejecucion,
@@ -76,7 +78,11 @@ app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-insecure-key")
 user_root = 'Experiments'
 today_str = date.today().isoformat()
 
+# Seguridad: cookies, headers y timeout de sesión
+init_security(app)
+
 db.init_app(app)
+mail.init_app(app)
 
 # Trazabilidad de migraciones (Alembic): flask db migrate / flask db upgrade
 from flask_migrate import Migrate
@@ -87,11 +93,15 @@ init_db(app)
 app.register_blueprint(auth_bp)
 app.register_blueprint(articles_api)
 
-# API JSON de algoritmos (contrato nuevo: /api/algoritmos/..., /api/ejecuciones/...)
+# API JSON de algoritmos
 from src.api.algoritmos import algoritmos_bp
 app.register_blueprint(algoritmos_bp)
 
-# Vistas (rutas que solo renderizan templates)
+# Panel de administración
+from src.api.admin import admin_bp
+app.register_blueprint(admin_bp)
+
+# Vistas
 from src.views import views_bp
 app.register_blueprint(views_bp)
 
@@ -902,59 +912,60 @@ def calcular_pso():
 #-------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------
-# @app.route('/comparacionGeneral')
-# @roles_required('user','admin', 'superadmin')
-# def comparacionGeneral():
-#     try:
-#         # Generales
-#         w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
-#         w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
 
-#         #Datos Pso
-#         wwi = float(request.form['wwi'])
-#         c1 = float(request.form['c1'])
-#         c2 = float(request.form['c2'])
-#         # Divide las cadenas de texto en listas
-#         r1_input = request.form['r1']
-#         r2_input = request.form['r2']
-#         r1 = [float(num.strip()) for num in r1_input.split(',')]
-#         r2 = [float(num.strip()) for num in r2_input.split(',')]
+@app.route('/comparacionGeneral')
+@roles_required('user','admin', 'superadmin')
+def comparacionGeneral():
+    try:
+        # Generales
+        w_input =  [float(request.form[f'w{i}']) for i in range(1, 6)]
+        w = [float(value) for value in w_input if value != '']  # Filtra valores vacíos
 
-#         # Datos Ba
-#         alpha = float(request.form['alpha'])
-#         gamma = float(request.form['gamma'])
+        #Datos Pso
+        wwi = float(request.form['wwi'])
+        c1 = float(request.form['c1'])
+        c2 = float(request.form['c2'])
+        # Divide las cadenas de texto en listas
+        r1_input = request.form['r1']
+        r2_input = request.form['r2']
+        r1 = [float(num.strip()) for num in r1_input.split(',')]
+        r2 = [float(num.strip()) for num in r2_input.split(',')]
+
+        # Datos Ba
+        alpha = float(request.form['alpha'])
+        gamma = float(request.form['gamma'])
         
 
-#         #Datos Aco
-#         ev_input = request.form['ev']  # Obtén el valor
-#         ev_values = ev_input.split(',')
-#         EV = [str(value) for value in ev_values if value.strip() != '']
-#         alphaAco = int(request.form['alphaAco'])
-#         beta = int(request.form['beta'])
-#         rho = float(request.form['rho'])
-#         Q = int(request.form['Q'])
-#         n_ants = int(request.form['n_ants'])
-#         iter_max = int(request.form['T'])
+        #Datos Aco
+        ev_input = request.form['ev']  # Obtén el valor
+        ev_values = ev_input.split(',')
+        EV = [str(value) for value in ev_values if value.strip() != '']
+        alphaAco = int(request.form['alphaAco'])
+        beta = int(request.form['beta'])
+        rho = float(request.form['rho'])
+        Q = int(request.form['Q'])
+        n_ants = int(request.form['n_ants'])
+        iter_max = int(request.form['T'])
         
-#         #Llamar a funciones PSO
-#         datosDapso = asyncio.run(ejecutar_dapso(w,wwi,c1,c2,r1,r2 ,iter_max))
-#         datosMoorapso = asyncio.run(ejecutar_moorapso(w,wwi,c1,c2,r1,r2, iter_max))
-#         datosTopsispso = asyncio.run(ejecutar_topsispso(w,wwi,c1,c2,r1,r2 ,iter_max))
-#         # Llamar a funciones BA
-#         datosDaba = asyncio.run(ejecutar_daba(w, alpha, gamma, iter_max))
-#         datosMooraba = asyncio.run(ejecutar_mooraba(w, alpha, gamma, iter_max))
-#         datosTopsisba = asyncio.run(ejecutar_topsisba(w, alpha, gamma, iter_max))
-#         #Llamar a funciones ACO
-#         datosDaaco = asyncio.run(ejecutar_daaco(w, alphaAco, beta, rho, Q, n_ants, iter_max))
-#         datosMooraaco = asyncio.run(ejecutar_mooraaco(EV, w, alphaAco, beta, rho, Q, n_ants, iter_max))
-#         datosTopsisaco = asyncio.run(ejecutar_topsisaco(w, alphaAco, beta, iter_max))
+        #Llamar a funciones PSO
+        datosDapso = asyncio.run(ejecutar_dapso(w,wwi,c1,c2,r1,r2 ,iter_max))
+        datosMoorapso = asyncio.run(ejecutar_moorapso(w,wwi,c1,c2,r1,r2, iter_max))
+        datosTopsispso = asyncio.run(ejecutar_topsispso(w,wwi,c1,c2,r1,r2 ,iter_max))
+        # Llamar a funciones BA
+        datosDaba = asyncio.run(ejecutar_daba(w, alpha, gamma, iter_max))
+        datosMooraba = asyncio.run(ejecutar_mooraba(w, alpha, gamma, iter_max))
+        datosTopsisba = asyncio.run(ejecutar_topsisba(w, alpha, gamma, iter_max))
+        #Llamar a funciones ACO
+        datosDaaco = asyncio.run(ejecutar_daaco(w, alphaAco, beta, rho, Q, n_ants, iter_max))
+        datosMooraaco = asyncio.run(ejecutar_mooraaco(EV, w, alphaAco, beta, rho, Q, n_ants, iter_max))
+        datosTopsisaco = asyncio.run(ejecutar_topsisaco(w, alphaAco, beta, iter_max))
         
 
-#         return render_template('comparacionGeneral.html', datosDapso=datosDapso, datosMoorapso=datosMoorapso, datosTopsispso=datosTopsispso,
-#                                 datosDaba = datosDaba , datosMooraba = datosMooraba, datosTopsisba = datosTopsisba,
-#                                 datosDaaco=datosDaaco, datosMooraaco=datosMooraaco, datosTopsisaco=datosTopsisaco)
-#     except Exception as e:
-#         return render_template('comparacionGeneral.html', error_message=str(e))
+        return render_template('comparacionGeneral.html', datosDapso=datosDapso, datosMoorapso=datosMoorapso, datosTopsispso=datosTopsispso,
+                                datosDaba = datosDaba , datosMooraba = datosMooraba, datosTopsisba = datosTopsisba,
+                                datosDaaco=datosDaaco, datosMooraaco=datosMooraaco, datosTopsisaco=datosTopsisaco)
+    except Exception as e:
+        return render_template('comparacionGeneral.html', error_message=str(e))
 
 
 # @app.route('/comparacionGeneral', methods=['POST'])
@@ -1914,72 +1925,6 @@ def descargar_parametros():
     return send_from_directory(directorio, filename, as_attachment=True)
 
 
-@app.route('/signup', methods=['GET','POST'])
-def signup():
-    msg = ''
-    if request.method == 'POST':
-        username = (request.form.get('username') or '').strip()
-        password = (request.form.get('password') or '').strip()
-
-        # Validaciones mínimas
-        if not username:
-            msg = 'El nombre de usuario es obligatorio.'
-            return render_template('signup.html', msg=msg)
-        if len(password) < 4:  # considera subirlo a 8+
-            msg = 'La contraseña es demasiado corta.'
-            return render_template('signup.html', msg=msg)
-
-        # Usuario único (SQLAlchemy 2.x idiomático)
-        stmt = select(User).where(User.username == username)
-        existing = db.session.execute(stmt).scalar_one_or_none()
-        if existing:
-            msg = 'El usuario ya existe.'
-            return render_template('signup.html', msg=msg)
-
-        # Crear usuario
-        new_user = User(
-            username=username,
-            password_hash=generate_password_hash(password),
-            role='user'
-        )
-
-        try:
-            db.session.add(new_user)
-            db.session.commit()  # ahora new_user.id existe
-
-            # Crear carpeta del usuario: Experiments/<id>-<username-sanitizado>/
-            base = Path(current_app.config.get('EXPERIMENTS_ROOT', 'Experiments'))
-            dirname = f"{new_user.id}-{secure_filename(new_user.username or 'user')}"
-            user_dir = base / dirname
-            user_dir.mkdir(parents=True, exist_ok=True)
-
-            # Redirigir a login (ajusta el endpoint si fuera diferente)
-            return redirect(url_for('auth.login'))
-
-        except IntegrityError:
-            db.session.rollback()
-            msg = 'No se pudo crear la cuenta (conflicto de datos).'
-        except OSError as e:
-            # Si falla la creación de carpeta, puedes optar por seguir o revertir
-            msg = f'Cuenta creada, pero no se pudo crear la carpeta del usuario: {e.strerror}'
-            # Si prefieres revertir todo:
-            # db.session.delete(new_user); db.session.commit()
-            # msg = 'Error creando la carpeta del usuario.'
-
-    return render_template('signup.html', msg=msg)
-
-
-
-# @app.route('/descargar-ultimo')
-# @roles_required('user','admin', 'superadmin')
-# def descargar_ultimo():
-#     prefix = request.args.get('prefix')  # opcional: e.g. ?prefix=pso
-#     lastf = get_last_file(prefix)
-#     if not lastf:
-#         return abort(404, description="No hay archivos disponibles aún.")
-#     # send_from_directory necesita dir y nombre
-#     return send_from_directory(lastf.parent, lastf.name, as_attachment=True)
- 
 if '__main__' == __name__:
     # Cambio para desarrllo
     #app.run(port=5000, debug=True) 

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/index.css">
+    <title>Administración de usuarios — Swarm</title>
+</head>
+
+<body>
+    {% include '_navbar.html' ignore missing %}
+
+    <header class="bg-white border-b border-slate-200">
+        <div class="max-w-5xl mx-auto px-6 pt-8 pb-6">
+            <h1 class="text-2xl lg:text-3xl font-semibold text-gray-800">Usuarios</h1>
+            <p class="mt-1 text-gray-500 text-sm">Gestión de acceso a la plataforma.</p>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 py-8">
+
+        <!-- Botón crear -->
+        <div class="flex justify-end mb-6">
+            <button type="button" id="btnNuevoUsuario"
+                class="text-white font-medium rounded-lg text-sm px-5 py-2.5 bg-slate-700 hover:bg-slate-800">
+                + Invitar usuario
+            </button>
+        </div>
+
+        <!-- Tabla -->
+        <div class="rounded-xl bg-white shadow-2xl overflow-hidden">
+            <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
+                <h2 class="font-semibold text-gray-800">Usuarios registrados</h2>
+                <p id="totalUsuarios" class="text-sm text-gray-400"></p>
+            </div>
+            <p id="cargando" class="text-sm text-gray-400 text-center py-10">Cargando…</p>
+            <p id="errorLista" class="hidden text-sm text-red-600 text-center py-6"></p>
+            <div id="tablaWrap" class="hidden overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-gray-400 text-xs uppercase tracking-wide border-b border-slate-100">
+                            <th class="px-6 py-3">Usuario</th>
+                            <th class="px-6 py-3">Email</th>
+                            <th class="px-6 py-3">Rol</th>
+                            <th class="px-6 py-3">Estado</th>
+                            <th class="px-6 py-3">Último acceso</th>
+                            <th class="px-6 py-3">Creado por</th>
+                            <th class="px-6 py-3 text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTabla"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal: crear usuario -->
+    <div id="modalCrear" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            <div class="px-6 py-5 border-b border-slate-100">
+                <h2 class="font-semibold text-gray-800">Invitar usuario</h2>
+                <p class="text-sm text-gray-500 mt-1">
+                    Se creará la cuenta y se enviará un correo con las credenciales temporales.
+                </p>
+            </div>
+            <div class="px-6 py-5 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de usuario</label>
+                    <input id="crearUsername" type="text" autocomplete="off"
+                        class="w-full bg-slate-100 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+                        placeholder="sin espacios, sin acentos" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input id="crearEmail" type="email"
+                        class="w-full bg-slate-100 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+                        placeholder="correo@dominio.com" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+                    <select id="crearRol"
+                        class="w-full bg-slate-100 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
+                        <option value="user">Usuario</option>
+                        <option value="admin">Admin</option>
+                        <option value="superadmin">Superadmin</option>
+                    </select>
+                </div>
+                <p id="crearError" class="hidden text-sm text-red-600"></p>
+                <p id="crearAviso" class="hidden text-sm text-amber-600"></p>
+                <p id="crearOk" class="hidden text-sm text-green-700"></p>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3">
+                <button type="button" id="btnCancelarCrear"
+                    class="text-gray-700 text-sm font-medium px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200">
+                    Cancelar
+                </button>
+                <button type="button" id="btnConfirmarCrear"
+                    class="text-white text-sm font-medium px-5 py-2 rounded-lg bg-slate-700 hover:bg-slate-800 disabled:opacity-50">
+                    Invitar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (() => {
+            // ── Estado ──────────────────────────────────────────────────────────
+            const BASE = '/admin/api/usuarios';
+            let usuarios = [];
+
+            // ── Helpers DOM ──────────────────────────────────────────────────────
+            const $ = id => document.getElementById(id);
+
+            function badge(texto, color) {
+                return `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-${color}-100 text-${color}-800">${texto}</span>`;
+            }
+
+            function formatFecha(iso) {
+                if (!iso) return '<span class="text-gray-300">—</span>';
+                return new Date(iso).toLocaleDateString('es-MX', {
+                    day: '2-digit', month: 'short', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+            }
+
+            // ── Cargar tabla ─────────────────────────────────────────────────────
+            function cargar() {
+                $('cargando').classList.remove('hidden');
+                $('tablaWrap').classList.add('hidden');
+                $('errorLista').classList.add('hidden');
+
+                fetch(BASE)
+                    .then(r => r.json())
+                    .then(lista => {
+                        usuarios = lista;
+                        $('totalUsuarios').textContent = `${lista.length} usuario${lista.length !== 1 ? 's' : ''}`;
+                        renderTabla(lista);
+                        $('cargando').classList.add('hidden');
+                        $('tablaWrap').classList.remove('hidden');
+                    })
+                    .catch(e => {
+                        $('errorLista').textContent = e.message;
+                        $('errorLista').classList.remove('hidden');
+                        $('cargando').classList.add('hidden');
+                    });
+            }
+
+            function renderTabla(lista) {
+                const tb = $('cuerpoTabla');
+                tb.innerHTML = '';
+                for (const u of lista) {
+                    const rolColor = { user: 'slate', admin: 'blue', superadmin: 'purple' }[u.role] || 'slate';
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b border-slate-50 hover:bg-slate-50';
+                    tr.innerHTML = `
+          <td class="px-6 py-3 font-medium text-gray-800">${u.username}</td>
+          <td class="px-6 py-3 text-gray-500">${u.email || '<span class="text-gray-300">—</span>'}</td>
+          <td class="px-6 py-3">${badge(u.role, rolColor)}</td>
+          <td class="px-6 py-3">
+            ${u.activo ? badge('Activo', 'green') : badge('Inactivo', 'red')}
+            ${u.debe_cambiar ? '<span class="ml-1 text-xs text-amber-500">⚠ contraseña temporal</span>' : ''}
+          </td>
+          <td class="px-6 py-3 text-gray-400 text-xs">${formatFecha(u.ultimo_acceso)}</td>
+          <td class="px-6 py-3 text-gray-400 text-xs">${u.creado_por || '—'}</td>
+          <td class="px-6 py-3 text-right whitespace-nowrap">
+            <button data-accion="${u.activo ? 'desactivar' : 'activar'}" data-id="${u.id}"
+              class="accion-btn text-xs px-3 py-1.5 rounded-lg
+                     ${u.activo ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-green-50 text-green-700 hover:bg-green-100'}
+                     mr-1">
+              ${u.activo ? 'Desactivar' : 'Activar'}
+            </button>
+            <button data-accion="reset" data-id="${u.id}"
+              class="accion-btn text-xs px-3 py-1.5 rounded-lg bg-slate-100 text-gray-600 hover:bg-slate-200 mr-1">
+              Reset pwd
+            </button>
+            <select data-accion="rol" data-id="${u.id}"
+              class="rol-select text-xs px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-gray-600">
+              <option value="">Cambiar rol…</option>
+              <option value="user" ${u.role === 'user' ? 'disabled' : ''}>Usuario</option>
+              <option value="admin" ${u.role === 'admin' ? 'disabled' : ''}>Admin</option>
+              <option value="superadmin" ${u.role === 'superadmin' ? 'disabled' : ''}>Superadmin</option>
+            </select>
+          </td>`;
+                    tb.appendChild(tr);
+                }
+            }
+
+            // ── Acciones en tabla ────────────────────────────────────────────────
+            $('cuerpoTabla').addEventListener('click', e => {
+                const btn = e.target.closest('.accion-btn');
+                if (!btn) return;
+                const { accion, id } = btn.dataset;
+                btn.disabled = true;
+
+                let url = `${BASE}/${id}`;
+                let opts;
+                if (accion === 'reset') {
+                    url += '/reset-password';
+                    opts = { method: 'POST' };
+                } else {
+                    opts = {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ activo: accion === 'activar' }),
+                    };
+                }
+                fetch(url, opts)
+                    .then(r => r.json())
+                    .then(d => {
+                        if (d.error) { alert(d.error); return; }
+                        if (d.aviso) alert('Atención: ' + d.aviso);
+                        if (accion === 'reset' && d.correo_enviado)
+                            alert('Contraseña reseteada y correo enviado.');
+                        cargar();
+                    })
+                    .catch(err => alert(err.message))
+                    .finally(() => { btn.disabled = false; });
+            });
+
+            $('cuerpoTabla').addEventListener('change', e => {
+                const sel = e.target.closest('.rol-select');
+                if (!sel || !sel.value) return;
+                const { id } = sel.dataset;
+                if (!confirm(`¿Cambiar el rol a "${sel.value}"?`)) { sel.value = ''; return; }
+                fetch(`${BASE}/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role: sel.value }),
+                })
+                    .then(r => r.json())
+                    .then(d => { if (d.error) alert(d.error); else cargar(); })
+                    .catch(err => alert(err.message));
+            });
+
+            // ── Modal crear ──────────────────────────────────────────────────────
+            $('btnNuevoUsuario').addEventListener('click', () => {
+                $('crearUsername').value = '';
+                $('crearEmail').value = '';
+                $('crearRol').value = 'user';
+                for (const id of ['crearError', 'crearAviso', 'crearOk'])
+                    $('cargando') && $(id).classList.add('hidden');
+                $('modalCrear').classList.remove('hidden');
+            });
+
+            function cerrarModal() { $('modalCrear').classList.add('hidden'); }
+            $('btnCancelarCrear').addEventListener('click', cerrarModal);
+            $('modalCrear').addEventListener('click', e => {
+                if (e.target === $('modalCrear')) cerrarModal();
+            });
+
+            $('btnConfirmarCrear').addEventListener('click', () => {
+                const btn = $('btnConfirmarCrear');
+                const errEl = $('crearError');
+                const avisEl = $('crearAviso');
+                const okEl = $('crearOk');
+                for (const el of [errEl, avisEl, okEl]) el.classList.add('hidden');
+
+                const username = $('crearUsername').value.trim();
+                const email = $('crearEmail').value.trim();
+                const role = $('crearRol').value;
+
+                if (!username || !email) {
+                    errEl.textContent = 'Usuario y email son obligatorios.';
+                    errEl.classList.remove('hidden');
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.textContent = 'Enviando…';
+
+                fetch(BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, role }),
+                })
+                    .then(async r => {
+                        const d = await r.json();
+                        if (!r.ok) throw new Error(d.error || `Error ${r.status}`);
+                        return d;
+                    })
+                    .then(d => {
+                        okEl.textContent = `✓ Usuario "${d.usuario.username}" creado.`;
+                        okEl.classList.remove('hidden');
+                        if (d.aviso) {
+                            avisEl.textContent = '⚠ ' + d.aviso;
+                            avisEl.classList.remove('hidden');
+                        }
+                        cargar();
+                        setTimeout(cerrarModal, 2000);
+                    })
+                    .catch(err => {
+                        errEl.textContent = err.message;
+                        errEl.classList.remove('hidden');
+                    })
+                    .finally(() => {
+                        btn.disabled = false;
+                        btn.textContent = 'Invitar';
+                    });
+            });
+
+            // ── Inicio ───────────────────────────────────────────────────────────
+            cargar();
+        })();
+    </script>
+</body>
+
+</html>

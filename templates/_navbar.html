@@ -1,0 +1,143 @@
+{# templates/_navbar.html
+Partial de navegación — incluir en cada template con:
+{% include '_navbar.html' %}
+
+Para agregar o quitar links, editar SOLO este archivo.
+#}
+{% set role = session.get('role') %}
+{% set username = session.get('username', '') %}
+{% set path = request.path %}
+
+<nav class="navbar-principal" role="navigation" aria-label="Navegación principal">
+    <a class="brand" href="/">Algorithms App</a>
+
+    <button class="nav-toggle" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú">
+        <span class="hamburger" aria-hidden="true"></span>
+    </button>
+
+    <ul id="menu" class="menu">
+        <li><a href="/" {% if path=='/' %}class="nav-active" aria-current="page" {% endif %}>Inicio</a></li>
+        <li><a href="/casoexperimental" {% if path=='/casoexperimental' %}class="nav-active" aria-current="page" {%
+                endif %}>Caso Experimental</a></li>
+        <li><a href="/topsis" {% if path=='/topsis' %}class="nav-active" aria-current="page" {% endif %}>MCDM</a></li>
+        <li><a href="/pso" {% if path.startswith('/pso') %}class="nav-active" aria-current="page" {% endif %}>PSO</a>
+        </li>
+        <li><a href="/ba" {% if path.startswith('/ba') %}class="nav-active" aria-current="page" {% endif %}>BA</a></li>
+        <li><a href="/aco" {% if path.startswith('/aco') %}class="nav-active" aria-current="page" {% endif %}>ACO</a>
+        </li>
+        <li><a href="/comparacionGeneral" {% if path=='/comparacionGeneral' %}class="nav-active" aria-current="page" {%
+                endif %}>Comparación</a></li>
+        <li><a href="/acercade" {% if path=='/acercade' %}class="nav-active" aria-current="page" {% endif %}>Acerca
+                De</a></li>
+        <li><a href="/publicaciones" {% if path=='/publicaciones' %}class="nav-active" aria-current="page" {% endif
+                %}>Publicaciones</a></li>
+
+        <li class="user-menu">
+            <button class="user-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="user-dropdown"
+                title="Cuenta">
+                {# Avatar con inicial del usuario #}
+                <span class="user-avatar" aria-hidden="true">{{ username[0].upper() if username else '?' }}</span>
+                <span class="user-label">{{ username }}</span>
+                <svg class="user-chevron" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"
+                    focusable="false">
+                    <path fill="currentColor" d="M2 4l4 4 4-4" />
+                </svg>
+            </button>
+
+            <ul id="user-dropdown" class="user-dropdown" role="menu">
+                {# Cabecera informativa del dropdown #}
+                <li class="dropdown-header" role="none">
+                    <span class="dropdown-username">{{ username }}</span>
+                    <span class="dropdown-role">{{ role }}</span>
+                </li>
+
+                {% if role in ('admin', 'superadmin') %}
+                <li role="none"><a role="menuitem" href="/articulos" {% if path=='/articulos' %}class="dropdown-active"
+                        {% endif %}>Artículos</a></li>
+                <li role="none"><a role="menuitem" href="/admin/usuarios" {% if path.startswith('/admin')
+                        %}class="dropdown-active" {% endif %}>Usuarios</a></li>
+                {% endif %}
+
+                <li class="dropdown-divider" role="separator"></li>
+                <li role="none">
+                    <a role="menuitem" href="/logout" class="dropdown-logout">
+                        <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+                        </svg>
+                        Salir
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</nav>
+
+<script>
+    (function () {
+        const nav = document.querySelector('.navbar-principal');
+        const btn = nav.querySelector('.nav-toggle');
+        const menu = nav.querySelector('#menu');
+        const SOON = 'a.soon[aria-disabled="true"]';
+        const tips = new WeakMap();
+
+        function showTip(el) {
+            el.classList.add('show-tip');
+            clearTimeout(tips.get(el));
+            tips.set(el, setTimeout(() => el.classList.remove('show-tip'), 1400));
+        }
+
+        btn.addEventListener('click', () => {
+            const open = nav.classList.toggle('is-open');
+            btn.setAttribute('aria-expanded', open);
+        });
+
+        const userMenu = nav.querySelector('.user-menu');
+        const userBtn = userMenu?.querySelector('.user-btn');
+
+        function closeUser() {
+            userMenu?.classList.remove('open');
+            userBtn?.setAttribute('aria-expanded', 'false');
+        }
+
+        userBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const opening = !userMenu.classList.contains('open');
+            closeUser();
+            if (opening) {
+                userMenu.classList.add('open');
+                userBtn.setAttribute('aria-expanded', 'true');
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!nav.contains(e.target)) {
+                nav.classList.remove('is-open');
+                btn.setAttribute('aria-expanded', 'false');
+                closeUser();
+            }
+        });
+
+        menu.addEventListener('click', (e) => {
+            const a = e.target.closest('a');
+            if (!a) return;
+            if (a.matches(SOON)) { e.preventDefault(); e.stopPropagation(); showTip(a); return; }
+            nav.classList.remove('is-open');
+            btn.setAttribute('aria-expanded', 'false');
+            closeUser();
+        });
+
+        menu.addEventListener('touchstart', (e) => {
+            const a = e.target.closest(SOON);
+            if (a) showTip(a);
+        }, { passive: true });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeUser();
+                nav.classList.remove('is-open');
+                btn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    })();
+</script>

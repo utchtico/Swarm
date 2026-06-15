@@ -1,8 +1,8 @@
-"""esquema inicial
+"""esquema inicial con seguridad
 
-Revision ID: c77264fce60c
+Revision ID: 8963ce505da3
 Revises: 
-Create Date: 2026-06-11 19:09:41.612969
+Create Date: 2026-06-15 10:08:48.466997
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'c77264fce60c'
+revision = '8963ce505da3'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -43,11 +43,21 @@ def upgrade():
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('username', sa.String(length=80), nullable=False),
+    sa.Column('email', sa.String(length=120), nullable=True),
     sa.Column('password_hash', sa.String(length=256), nullable=False),
     sa.Column('role', sa.String(length=20), nullable=False),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('username')
+    sa.Column('activo', sa.Boolean(), nullable=False),
+    sa.Column('debe_cambiar_password', sa.Boolean(), nullable=False),
+    sa.Column('creado_en', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+    sa.Column('creado_por_id', sa.Integer(), nullable=True),
+    sa.Column('ultimo_acceso', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['creado_por_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
     )
+    with op.batch_alter_table('user', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_user_email'), ['email'], unique=True)
+        batch_op.create_index(batch_op.f('ix_user_username'), ['username'], unique=True)
+
     op.create_table('article_author',
     sa.Column('article_id', sa.Integer(), nullable=False),
     sa.Column('author_id', sa.Integer(), nullable=False),
@@ -111,6 +121,10 @@ def downgrade():
     op.drop_table('ejecucion')
     op.drop_table('article_corresponding')
     op.drop_table('article_author')
+    with op.batch_alter_table('user', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_user_username'))
+        batch_op.drop_index(batch_op.f('ix_user_email'))
+
     op.drop_table('user')
     op.drop_table('author')
     with op.batch_alter_table('article', schema=None) as batch_op:

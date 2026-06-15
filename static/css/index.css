@@ -843,6 +843,153 @@ h1.page-title {
     }
 }
 
-p{
+p {
     text-align: justify;
+}
+
+/* ===== Mejoras navbar — username, active state, dropdown ===== */
+
+/* Link activo en la barra */
+.menu a.nav-active {
+    color: var(--nav-fg, #1e293b);
+    font-weight: 600;
+    position: relative;
+}
+
+.menu a.nav-active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+}
+
+@media (max-width: 767.98px) {
+    .menu a.nav-active::after {
+        display: none;
+    }
+
+    .menu a.nav-active {
+        background: rgba(0, 0, 0, .06);
+        border-radius: 6px;
+    }
+}
+
+/* Botón de usuario: avatar + nombre + chevron */
+.user-btn {
+    width: auto !important;
+    padding: 5px 10px 5px 6px;
+    gap: 7px;
+    display: inline-flex !important;
+    align-items: center;
+    border-radius: 999px !important;
+    transition: background .15s;
+}
+
+.user-btn:hover {
+    background: rgba(0, 0, 0, .07) !important;
+}
+
+.user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #334155;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    letter-spacing: 0;
+}
+
+.user-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #1e293b;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-chevron {
+    flex-shrink: 0;
+    color: #64748b;
+    transition: transform .2s;
+}
+
+.user-menu.open .user-chevron {
+    transform: rotate(180deg);
+}
+
+/* En móvil: ocultar label y chevron, mostrar solo avatar */
+@media (max-width: 767.98px) {
+
+    .user-label,
+    .user-chevron {
+        display: none;
+    }
+
+    .user-btn {
+        padding: 6px !important;
+    }
+}
+
+/* Cabecera del dropdown */
+.dropdown-header {
+    padding: 10px 14px 8px;
+    border-bottom: 1px solid rgba(0, 0, 0, .06);
+    margin-bottom: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dropdown-username {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.dropdown-role {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #94a3b8;
+}
+
+/* Item activo en dropdown */
+.user-dropdown a.dropdown-active {
+    background: rgba(0, 0, 0, .05);
+    font-weight: 500;
+}
+
+/* Separador */
+.dropdown-divider {
+    height: 1px;
+    background: rgba(0, 0, 0, .07);
+    margin: 4px 10px;
+}
+
+/* Salir — separado y con color de alerta */
+.dropdown-logout {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    color: #dc2626 !important;
+    font-weight: 500;
+}
+
+.dropdown-logout:hover {
+    background: #fef2f2 !important;
+    color: #b91c1c !important;
+}
+
+.dropdown-logout svg {
+    flex-shrink: 0;
 }

@@ -1,8 +1,3 @@
-# src/views.py
-# Blueprint de vistas: rutas que solo renderizan templates (sin lógica de
-# negocio). Las rutas de cálculo de algoritmos viven en main.py hasta la
-# Fase 3/4 y en src/api/algoritmos.py (API JSON nueva).
-
 from flask import Blueprint, render_template, session
 
 from src.api.auth import roles_required
@@ -44,3 +39,11 @@ def articulos():
 @roles_required('user', 'admin', 'superadmin')
 def publicacion():
     return render_template('publicaciones.html')
+
+
+@views_bp.route('/admin/usuarios')
+@roles_required('admin', 'superadmin')
+def admin_usuarios():
+    """Rerouta al blueprint de admin para mantener la URL limpia desde la navbar."""
+    from flask import redirect, url_for
+    return redirect(url_for('admin.panel_usuarios'))

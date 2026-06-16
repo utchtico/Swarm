@@ -1,26 +1,82 @@
 {% extends "_laboratorio_base.html" %}
+
 {% block titulo %}TOPSIS-PSO{% endblock %}
+
 {% block encabezado %}
-TOPSIS-PSO <span class="font-normal text-gray-400">· Próximamente</span>
+TOPSIS-PSO <span class="font-normal text-gray-400">· Technique for Order Preference by Similarity to Ideal Solution + PSO</span>
 {% endblock %}
+
 {% block chips_familia %}
-<a href="/pso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">PSO</a>
-<a href="/dapso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">DA-PSO</a>
-<a href="/moorapso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">MOORA-PSO</a>
-<a href="/topsispso" class="px-3 py-1.5 rounded-full bg-slate-700 text-white" aria-current="page">TOPSIS-PSO</a>
-<a href="/comparacionPso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200" >Comparación</a>
+<a href="/pso"           class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">PSO</a>
+<a href="/dapso"         class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">DA-PSO</a>
+<a href="/moorapso"      class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">MOORA-PSO</a>
+<a href="/topsispso"     class="px-3 py-1.5 rounded-full bg-slate-700 text-white" aria-current="page">TOPSIS-PSO</a>
+<a href="/comparacionPso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">Comparación</a>
 {% endblock %}
+
+{% block nota_vectores %}
+— los vectores R1 y R2 son derivados automáticamente por el ranking TOPSIS.
+{% endblock %}
+
 {% block teoria %}
-<div class="text-center py-12">
-  <div class="inline-flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-6 py-4 text-sm font-medium">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
-      <line x1="12" y1="16" x2="12.01" y2="16"/>
-    </svg>
-    Este módulo está en desarrollo. Estará disponible próximamente.
-  </div>
+<p class="text-lg leading-relaxed text-gray-700">
+  <strong>TOPSIS-PSO</strong> combina la técnica TOPSIS (<em>Technique for Order Preference by
+  Similarity to Ideal Solution</em>) con la optimización por enjambre de partículas. TOPSIS evalúa
+  cada alternativa según su distancia simultánea a una solución ideal y a una anti-ideal, y este
+  ranking inicializa y actualiza las posiciones de referencia R1 y R2 del enjambre en cada iteración.
+</p>
+
+<h2 class="mt-12 mb-6 text-xl font-semibold text-gray-800">¿Cómo funciona el algoritmo?</h2>
+
+<div class="grid gap-5 sm:grid-cols-2">
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Normalización vectorial</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Cada columna de la matriz se normaliza dividiendo entre su norma euclidiana, eliminando
+      las diferencias de escala entre criterios antes de ponderar.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Soluciones ideal y anti-ideal</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Sobre la matriz ponderada se identifican el mejor valor posible por criterio (solución
+      ideal) y el peor valor posible (solución anti-ideal), que sirven como referencias de
+      comparación para cada alternativa.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Puntuación de proximidad relativa</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Cada alternativa recibe una puntuación basada en su distancia a ambas soluciones: cuanto
+      más cercana a la ideal y más lejana de la anti-ideal, menor (mejor) es su puntuación.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Guía adaptativa del enjambre</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Las dos mejores alternativas del ranking TOPSIS se convierten en R1 y R2. En cada
+      iteración se recalcula el ranking sobre las posiciones actuales del enjambre, manteniendo
+      la guía de TOPSIS activa durante toda la búsqueda.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5 sm:col-span-2">
+    <h3 class="font-semibold text-gray-900 mb-2">Interpretación de la convergencia</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      A diferencia de PSO puro, la puntuación TOPSIS es una medida de distancia relativa donde
+      valores más cercanos a 0 indican mejores alternativas. La gráfica de convergencia muestra
+      esta tendencia descendente conforme el enjambre se aproxima a la solución ideal.
+    </p>
+  </article>
 </div>
 {% endblock %}
+
 {% block algo_config %}
-<script>window.ALGO_CONFIG = { algoritmo: 'TOPSISPSO', endpoint: '/api/algoritmos/topsispso', tiene_r1r2: false };</script>
+<script>
+  window.ALGO_CONFIG = {
+    algoritmo:    'TOPSISPSO',
+    endpoint:     '/api/algoritmos/topsispso',
+    tiene_r1r2:   false,
+    etiqueta_gbf: 'Puntuación TOPSIS (↓ mejor)',
+  };
+</script>
 {% endblock %}

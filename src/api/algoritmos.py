@@ -18,6 +18,7 @@ from src.services.ejecuciones import (
 from src.algoritmos.pso import ejecutar_pso
 from src.algoritmos.dapso import ejecutar_dapso
 from src.algoritmos.moorapso import ejecutar_moorapso
+from src.algoritmos.topsispso import ejecutar_topsispso
 
 algoritmos_bp = Blueprint('algoritmos_api', __name__, url_prefix='/api')
 
@@ -98,6 +99,13 @@ def api_calcular_dapso():
 def api_calcular_moorapso():
     """MOORA-PSO — r1 y r2 se derivan del ranking MOORA."""
     return _ejecutar_familia_pso('MOORAPSO', ejecutar_moorapso, tiene_r1r2=False)
+
+
+@algoritmos_bp.post('/algoritmos/topsispso')
+@roles_required('user', 'admin', 'superadmin')
+def api_calcular_topsispso():
+    """TOPSIS-PSO — r1 y r2 se derivan del ranking TOPSIS."""
+    return _ejecutar_familia_pso('TOPSISPSO', ejecutar_topsispso, tiene_r1r2=False)
 
 
 # ── Plantilla Excel ──────────────────────────────────────────────────────────

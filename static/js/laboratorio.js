@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const ALGORITMO = CFG.algoritmo || 'PSO';
     const ENDPOINT = CFG.endpoint || '/api/algoritmos/pso';
     const TIENE_R1R2 = CFG.tiene_r1r2 !== false;  // default: true (PSO los usa)
+    let _labInicializado = false;  // controla el render diferido del laboratorio
 
     // ===================== TABS (Teoría es el tab inicial) =====================
     const tabs = {
@@ -168,9 +169,9 @@ document.addEventListener('DOMContentLoaded', function () {
         // w siempre editable; R1/R2 solo cuando el algoritmo los necesita como entrada
         // Si tiene_r1r2=false: fila de encabezado informativo, sin celdas de datos
         const configVectores = [
-            { prefijo: 'w', label: 'w (peso)', mostrar: true },
-            { prefijo: 'r1', label: 'R1', mostrar: TIENE_R1R2 },
-            { prefijo: 'r2', label: 'R2', mostrar: TIENE_R1R2 },
+            { prefijo: 'w',  label: 'w (peso)', mostrar: true },
+            { prefijo: 'r1', label: 'R1',       mostrar: TIENE_R1R2 },
+            { prefijo: 'r2', label: 'R2',       mostrar: TIENE_R1R2 },
         ];
         for (const { prefijo, label, mostrar } of configVectores) {
             const tr = document.createElement('tr');
@@ -184,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 for (let c = 0; c < nCriterios; c++) {
                     const td = document.createElement('td');
                     td.className = 'border border-blue-200 p-1 bg-blue-50';
-                    const id = `${prefijo}_${c}`;
+                    const id  = `${prefijo}_${c}`;
                     td.appendChild(crearInput(
                         (id in previos) ? previos[id] : valorInicialVector(prefijo, c),
                         id, claseInputVector));
@@ -259,8 +260,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         document.getElementById(celdaId(f, c)).value = p.matriz[f][c];
                 for (let c = 0; c < n; c++) {
                     document.getElementById(`w_${c}`).value = p.w[c];
-                    document.getElementById(`r1_${c}`).value = p.r1[c];
-                    document.getElementById(`r2_${c}`).value = p.r2[c];
+                    if (TIENE_R1R2) {
+                        document.getElementById(`r1_${c}`).value = p.r1[c];
+                        document.getElementById(`r2_${c}`).value = p.r2[c];
+                    }
                 }
                 // Escalares
                 document.getElementById('wwi').value = p.wwi;
@@ -395,8 +398,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById(celdaId(f, c)).value = matriz[f][c];
         for (let c = 0; c < nCriterios; c++) {
             document.getElementById(`w_${c}`).value = (p.w || [])[c] ?? '';
-            document.getElementById(`r1_${c}`).value = (p.r1 || [])[c] ?? '';
-            document.getElementById(`r2_${c}`).value = (p.r2 || [])[c] ?? '';
+            if (TIENE_R1R2) {
+                document.getElementById(`r1_${c}`).value = (p.r1 || [])[c] ?? '';
+                document.getElementById(`r2_${c}`).value = (p.r2 || [])[c] ?? '';
+            }
         }
         document.getElementById('wwi').value = p.wwi ?? '';
         document.getElementById('c1').value = p.c1 ?? '';
@@ -436,16 +441,20 @@ document.addEventListener('DOMContentLoaded', function () {
         const T = parseInt(document.getElementById('T').value, 10);
         if (Number.isNaN(T) || T < 1) throw new Error('T debe ser un entero mayor o igual a 1.');
 
-        return {
+        const payload = {
             matriz,
             w: vector('w', 'el peso w de'),
-            r1: vector('r1', 'R1 de'),
-            r2: vector('r2', 'R2 de'),
             wwi: leerNumero(document.getElementById('wwi'), 'el peso de inercia'),
             c1: leerNumero(document.getElementById('c1'), 'c1'),
             c2: leerNumero(document.getElementById('c2'), 'c2'),
             T,
         };
+        // r1/r2 solo existen en el DOM y aplican cuando el algoritmo los recibe como entrada
+        if (TIENE_R1R2) {
+            payload.r1 = vector('r1', 'R1 de');
+            payload.r2 = vector('r2', 'R2 de');
+        }
+        return payload;
     }
 
     function mostrarError(texto) {

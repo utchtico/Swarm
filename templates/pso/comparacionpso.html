@@ -1,28 +1,172 @@
-{% extends "_laboratorio_base.html" %}
-{% block titulo %}Comparación PSO{% endblock %}
-{% block encabezado %}
-Comparación PSO <span class="font-normal text-gray-400">· Próximamente</span>
-{% endblock %}
-{% block chips_familia %}
-<a href="/pso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">PSO</a>
-<a href="/dapso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">DA-PSO</a>
-<a href="/moorapso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">MOORA-PSO</a>
-<a href="/topsispso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">TOPSIS-PSO</a>
-<a href="/comparacionPso" class="px-3 py-1.5 rounded-full bg-slate-700 text-white" aria-current="page">Comparación</a>
-{% endblock %}
-{% block teoria %}
-<div class="text-center py-12">
-    <div
-        class="inline-flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-6 py-4 text-sm font-medium">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-        </svg>
-        Este módulo está en desarrollo. Estará disponible próximamente.
-    </div>
-</div>
-{% endblock %}
-{% block algo_config %}
-<script>window.ALGO_CONFIG = { algoritmo: 'COMPARACIONPSO', endpoint: '/api/algoritmos/comparacionpso', tiene_r1r2: false };</script>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comparación PSO — Swarm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/index.css">
+</head>
+
+<body>
+    {% include '_navbar.html' %}
+
+    <!-- ============ ENCABEZADO + CHIPS DE FAMILIA ============ -->
+    <header class="bg-white border-b border-slate-200">
+        <div class="max-w-5xl mx-auto px-6 pt-8 pb-6">
+            <h1 class="text-2xl lg:text-3xl font-semibold text-gray-800">
+                Comparación <span class="font-normal text-gray-400">· Familia PSO</span>
+            </h1>
+            <p class="mt-2 text-gray-500 text-sm">
+                Ejecuta los cuatro algoritmos con los mismos datos de entrada y compara sus resultados.
+            </p>
+            <div class="mt-4 flex flex-wrap gap-2 text-sm" aria-label="Variantes de la familia PSO">
+                <a href="/pso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">PSO</a>
+                <a href="/dapso"
+                    class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">DA-PSO</a>
+                <a href="/moorapso"
+                    class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">MOORA-PSO</a>
+                <a href="/topsispso"
+                    class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">TOPSIS-PSO</a>
+                <a href="/comparacionPso" class="px-3 py-1.5 rounded-full bg-slate-700 text-white"
+                    aria-current="page">Comparación</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-8">
+
+        <!-- ============ DATOS DE ENTRADA ============ -->
+        <section class="rounded-xl bg-white px-8 py-8 shadow-2xl mb-8">
+            <div class="flex flex-wrap items-baseline justify-between gap-2 mb-1">
+                <h2 class="font-semibold text-lg">Datos del experimento</h2>
+                <span id="dimensionesMatriz" class="text-sm text-gray-500"></span>
+            </div>
+            <p class="text-sm text-gray-500 mb-4">
+                Esta matriz y los pesos <span class="font-medium">w</span> se usan para los cuatro algoritmos.
+                Los vectores <span class="font-medium">R1</span> y <span class="font-medium">R2</span> (filas en azul
+                claro)
+                solo son tomados en cuenta por <span class="font-medium">PSO</span> — DA-PSO, MOORA-PSO y TOPSIS-PSO
+                los derivan automáticamente y los ignoran.
+            </p>
+
+            <div class="flex flex-wrap gap-2 mb-4">
+                <button type="button" id="btnAddCriterio"
+                    class="text-black text-sm px-4 py-2 rounded-lg bg-slate-400 hover:bg-slate-500">+ Criterio</button>
+                <button type="button" id="btnDelCriterio"
+                    class="text-black text-sm px-4 py-2 rounded-lg bg-slate-300 hover:bg-slate-400">&minus;
+                    Criterio</button>
+                <button type="button" id="btnAddAlternativa"
+                    class="text-black text-sm px-4 py-2 rounded-lg bg-slate-400 hover:bg-slate-500">+
+                    Alternativa</button>
+                <button type="button" id="btnDelAlternativa"
+                    class="text-black text-sm px-4 py-2 rounded-lg bg-slate-300 hover:bg-slate-400">&minus;
+                    Alternativa</button>
+            </div>
+
+            <div class="overflow-x-auto mb-6">
+                <table id="tablaMatriz" class="table-auto border-separate border border-slate-400 text-sm">
+                    <thead>
+                        <tr id="matrizHead"></tr>
+                    </thead>
+                    <tbody id="matrizBody"></tbody>
+                    <tbody id="matrizVectores"></tbody>
+                </table>
+            </div>
+
+            <div class="grid gap-6 mb-2 lg:grid-cols-4">
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-900">Peso de inercia (wwi)</label>
+                    <input type="number" step="any" value="0.7" id="wwi"
+                        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                        required />
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-900">c1</label>
+                    <input type="number" step="any" value="2.5" id="c1"
+                        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                        required />
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-900">c2</label>
+                    <input type="number" step="any" value="2.5" id="c2"
+                        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                        required />
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-900">Iteraciones (T)</label>
+                    <input type="number" step="1" min="1" value="10" id="T"
+                        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                        required />
+                </div>
+            </div>
+
+            <p id="mensajeError" class="hidden mt-4 text-sm text-red-600"></p>
+
+            <div class="mt-6 flex justify-end">
+                <button type="button" id="ejecutarComparacion"
+                    class="text-white font-medium rounded-lg text-sm px-6 py-2.5 bg-slate-700 hover:bg-slate-800 disabled:opacity-50">
+                    Calcular comparación
+                </button>
+            </div>
+        </section>
+
+        <!-- ============ RESULTADOS: 4 TARJETAS EN GRID ============ -->
+        <div class="grid gap-6 lg:grid-cols-2">
+            {% for algo, label, color in [
+            ('pso','PSO','bg-slate-700'),
+            ('dapso','DA-PSO','bg-blue-700'),
+            ('moorapso','MOORA-PSO','bg-emerald-700'),
+            ('topsispso','TOPSIS-PSO','bg-amber-700')
+            ] %}
+            <section class="rounded-xl bg-white px-6 py-6 shadow-2xl">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-semibold text-lg flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full {{ color }}"></span>
+                        {{ label }}
+                    </h3>
+                    <span id="estado_{{ algo }}" class="text-xs text-gray-400">En espera</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
+                    <div>
+                        <span class="text-gray-500">GBF final:</span>
+                        <span id="gbf_{{ algo }}" class="font-semibold ml-1">—</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500">Mejor alternativa:</span>
+                        <span id="alt_{{ algo }}" class="font-semibold ml-1">—</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500">Duración:</span>
+                        <span id="tiempo_{{ algo }}" class="ml-1">—</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500">Iteraciones:</span>
+                        <span id="iter_{{ algo }}" class="ml-1">—</span>
+                    </div>
+                </div>
+
+                <div class="overflow-y-auto max-h-56">
+                    <table class="w-full table-auto border-separate border border-slate-300 text-xs">
+                        <thead>
+                            <tr>
+                                <th class="border border-slate-200 px-2 py-1">Iteración</th>
+                                <th class="border border-slate-200 px-2 py-1">Mejor alternativa</th>
+                                <th class="border border-slate-200 px-2 py-1">GBF</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla_{{ algo }}"></tbody>
+                    </table>
+                </div>
+            </section>
+            {% endfor %}
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/comparacionPso.js') }}"></script>
+</body>
+
+</html>

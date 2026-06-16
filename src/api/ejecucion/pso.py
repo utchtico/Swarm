@@ -10,6 +10,7 @@ from src.api.vistas.pso import pso_bp
 from src.algoritmos.pso import ejecutar_pso
 from src.algoritmos.dapso import ejecutar_dapso
 from src.algoritmos.moorapso import ejecutar_moorapso
+from src.algoritmos.topsispso import ejecutar_topsispso
 from src.models.models import db, User
 from src.services.ejecuciones import MATRIZ_DEFAULT, guardar_ejecucion, validar_entrada_pso
 
@@ -39,7 +40,7 @@ def _legacy(nombre_algo, ejecutar_fn, tiene_r1r2=True):
             'r2':  [float(x.strip()) for x in request.form['r2'].split(',')] if tiene_r1r2 else [0]*5,
         }
         params = validar_entrada_pso(base)
-
+ 
         # Construir kwargs según si el algoritmo acepta r1/r2
         kwargs = dict(matriz=params['matriz'], w=params['w'],
                       wwi=params['wwi'], c1=params['c1'],
@@ -48,7 +49,7 @@ def _legacy(nombre_algo, ejecutar_fn, tiene_r1r2=True):
         if tiene_r1r2:
             kwargs['r1'] = params['r1']
             kwargs['r2'] = params['r2']
-
+ 
         datos = ejecutar_fn(**kwargs)
         omitir = () if tiene_r1r2 else ('r1', 'r2')
         ejecucion = guardar_ejecucion(nombre_algo, user.id,
@@ -71,7 +72,6 @@ def _legacy(nombre_algo, ejecutar_fn, tiene_r1r2=True):
         import traceback; traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
-
 @pso_bp.post('/pso')
 @roles_required('user', 'admin', 'superadmin')
 def calcular_pso():
@@ -88,3 +88,9 @@ def calcular_dapso():
 @roles_required('user', 'admin', 'superadmin')
 def calcular_moorapso():
     return _legacy('MOORAPSO', ejecutar_moorapso, tiene_r1r2=False)
+
+@pso_bp.post('/topsispso')
+@roles_required('user', 'admin', 'superadmin')
+def calcular_topsispso():
+    return _legacy('TOPSISPSO', ejecutar_topsispso, tiene_r1r2=False)
+ 

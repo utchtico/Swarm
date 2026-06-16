@@ -149,31 +149,18 @@
             <form method="POST" id="algoForm">
                 <h2 class="font-semibold text-lg mb-4">Parámetros de control</h2>
                 <div class="grid gap-6 mb-6 lg:grid-cols-2">
-                    <div>
-                        <label class="block mb-2 text-sm font-medium text-gray-900">Peso de inercia (wwi)</label>
-                        <input type="number" step="any" value="0.7" id="wwi" name="wwi"
-                            class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                            required />
-                    </div>
-                    <div>
-                        <label class="block mb-2 text-sm font-medium text-gray-900">c1</label>
-                        <input type="number" step="any" value="2.5" id="c1" name="c1"
-                            class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                            required />
-                    </div>
-                    <div>
-                        <label class="block mb-2 text-sm font-medium text-gray-900">c2</label>
-                        <input type="number" step="any" value="2.5" id="c2" name="c2"
-                            class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                            required />
-                    </div>
+                    {# Cada familia define sus propios parámetros de control aquí.
+                       T es el único campo genuinamente compartido por todas las
+                       familias (PSO, BA, ACO...), porque todas son metaheurísticas
+                       iterativas. wwi/c1/c2 son específicos de PSO y NO viven aquí
+                       — cada template hijo los provee en este mismo bloque. #}
+                    {% block params_control %}{% endblock %}
                     <div>
                         <label class="block mb-2 text-sm font-medium text-gray-900">Cantidad de iteraciones (T)</label>
                         <input type="number" step="1" min="1" value="10" id="T" name="T"
                             class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
                             required />
                     </div>
-                    {% block params_extra %}{% endblock %}
                 </div>
                 <p id="mensajeError" class="hidden mb-4 text-sm text-red-600"></p>
                 <div class="flex justify-between">
@@ -276,7 +263,9 @@
     <!-- Configuración del algoritmo — debe definir window.ALGO_CONFIG antes del JS -->
     {% block algo_config %}{% endblock %}
 
-    <script src="{{ url_for('static', filename='js/laboratorio.js') }}"></script>
+    {% block laboratorio_js %}
+    <script src="{{ url_for('static', filename='js/pso/laboratorio.js') }}"></script>
+    {% endblock %}
 </body>
 
 </html>

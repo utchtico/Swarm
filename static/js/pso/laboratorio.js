@@ -222,11 +222,14 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // ===================== PLANTILLA EXCEL =====================
-    // El link de descarga incluye las dimensiones actuales de la matriz
+    // La URL incluye el algoritmo (minúsculas) para que la plantilla generada
+    // y la validación de carga sean conscientes de la variante.
+    const ALGORITMO_URL = ALGORITMO.toLowerCase();
+
     const enlacePlantilla = document.getElementById('descargarPlantilla');
     enlacePlantilla.addEventListener('click', () => {
         enlacePlantilla.href =
-            `/api/algoritmos/pso/plantilla?criterios=${nCriterios}&alternativas=${nAlternativas}`;
+            `/api/algoritmos/${ALGORITMO_URL}/plantilla?criterios=${nCriterios}&alternativas=${nAlternativas}`;
     });
 
     document.getElementById('archivoPlantilla').addEventListener('change', function () {
@@ -238,7 +241,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const fd = new FormData();
         fd.append('archivo', archivo);
-        fetch('/api/algoritmos/pso/plantilla', { method: 'POST', body: fd })
+        fetch(`/api/algoritmos/${ALGORITMO_URL}/plantilla`, { method: 'POST', body: fd })
             .then(async (resp) => {
                 const data = await resp.json();
                 if (!resp.ok) throw new Error(data.error || `Error ${resp.status}`);
@@ -270,7 +273,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('c1').value = p.c1;
                 document.getElementById('c2').value = p.c2;
                 document.getElementById('T').value = p.T;
-                estado.textContent = `Plantilla cargada: ${a} alternativas × ${n} criterios. Revise y presione Calcular.`;
+                estado.textContent = `Plantilla cargada (${p.algoritmo_detectado || ALGORITMO}): ` +
+                    `${a} alternativas × ${n} criterios. Revise y presione Calcular.`;
             })
             .catch((err) => {
                 estado.textContent = '';

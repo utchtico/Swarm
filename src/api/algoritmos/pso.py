@@ -1,14 +1,16 @@
-# src/api/algoritmos.py
-# API JSON de algoritmos — recibe JSON, responde JSON.
-# Endpoints de ejecución: /api/algoritmos/<nombre>
-# Endpoints de historial: /api/ejecuciones/*
+# src/api/algoritmos_pso.py
+# API JSON de la familia PSO — recibe JSON, responde JSON.
+# Endpoints de ejecución: /api/algoritmos/{pso,dapso,moorapso,topsispso}
 # Endpoints de plantilla: /api/algoritmos/pso/plantilla
+#
+# El historial de ejecuciones (genérico, no específico de PSO) vive en
+# src/api/ejecuciones.py — ese módulo no sabe nada de wwi/c1/c2/r1/r2.
 
 from flask import Blueprint, jsonify, request, send_file, session
 
 from src.api.auth import roles_required
-from src.models.models import db, Ejecucion, User
-from src.services.ejecuciones import (
+from src.models.models import db, User
+from src.services.ejecuciones_pso import (
     exportar_ejecucion_excel,
     generar_plantilla_excel,
     guardar_ejecucion,
@@ -109,88 +111,39 @@ def api_calcular_topsispso():
 
 
 # ── Plantilla Excel ──────────────────────────────────────────────────────────
+# La ruta incluye el algoritmo para que la plantilla generada y la validación
+# de carga sean conscientes de la variante (PSO sí usa R1/R2; las demás no).
 
-@algoritmos_bp.get('/algoritmos/pso/plantilla')
+ALGORITMOS_VALIDOS_PLANTILLA = {'pso', 'dapso', 'moorapso', 'topsispso'}
+
+
+@algoritmos_bp.get('/algoritmos/<algoritmo>/plantilla')
 @roles_required('user', 'admin', 'superadmin')
-def api_descargar_plantilla():
+def api_descargar_plantilla(algoritmo):
+    algoritmo = algoritmo.lower()
+    if algoritmo not in ALGORITMOS_VALIDOS_PLANTILLA:
+        return jsonify({'error': f"Algoritmo '{algoritmo}' no reconocido."}), 404
+
     n = int(request.args.get('criterios',    5))
     a = int(request.args.get('alternativas', 9))
-    buffer = generar_plantilla_excel(n, a)
+    buffer = generar_plantilla_excel(n, a, algoritmo=algoritmo.upper())
     return send_file(buffer, as_attachment=True,
-                     download_name='plantilla_pso.xlsx',
+                     download_name=f'plantilla_{algoritmo}.xlsx',
                      mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 
-@algoritmos_bp.post('/algoritmos/pso/plantilla')
+@algoritmos_bp.post('/algoritmos/<algoritmo>/plantilla')
 @roles_required('user', 'admin', 'superadmin')
-def api_cargar_plantilla():
+def api_cargar_plantilla(algoritmo):
+    algoritmo = algoritmo.lower()
+    if algoritmo not in ALGORITMOS_VALIDOS_PLANTILLA:
+        return jsonify({'error': f"Algoritmo '{algoritmo}' no reconocido."}), 404
+
     archivo = request.files.get('archivo')
     if archivo is None:
         return jsonify({'error': 'No se recibió archivo.'}), 400
     try:
-        payload = parsear_plantilla_excel(archivo)
+        payload = parsear_plantilla_excel(archivo, algoritmo_esperado=algoritmo.upper())
         return jsonify(payload)
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
-
-
-# ── Historial de ejecuciones ─────────────────────────────────────────────────
-
-@algoritmos_bp.get('/ejecuciones')
-@roles_required('user', 'admin', 'superadmin')
-def api_listar_ejecuciones():
-    rol = session.get('role')
-    uid = session.get('user_id')
-    q   = Ejecucion.query
-
-    # Filtrar por algoritmo
-    algoritmo = request.args.get('algoritmo')
-    if algoritmo:
-        q = q.filter(Ejecucion.algoritmo == algoritmo.upper())
-
-    # Control de acceso: user solo ve las suyas; admin/superadmin ven todas
-    if rol == 'user':
-        q = q.filter(Ejecucion.fk_user == uid)
-
-    limit       = min(int(request.args.get('limit', 50)), 200)
-    ejecuciones = q.order_by(Ejecucion.fecha_ejecucion.desc()).limit(limit).all()
-    return jsonify([e.to_dict_resumen() for e in ejecuciones])
-
-
-@algoritmos_bp.get('/ejecuciones/<int:ejecucion_id>')
-@roles_required('user', 'admin', 'superadmin')
-def api_detalle_ejecucion(ejecucion_id):
-    ejecucion = db.session.get(Ejecucion, ejecucion_id)
-    if ejecucion is None:
-        return jsonify({'error': 'Ejecución no encontrada.'}), 404
-    # Solo el dueño o admin puede ver el detalle
-    if (session.get('role') == 'user'
-            and ejecucion.fk_user != session.get('user_id')):
-        return jsonify({'error': 'Sin permiso.'}), 403
-    detalle = ejecucion.to_dict_resumen()
-    detalle.update({
-        'parametros':      ejecucion.parametros,
-        'matriz_entrada':  ejecucion.matriz_entrada,
-        'resultados':      ejecucion.resultados,
-        'historico_gbf':   ejecucion.historico_gbf,
-    })
-    return jsonify(detalle)
-
-
-@algoritmos_bp.get('/ejecuciones/<int:ejecucion_id>/excel')
-@roles_required('user', 'admin', 'superadmin')
-def api_descargar_excel(ejecucion_id):
-    ejecucion = db.session.get(Ejecucion, ejecucion_id)
-    if ejecucion is None:
-        return jsonify({'error': 'Ejecución no encontrada.'}), 404
-    if (session.get('role') == 'user'
-            and ejecucion.fk_user != session.get('user_id')):
-        return jsonify({'error': 'Sin permiso.'}), 403
-    try:
-        buffer = exportar_ejecucion_excel(ejecucion_id)
-    except LookupError as e:
-        return jsonify({'error': str(e)}), 404
-    nombre = (f"{ejecucion.algoritmo}_{ejecucion.id}_"
-              f"{ejecucion.fecha_ejecucion.strftime('%Y%m%d_%H%M%S')}.xlsx")
-    return send_file(buffer, as_attachment=True, download_name=nombre,
-                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')

@@ -70,6 +70,27 @@ TOPSIS-PSO <span class="font-normal text-gray-400">· Technique for Order Prefer
 </div>
 {% endblock %}
 
+{% block params_control %}
+<div>
+    <label class="block mb-2 text-sm font-medium text-gray-900">Peso de inercia (wwi)</label>
+    <input type="number" step="any" value="0.7" id="wwi" name="wwi"
+        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        required />
+</div>
+<div>
+    <label class="block mb-2 text-sm font-medium text-gray-900">c1</label>
+    <input type="number" step="any" value="2.5" id="c1" name="c1"
+        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        required />
+</div>
+<div>
+    <label class="block mb-2 text-sm font-medium text-gray-900">c2</label>
+    <input type="number" step="any" value="2.5" id="c2" name="c2"
+        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        required />
+</div>
+{% endblock %}
+
 {% block algo_config %}
 <script>
   window.ALGO_CONFIG = {

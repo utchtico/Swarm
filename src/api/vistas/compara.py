@@ -13,13 +13,13 @@ def vista_comparacion_general():
 @compara_bp.get('/comparacionBa')
 @roles_required('user', 'admin', 'superadmin')
 def vista_comparacion_ba():
-    return render_template('comparacionBa.html')
+    return render_template('ba/comparacionBa.html')
 
 
 @compara_bp.get('/comparacionAco')
 @roles_required('user', 'admin', 'superadmin')
 def vista_comparacion_aco():
-    return render_template('comparacionAco.html')
+    return render_template('aco/comparacionAco.html')
 
 
 @compara_bp.get('/comparacion')

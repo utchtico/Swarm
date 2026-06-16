@@ -1,4 +1,4 @@
-# src/services/ejecuciones.py
+# src/services/ejecuciones_pso.py
 # Capa de servicios para las ejecuciones de algoritmos.
 #
 # Separación de responsabilidades:
@@ -116,104 +116,6 @@ def validar_entrada_pso(payload: dict) -> dict:
 
     return {'matriz': matriz, 'w': w, 'wwi': wwi, 'c1': c1, 'c2': c2,
             'T': T, 'r1': r1, 'r2': r2}
-
-
-def generar_plantilla_excel(n_criterios: int = 5, n_alternativas: int = 9) -> BytesIO:
-    """
-    Genera el machote de Excel para capturar un experimento offline.
-    Hojas: Instrucciones, Matriz (a x n), Parametros (w/R1/R2 por criterio
-    + escalares wwi/c1/c2/T). Se puede ampliar agregando filas/columnas
-    directamente en el archivo: al subirlo, las dimensiones se leen de la hoja.
-    """
-    n = max(n_criterios, MIN_CRITERIOS)
-    a = max(n_alternativas, MIN_ALTERNATIVAS)
-    cols = [f'C{i+1}' for i in range(n)]
-    idx = [f'A{j+1}' for j in range(a)]
-
-    # Prellenado con el caso de estudio donde aplica, 0.050 en celdas nuevas
-    valores = [[MATRIZ_DEFAULT[f][c] if f < len(MATRIZ_DEFAULT) and c < len(MATRIZ_DEFAULT[0])
-                else 0.050 for c in range(n)] for f in range(a)]
-    w_def = [0.400, 0.200, 0.030, 0.070, 0.300]
-    r1_def = [0.4657, 0.8956, 0.3877, 0.4902, 0.5039]
-    r2_def = [0.5319, 0.8185, 0.8331, 0.7677, 0.1708]
-    rellena = lambda base, largo, defecto: [base[i] if i < len(base) else defecto
-                                            for i in range(largo)]
-
-    buffer = BytesIO()
-    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-        pd.DataFrame({'Instrucciones': [
-            'PLANTILLA DE EXPERIMENTO PSO',
-            '',
-            '1. Hoja "Matriz": capture la matriz de decisión.',
-            '   - Filas = alternativas (A1, A2, ...), columnas = criterios (C1, C2, ...).',
-            f'   - Puede agregar filas y columnas (mínimo {MIN_ALTERNATIVAS} x {MIN_CRITERIOS}).',
-            '   - Mantenga los encabezados con el formato A# / C#.',
-            '2. Hoja "Parametros": capture w, R1 y R2 (un valor por criterio,',
-            '   las columnas deben coincidir con las de la Matriz) y los',
-            '   escalares wwi, c1, c2 y T.',
-            '3. Guarde el archivo y súbalo en la sección Laboratorio con',
-            '   el botón "Cargar plantilla".',
-        ]}).to_excel(writer, sheet_name='Instrucciones', index=False)
-
-        pd.DataFrame(valores, columns=cols, index=idx).to_excel(writer, sheet_name='Matriz')
-
-        param_filas = pd.DataFrame(
-            [rellena(w_def, n, 0.100), rellena(r1_def, n, 0.5000), rellena(r2_def, n, 0.5000)],
-            columns=cols, index=['w', 'R1', 'R2'])
-        param_filas.to_excel(writer, sheet_name='Parametros', startrow=0)
-        pd.DataFrame({'Parametro': ['wwi', 'c1', 'c2', 'T'],
-                      'Valor': [0.7, 2.5, 2.5, 10]}).to_excel(
-            writer, sheet_name='Parametros', startrow=6, index=False)
-
-    buffer.seek(0)
-    return buffer
-
-
-def parsear_plantilla_excel(archivo) -> dict:
-    """
-    Lee un machote llenado y devuelve el payload listo para validar_entrada_pso.
-    archivo: file-like (request.files['archivo']).
-    Lanza ValueError con mensaje claro ante cualquier problema de formato.
-    """
-    try:
-        matriz_df = pd.read_excel(archivo, sheet_name='Matriz', index_col=0)
-        archivo.seek(0)
-        params_df = pd.read_excel(archivo, sheet_name='Parametros', index_col=0, nrows=3)
-        archivo.seek(0)
-        escalares_df = pd.read_excel(archivo, sheet_name='Parametros', skiprows=6)
-    except ValueError as e:
-        raise ValueError(f"No se pudo leer la plantilla: {e}. "
-                         "Verifique que existan las hojas 'Matriz' y 'Parametros'.")
-
-    matriz_df = matriz_df.dropna(how='all').dropna(axis=1, how='all')
-    if matriz_df.isna().any().any():
-        raise ValueError("La hoja 'Matriz' tiene celdas vacías dentro del rango de datos.")
-
-    n = matriz_df.shape[1]
-
-    def _fila_param(nombre):
-        if nombre not in params_df.index:
-            raise ValueError(f"Falta la fila '{nombre}' en la hoja 'Parametros'.")
-        fila = params_df.loc[nombre].dropna()
-        if len(fila) != n:
-            raise ValueError(f"'{nombre}' tiene {len(fila)} valores; la matriz tiene {n} criterios.")
-        return [float(v) for v in fila]
-
-    escalares = dict(zip(escalares_df.iloc[:, 0], escalares_df.iloc[:, 1]))
-    for clave in ('wwi', 'c1', 'c2', 'T'):
-        if clave not in escalares or pd.isna(escalares[clave]):
-            raise ValueError(f"Falta el valor de '{clave}' en la hoja 'Parametros'.")
-
-    return {
-        'matriz': [[float(v) for v in fila] for fila in matriz_df.values],
-        'w': _fila_param('w'),
-        'r1': _fila_param('R1'),
-        'r2': _fila_param('R2'),
-        'wwi': float(escalares['wwi']),
-        'c1': float(escalares['c1']),
-        'c2': float(escalares['c2']),
-        'T': int(escalares['T']),
-    }
 
 
 def guardar_ejecucion(algoritmo: str, user_id: int, params: dict, datos: dict) -> Ejecucion:
@@ -351,13 +253,38 @@ def exportar_ejecucion_excel(ejecucion_id: int) -> BytesIO:
 # PLANTILLA EXCEL ("machote"): descarga para llenar offline y re-subida
 # =====================================================================
 
+# Algoritmos de la familia PSO que sí reciben R1/R2 como entrada del usuario.
+# Los demás (DA-PSO, MOORA-PSO, TOPSIS-PSO) los derivan internamente del
+# ranking de su método — ver tiene_r1r2 en ALGO_CONFIG del frontend.
+ALGORITMOS_CON_R1R2 = {'PSO'}
+
+NOMBRES_ALGORITMO = {
+    'PSO':       'PSO',
+    'DAPSO':     'DA-PSO',
+    'MOORAPSO':  'MOORA-PSO',
+    'TOPSISPSO': 'TOPSIS-PSO',
+}
+
+
 def generar_plantilla_excel(n_criterios: int = MIN_CRITERIOS,
-                            n_alternativas: int = MIN_ALTERNATIVAS) -> BytesIO:
+                            n_alternativas: int = MIN_ALTERNATIVAS,
+                            algoritmo: str = 'PSO') -> BytesIO:
     """
-    Genera un libro con 4 hojas para capturar un experimento offline:
-      Instrucciones | Matriz | Vectores (w, R1, R2) | Parametros
-    Las celdas a llenar van en azul (convención: entradas del usuario).
+    Genera un libro para capturar un experimento offline, ajustado a la
+    variante de PSO indicada:
+      Instrucciones | Matriz | Vectores (w[, R1, R2]) | Parametros
+
+    algoritmo : 'PSO' | 'DAPSO' | 'MOORAPSO' | 'TOPSISPSO'
+                Determina si la hoja Vectores incluye R1/R2 y queda
+                registrado en la hoja Instrucciones para que el sistema
+                sepa qué variante es al volver a cargar el archivo.
     """
+    algoritmo = (algoritmo or 'PSO').upper()
+    if algoritmo not in NOMBRES_ALGORITMO:
+        algoritmo = 'PSO'
+    tiene_r1r2 = algoritmo in ALGORITMOS_CON_R1R2
+    nombre_legible = NOMBRES_ALGORITMO[algoritmo]
+
     n = max(int(n_criterios), MIN_CRITERIOS)
     a = max(int(n_alternativas), MIN_ALTERNATIVAS)
     cols = [f'C{i+1}' for i in range(n)]
@@ -374,23 +301,42 @@ def generar_plantilla_excel(n_criterios: int = MIN_CRITERIOS,
     fmt_entrada = libro.add_format({'font_name': 'Arial', 'font_color': '#0000FF',
                                     'border': 1, 'num_format': '0.000'})
     fmt_param = libro.add_format({'font_name': 'Arial', 'border': 1})
+    fmt_nota = libro.add_format({'font_name': 'Arial', 'italic': True,
+                                 'font_color': '#6B7280', 'text_wrap': True})
+    # Celda oculta donde se guarda el identificador de algoritmo — el sistema
+    # la lee al volver a subir el archivo; el usuario no necesita tocarla.
+    fmt_oculto = libro.add_format({'font_color': '#FFFFFF', 'font_size': 1})
 
     # --- Instrucciones ---
     h = libro.add_worksheet('Instrucciones')
     h.set_column('A:A', 90)
-    h.write('A1', 'Plantilla de experimento PSO', fmt_titulo)
+    h.write('A1', f'Plantilla de experimento {nombre_legible}', fmt_titulo)
     instrucciones = [
         '1. Hoja "Matriz": capture la matriz de decisión. Filas = alternativas (A), '
         'columnas = criterios (C). Solo edite las celdas en azul.',
-        '2. Hoja "Vectores": capture el peso w y los vectores R1 y R2, un valor por criterio.',
+    ]
+    if tiene_r1r2:
+        instrucciones.append(
+            '2. Hoja "Vectores": capture el peso w y los vectores R1 y R2, '
+            'un valor por criterio.')
+    else:
+        instrucciones.append(
+            '2. Hoja "Vectores": capture únicamente el peso w, un valor por '
+            f'criterio. {nombre_legible} no requiere R1 ni R2 como entrada: '
+            'el algoritmo los calcula automáticamente a partir del ranking '
+            'de su propio método de decisión multicriterio en cada iteración.')
+    instrucciones += [
         '3. Hoja "Parametros": capture el peso de inercia (wwi), c1, c2 y la cantidad '
         'de iteraciones (T).',
         '4. No cambie el nombre de las hojas ni elimine encabezados; el sistema los usa '
         'para leer el archivo.',
-        '5. Guarde el archivo y súbalo en la sección Laboratorio del algoritmo PSO.',
+        f'5. Guarde el archivo y súbalo en la sección Laboratorio de {nombre_legible}.',
     ]
     for i, t in enumerate(instrucciones):
         h.write(i + 2, 0, t, fmt_texto)
+
+    fila_marca = len(instrucciones) + 4
+    h.write(fila_marca, 0, f'__ALGORITMO__:{algoritmo}', fmt_oculto)
 
     # --- Matriz ---
     h = libro.add_worksheet('Matriz')
@@ -409,10 +355,19 @@ def generar_plantilla_excel(n_criterios: int = MIN_CRITERIOS,
     for c, nombre in enumerate(cols):
         h.write(0, c + 1, nombre, fmt_header)
         h.set_column(c + 1, c + 1, 10)
-    for f, nombre in enumerate(['w', 'R1', 'R2']):
+
+    filas_vector = ['w', 'R1', 'R2'] if tiene_r1r2 else ['w']
+    for f, nombre in enumerate(filas_vector):
         h.write(f + 1, 0, nombre, fmt_header)
         for c in range(n):
             h.write_blank(f + 1, c + 1, None, fmt_entrada)
+
+    if not tiene_r1r2:
+        fila_nota = len(filas_vector) + 2
+        h.merge_range(fila_nota, 0, fila_nota, n,
+                      f'R1 y R2 no aplican a {nombre_legible}: se derivan '
+                      'automáticamente del ranking del método y no se '
+                      'capturan en esta plantilla.', fmt_nota)
 
     # --- Parametros ---
     h = libro.add_worksheet('Parametros')
@@ -431,15 +386,59 @@ def generar_plantilla_excel(n_criterios: int = MIN_CRITERIOS,
     return buffer
 
 
-def parsear_plantilla_excel(archivo) -> dict:
+def _detectar_algoritmo_instrucciones(archivo) -> str:
+    """
+    Lee la hoja 'Instrucciones' buscando la marca __ALGORITMO__:<NOMBRE>
+    escrita por generar_plantilla_excel. Si no la encuentra (plantilla
+    antigua o editada a mano), asume PSO por compatibilidad.
+    """
+    try:
+        df_instr = pd.read_excel(archivo, sheet_name='Instrucciones', header=None)
+        archivo.seek(0)
+    except Exception:
+        return 'PSO'
+
+    for valor in df_instr.values.flatten():
+        texto = str(valor)
+        if texto.startswith('__ALGORITMO__:'):
+            candidato = texto.split(':', 1)[1].strip().upper()
+            if candidato in NOMBRES_ALGORITMO:
+                return candidato
+    return 'PSO'
+
+
+def parsear_plantilla_excel(archivo, algoritmo_esperado: str = None) -> dict:
     """
     Lee una plantilla llenada y devuelve el payload listo para validar_entrada_pso.
     Lanza ValueError con mensajes claros si el archivo no cumple el formato.
+
+    El algoritmo de la plantilla se detecta automáticamente desde la marca
+    oculta en la hoja Instrucciones. Si algoritmo_esperado se indica y no
+    coincide con el detectado, se rechaza el archivo para evitar cargar,
+    por ejemplo, una plantilla de DA-PSO en el laboratorio de PSO.
+
+    El payload de retorno incluye 'algoritmo_detectado' para que el llamador
+    pueda informar al usuario qué variante se cargó.
     """
     try:
         hojas = pd.read_excel(archivo, sheet_name=None, index_col=0)
+        archivo.seek(0)
     except Exception:
         raise ValueError("No se pudo leer el archivo. Verifique que sea un .xlsx válido.")
+
+    algoritmo_detectado = _detectar_algoritmo_instrucciones(archivo)
+    tiene_r1r2 = algoritmo_detectado in ALGORITMOS_CON_R1R2
+
+    if algoritmo_esperado:
+        algoritmo_esperado = algoritmo_esperado.upper()
+        if algoritmo_esperado != algoritmo_detectado:
+            nombre_esp = NOMBRES_ALGORITMO.get(algoritmo_esperado, algoritmo_esperado)
+            nombre_det = NOMBRES_ALGORITMO.get(algoritmo_detectado, algoritmo_detectado)
+            raise ValueError(
+                f"Esta plantilla corresponde a {nombre_det}, pero intenta "
+                f"cargarla en el laboratorio de {nombre_esp}. Descargue la "
+                f"plantilla correcta desde {nombre_esp} o cárguela en su "
+                "laboratorio correspondiente.")
 
     for requerida in ('Matriz', 'Vectores', 'Parametros'):
         if requerida not in hojas:
@@ -454,13 +453,18 @@ def parsear_plantilla_excel(archivo) -> dict:
         raise ValueError("La hoja 'Matriz' contiene valores no numéricos.")
 
     dfv = hojas['Vectores']
-    if dfv.isna().any().any():
-        raise ValueError("La hoja 'Vectores' tiene celdas vacías; complete w, R1 y R2.")
     vectores = {str(idx).strip().lower(): fila for idx, fila in
                 zip(dfv.index, dfv.values.tolist())}
-    faltantes = [v for v in ('w', 'r1', 'r2') if v not in vectores]
+
+    filas_requeridas = ('w', 'r1', 'r2') if tiene_r1r2 else ('w',)
+    faltantes = [v for v in filas_requeridas if v not in vectores]
     if faltantes:
         raise ValueError(f"En la hoja 'Vectores' faltan las filas: {', '.join(faltantes)}.")
+    if any(pd.isna(v) for v in vectores.get('w', [])):
+        raise ValueError("La hoja 'Vectores' tiene celdas vacías en 'w'.")
+    if tiene_r1r2 and (any(pd.isna(v) for v in vectores.get('r1', []))
+                       or any(pd.isna(v) for v in vectores.get('r2', []))):
+        raise ValueError("La hoja 'Vectores' tiene celdas vacías en R1 o R2.")
 
     dfp = hojas['Parametros']
     valores = {}
@@ -471,13 +475,23 @@ def parsear_plantilla_excel(archivo) -> dict:
         if p not in valores or pd.isna(valores[p]):
             raise ValueError(f"En la hoja 'Parametros' falta el valor de '{p}'.")
 
-    return {
+    resultado = {
         'matriz': matriz,
         'w':  [float(v) for v in vectores['w']],
-        'r1': [float(v) for v in vectores['r1']],
-        'r2': [float(v) for v in vectores['r2']],
         'wwi': float(valores['wwi']),
         'c1': float(valores['c1']),
         'c2': float(valores['c2']),
         'T': int(valores['t']),
+        'algoritmo_detectado': algoritmo_detectado,
     }
+    if tiene_r1r2:
+        resultado['r1'] = [float(v) for v in vectores['r1']]
+        resultado['r2'] = [float(v) for v in vectores['r2']]
+    else:
+        # El algoritmo los deriva internamente; se rellenan en 0 para que
+        # validar_entrada_pso (que siempre exige r1/r2 por firma) no falle.
+        n = len(resultado['w'])
+        resultado['r1'] = [0.0] * n
+        resultado['r2'] = [0.0] * n
+
+    return resultado

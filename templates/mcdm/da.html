@@ -1,29 +1,165 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Análisis Dimensional — Swarm</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/static/css/index.css">
-  <title>DA — Análisis Dimensional — Swarm</title>
 </head>
 <body>
   {% include '_navbar.html' %}
+
   <header class="bg-white border-b border-slate-200">
     <div class="max-w-5xl mx-auto px-6 pt-8 pb-6">
-      <h1 class="text-2xl lg:text-3xl font-semibold text-gray-800">DA — Análisis Dimensional</h1>
+      <h1 class="text-2xl lg:text-3xl font-semibold text-gray-800">
+        Análisis Dimensional <span class="font-normal text-gray-400">· DA</span>
+      </h1>
+      <div class="mt-4 flex flex-wrap gap-2 text-sm" aria-label="Métodos de decisión multicriterio">
+        <a href="/topsis"  class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">TOPSIS</a>
+        <a href="/moorav"  class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">MOORA</a>
+        <a href="/da"      class="px-3 py-1.5 rounded-full bg-slate-700 text-white" aria-current="page">Análisis Dimensional</a>
+      </div>
     </div>
   </header>
-  <main class="max-w-5xl mx-auto px-6 py-16 text-center">
-    <div class="inline-flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800
-                rounded-xl px-6 py-4 text-sm font-medium">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" aria-hidden="true">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      Este módulo está en desarrollo. Estará disponible próximamente.
+
+  <main class="max-w-5xl mx-auto px-6 py-8">
+    <p class="text-lg leading-relaxed text-gray-700 mb-8">
+      El <strong>Análisis Dimensional</strong> (DA — no confundir con el Dragonfly Algorithm)
+      compara cada alternativa contra una solución ideal (el promedio de cada criterio), eleva
+      esa razón al peso del criterio correspondiente, y multiplica los resultados para obtener
+      un índice de similitud por alternativa. Cuanto menor el índice, mejor la alternativa.
+    </p>
+
+    <div class="grid gap-6 lg:grid-cols-2">
+      <!-- ============ MATRIZ (solo lectura) Y PARÁMETROS ============ -->
+      <section class="rounded-xl bg-white px-8 py-8 shadow-2xl">
+        <h2 class="font-semibold text-lg mb-1">Datos del experimento</h2>
+        <p class="text-sm text-gray-500 mb-4">
+          Matriz de decisión fija (no editable). Solo el peso <span class="font-medium">w</span>
+          de cada criterio se puede modificar.
+        </p>
+
+        <div class="overflow-x-auto mb-6">
+          <table id="tablaMatriz" class="table-auto border-separate border border-slate-300 text-sm">
+            <thead><tr id="matrizHead"></tr></thead>
+            <tbody id="matrizBody"></tbody>
+          </table>
+        </div>
+
+        <h3 class="font-medium text-gray-800 mb-3">Peso por criterio (w)</h3>
+        <div id="pesosWrap" class="grid grid-cols-5 gap-3 mb-2"></div>
+
+        <p id="mensajeError" class="hidden mt-4 text-sm text-red-600"></p>
+
+        <div class="mt-6 flex justify-end">
+          <button type="button" id="ejecutarDa"
+            class="text-white font-medium rounded-lg text-sm px-6 py-2.5 bg-slate-700 hover:bg-slate-800 disabled:opacity-50">
+            Calcular
+          </button>
+        </div>
+      </section>
+
+      <!-- ============ RESULTADOS ============ -->
+      <section class="rounded-xl bg-white px-8 py-8 shadow-2xl">
+        <h2 class="font-semibold text-lg mb-4">Clasificación</h2>
+
+        <div id="resultadosVacio" class="text-sm text-gray-400">
+          Presiona Calcular para ver el ranking de alternativas.
+        </div>
+
+        <div id="seccionResultados" class="hidden">
+          <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
+            <div>
+              <span class="text-gray-500">Mejor alternativa:</span>
+              <span id="mejorFinal" class="font-semibold ml-1">—</span>
+            </div>
+            <div>
+              <span class="text-gray-500">Duración:</span>
+              <span id="tiempoEjecucion" class="ml-1">—</span>
+            </div>
+            <div>
+              <span class="text-gray-500">Fecha:</span>
+              <span id="fechaInicio" class="ml-1">—</span>
+            </div>
+            <div>
+              <span class="text-gray-500">Hora:</span>
+              <span id="horaInicio" class="ml-1">—</span>
+            </div>
+          </div>
+
+          <div class="overflow-y-auto max-h-80 mb-6">
+            <table class="w-full table-auto border-separate border border-slate-300 text-sm">
+              <thead>
+                <tr>
+                  <th class="border border-slate-200 px-2 py-1">Orden</th>
+                  <th class="border border-slate-200 px-2 py-1">Alternativa</th>
+                  <th class="border border-slate-200 px-2 py-1">Índice de similitud</th>
+                </tr>
+              </thead>
+              <tbody id="tablaResultados"></tbody>
+            </table>
+          </div>
+
+          <canvas id="graficaRanking" height="220"></canvas>
+
+          <div class="mt-4 flex justify-end">
+            <a id="descargarExcel" href="#" class="hidden text-sm text-white bg-slate-700
+               hover:bg-slate-800 rounded-lg px-4 py-2">Descargar Excel</a>
+          </div>
+        </div>
+      </section>
     </div>
+
+    <!-- ============ HISTORIAL ============ -->
+    <section class="rounded-xl bg-white px-8 py-8 shadow-2xl mt-8">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-semibold text-lg">Historial de ejecuciones</h2>
+        <div id="histResumen" class="hidden text-sm text-gray-500"></div>
+      </div>
+
+      <div id="histCargando" class="text-sm text-gray-400">Cargando historial…</div>
+      <div id="histVacio" class="hidden text-sm text-gray-400">Todavía no hay ejecuciones registradas.</div>
+      <div id="histError" class="hidden text-sm text-red-600"></div>
+
+      <div id="histTablaWrap" class="hidden overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-500 border-b border-slate-200">
+              <th class="py-2 pr-3">ID</th>
+              <th class="py-2 pr-3">Fecha</th>
+              <th class="py-2 pr-3">Usuario</th>
+              <th class="py-2 pr-3">Dimensión</th>
+              <th class="py-2 pr-3">Mejor alternativa</th>
+              <th class="py-2 pr-3">Índice de similitud</th>
+              <th class="py-2 pr-3">Duración</th>
+              <th class="py-2 text-right">Excel</th>
+            </tr>
+          </thead>
+          <tbody id="histCuerpo"></tbody>
+        </table>
+
+        <!-- Paginación estilo Material Design: filas por página + navegación -->
+        <div class="flex items-center justify-end gap-4 mt-4 pt-3 border-t border-slate-100 text-sm text-gray-600">
+          <label class="flex items-center gap-2">
+            Filas por página:
+            <select id="histFilasPorPagina" class="border border-gray-300 rounded px-2 py-1 text-sm">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+          </label>
+          <span id="histRangoPagina">0–0 de 0</span>
+          <button type="button" id="histPagAnterior" aria-label="Página anterior"
+            class="px-2 py-1 rounded border border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50">‹</button>
+          <button type="button" id="histPagSiguiente" aria-label="Página siguiente"
+            class="px-2 py-1 rounded border border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50">›</button>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="{{ url_for('static', filename='js/mcdm/da.js') }}"></script>
 </body>
 </html>

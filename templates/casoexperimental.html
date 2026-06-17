@@ -1,28 +1,100 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Caso Experimental — Swarm</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/static/css/index.css">
-  <title>Caso Experimental — Swarm</title>
 </head>
 <body>
   {% include '_navbar.html' %}
+
   <header class="bg-white border-b border-slate-200">
     <div class="max-w-5xl mx-auto px-6 pt-8 pb-6">
       <h1 class="text-2xl lg:text-3xl font-semibold text-gray-800">Caso Experimental</h1>
     </div>
   </header>
-  <main class="max-w-5xl mx-auto px-6 py-16 text-center">
-    <div class="inline-flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800
-                rounded-xl px-6 py-4 text-sm font-medium">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" aria-hidden="true">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      Este módulo está en desarrollo. Estará disponible próximamente.
+
+  <main class="max-w-5xl mx-auto px-6 py-8">
+    <p class="text-justify leading-relaxed text-gray-700">
+      Los datos de entrada utilizados para los algoritmos provienen específicamente del proceso
+      de moldeo por inyección de plástico de una empresa manufacturera ubicada en Ciudad Juárez,
+      Chihuahua, México. Este proceso, ampliamente empleado en la industria manufacturera para
+      producir piezas de plástico en masa con precisión y detalles intrincados, abarca una
+      amplia gama de aplicaciones, desde juguetes y embalajes hasta componentes automotrices y
+      dispositivos médicos.
+    </p>
+    <p class="text-justify leading-relaxed text-gray-700 mt-6">
+      Durante esta operación, los gránulos de plástico se funden en una máquina especializada y
+      se inyectan con precisión en un molde cerrado con la forma deseada. Dentro del molde, el
+      plástico se enfría y solidifica rápidamente, adoptando la forma deseada. Posteriormente,
+      se abre el molde y se expulsa la pieza moldeada.
+    </p>
+    <p class="text-justify leading-relaxed text-gray-700 mt-6">
+      Las características críticas dentro de este proceso aseguran la calidad y eficiencia de
+      este. Estas incluyen la temperatura de fusión, la temperatura del molde, el tiempo de
+      llenado, el tiempo de envasado y la precisión del envasado. La temperatura de fusión
+      influye en el flujo del plástico durante la inyección, mientras que su mantenimiento
+      adecuado previene defectos. La temperatura del molde afecta la velocidad de enfriamiento y
+      la calidad de la superficie de la pieza. Un tiempo de llenado adecuado previene problemas
+      como el exceso de material o llenado incompleto, así como la generación de tensiones
+      internas en la pieza. El tiempo de envasado adecuado garantiza una solidificación uniforme
+      del plástico en todas las áreas del molde, mejorando la densidad y reduciendo posibles
+      defectos como la contracción. La presión de envasado adecuada ayuda en la compactación del
+      material, reduce la porosidad y mejora la homogeneidad de la pieza moldeada. El control
+      preciso de estas características es esencial para garantizar que la pieza final cumpla
+      con las especificaciones requeridas en términos de calidad, precisión dimensional y
+      propiedades físicas.
+    </p>
+    <p class="text-justify leading-relaxed text-gray-700 mt-6">
+      Optimizar estas características es crucial para prevenir defectos y mantener una
+      producción eficiente y consistente en el proceso de moldeo por inyección de plástico. En
+      consecuencia, se ha diseñado una matriz de decisión que comprende cinco criterios:
+      temperatura de fusión (C1), temperatura del molde (C2), tiempo de llenado (C3), tiempo de
+      envasado (C4) y presión de envasado (C5), además de nueve alternativas (A1, A2…A9) con
+      valores asignados para estas características.
+    </p>
+
+    <div class="mt-8">
+      <a href="/descargar-parametros"
+        class="inline-flex items-center gap-2 text-black font-medium rounded-lg text-sm
+               px-5 py-2.5 bg-slate-400 hover:bg-slate-500">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+          stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 3v12m0 0l3.5-3.5M12 15l-3.5-3.5M21 21H3a6 6 0 016-6h6a6 6 0 016 6z" />
+        </svg>
+        Rango de parámetros
+      </a>
+    </div>
+
+    <div class="mt-10">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4 text-center">Tabla de datos</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full table-auto border-separate border border-slate-300 text-sm">
+          <thead>
+            <tr class="bg-slate-100">
+              <th class="border border-slate-300 px-4 py-2">A</th>
+              <th class="border border-slate-300 px-4 py-2">C1</th>
+              <th class="border border-slate-300 px-4 py-2">C2</th>
+              <th class="border border-slate-300 px-4 py-2">C3</th>
+              <th class="border border-slate-300 px-4 py-2">C4</th>
+              <th class="border border-slate-300 px-4 py-2">C5</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for fila in matriz %}
+            <tr>
+              <td class="border border-slate-300 px-4 py-2 text-center font-medium">A{{ loop.index }}</td>
+              {% for valor in fila %}
+              <td class="border border-slate-300 px-4 py-2 text-center text-gray-600">{{ '%.3f'|format(valor) }}</td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </main>
 </body>

@@ -1,29 +1,110 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MOORA — Swarm</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/static/css/index.css">
-  <title>MOORA-V — Swarm</title>
 </head>
 <body>
   {% include '_navbar.html' %}
+
   <header class="bg-white border-b border-slate-200">
     <div class="max-w-5xl mx-auto px-6 pt-8 pb-6">
-      <h1 class="text-2xl lg:text-3xl font-semibold text-gray-800">MOORA-V</h1>
+      <h1 class="text-2xl lg:text-3xl font-semibold text-gray-800">
+        MOORA <span class="font-normal text-gray-400">· Multi-Objective Optimization by Ratio Analysis</span>
+      </h1>
+      <div class="mt-4 flex flex-wrap gap-2 text-sm" aria-label="Métodos de decisión multicriterio">
+        <a href="/topsis"  class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">TOPSIS</a>
+        <a href="/moorav"  class="px-3 py-1.5 rounded-full bg-slate-700 text-white" aria-current="page">MOORA</a>
+        <a href="/da"      class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">Análisis Dimensional</a>
+      </div>
     </div>
   </header>
-  <main class="max-w-5xl mx-auto px-6 py-16 text-center">
-    <div class="inline-flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800
-                rounded-xl px-6 py-4 text-sm font-medium">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" aria-hidden="true">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      Este módulo está en desarrollo. Estará disponible próximamente.
+
+  <main class="max-w-5xl mx-auto px-6 py-8">
+    <p class="text-lg leading-relaxed text-gray-700 mb-8">
+      <strong>MOORA</strong> normaliza la matriz de decisión por distancia euclidiana, la
+      pondera por el peso de cada criterio, y suma o resta esa contribución según el criterio
+      sea de beneficio o de costo. En este experimento, los cinco criterios se evalúan como
+      costo (<span class="font-medium">Min</span>), igual que en la formulación original.
+    </p>
+
+    <div class="grid gap-6 lg:grid-cols-2">
+      <!-- ============ MATRIZ (solo lectura) Y PARÁMETROS ============ -->
+      <section class="rounded-xl bg-white px-8 py-8 shadow-2xl">
+        <h2 class="font-semibold text-lg mb-1">Datos del experimento</h2>
+        <p class="text-sm text-gray-500 mb-4">
+          Matriz de decisión fija (no editable). Solo el peso <span class="font-medium">w</span>
+          de cada criterio se puede modificar.
+        </p>
+
+        <div class="overflow-x-auto mb-6">
+          <table id="tablaMatriz" class="table-auto border-separate border border-slate-300 text-sm">
+            <thead><tr id="matrizHead"></tr></thead>
+            <tbody id="matrizBody"></tbody>
+          </table>
+        </div>
+
+        <h3 class="font-medium text-gray-800 mb-3">Peso por criterio (w)</h3>
+        <div id="pesosWrap" class="grid grid-cols-5 gap-3 mb-2"></div>
+
+        <p id="mensajeError" class="hidden mt-4 text-sm text-red-600"></p>
+
+        <div class="mt-6 flex justify-end">
+          <button type="button" id="ejecutarMoorav"
+            class="text-white font-medium rounded-lg text-sm px-6 py-2.5 bg-slate-700 hover:bg-slate-800 disabled:opacity-50">
+            Calcular
+          </button>
+        </div>
+      </section>
+
+      <!-- ============ RESULTADOS ============ -->
+      <section class="rounded-xl bg-white px-8 py-8 shadow-2xl">
+        <h2 class="font-semibold text-lg mb-4">Clasificación</h2>
+
+        <div id="resultadosVacio" class="text-sm text-gray-400">
+          Presiona Calcular para ver el ranking de alternativas.
+        </div>
+
+        <div id="seccionResultados" class="hidden">
+          <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
+            <div>
+              <span class="text-gray-500">Mejor alternativa:</span>
+              <span id="mejorFinal" class="font-semibold ml-1">—</span>
+            </div>
+            <div>
+              <span class="text-gray-500">Duración:</span>
+              <span id="tiempoEjecucion" class="ml-1">—</span>
+            </div>
+            <div>
+              <span class="text-gray-500">Fecha:</span>
+              <span id="fechaInicio" class="ml-1">—</span>
+            </div>
+            <div>
+              <span class="text-gray-500">Hora:</span>
+              <span id="horaInicio" class="ml-1">—</span>
+            </div>
+          </div>
+
+          <div class="overflow-y-auto max-h-80">
+            <table class="w-full table-auto border-separate border border-slate-300 text-sm">
+              <thead>
+                <tr>
+                  <th class="border border-slate-200 px-2 py-1">Orden</th>
+                  <th class="border border-slate-200 px-2 py-1">Alternativa</th>
+                  <th class="border border-slate-200 px-2 py-1">Puntuación</th>
+                </tr>
+              </thead>
+              <tbody id="tablaResultados"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
     </div>
   </main>
+
+  <script src="{{ url_for('static', filename='js/mcdm/moorav.js') }}"></script>
 </body>
 </html>

@@ -25,9 +25,15 @@ from src.services.ejecuciones_mooraaco import (
     parsear_plantilla_excel_mooraaco,
     validar_entrada_mooraaco,
 )
+from src.services.ejecuciones_topsisaco import (
+    generar_plantilla_excel_topsisaco,
+    parsear_plantilla_excel_topsisaco,
+    validar_entrada_topsisaco,
+)
 from src.algoritmos.aco import ejecutar_aco
 from src.algoritmos.daaco import ejecutar_daaco
 from src.algoritmos.mooraaco import ejecutar_mooraaco
+from src.algoritmos.topsisaco import ejecutar_topsisaco
 
 algoritmos_aco_bp = Blueprint('algoritmos_aco_api', __name__, url_prefix='/api')
 
@@ -225,6 +231,70 @@ def api_cargar_plantilla_mooraaco():
         return jsonify({'error': 'No se recibió archivo.'}), 400
     try:
         payload = parsear_plantilla_excel_mooraaco(archivo)
+        return jsonify(payload)
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+
+
+@algoritmos_aco_bp.post('/algoritmos/topsisaco')
+@roles_required('user', 'admin', 'superadmin')
+def api_calcular_topsisaco():
+    """TOPSIS-ACO — w pondera el ranking TOPSIS, calculado una sola vez al inicio."""
+    user = _usuario_actual()
+    if user is None:
+        return jsonify({'error': 'Sesión inválida.'}), 401
+    try:
+        payload = request.get_json(silent=True) or {}
+        params  = validar_entrada_topsisaco(payload)
+        datos = ejecutar_topsisaco(
+            matriz=params['matriz'], w=params['w'], alpha=params['alpha'],
+            beta=params['beta'], rho=params['rho'], Q=params['Q'],
+            n_ants=params['n_ants'], T=params['T'], username=user.username,
+        )
+        ejecucion = guardar_ejecucion('TOPSISACO', user.id, params, datos)
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        db.session.rollback()
+        print(f'[api_calcular_topsisaco] Error: {e}')
+        return jsonify({'error': 'Ocurrió un error al ejecutar el algoritmo.'}), 500
+
+    return jsonify({
+        'ejecucion_id':             ejecucion.id,
+        'mejor_alternativa':        datos['mejor_alternativa'],
+        'iteraciones':              datos['iteraciones'],
+        'hora_inicio':              datos['hora_inicio'],
+        'fecha_inicio':             datos['fecha_inicio'],
+        'hora_finalizacion':        datos['hora_finalizacion'],
+        'tiempo_ejecucion':         datos['tiempo_ejecucion'],
+        'historico_gbf':            datos['historico_gbf'],
+        'resultados_por_iteracion': datos['resultados_por_iteracion'],
+        'gbf_final':                datos['gbf_final'],
+        'mejor_alternativa_final':  datos['mejor_alternativa_final'],
+        'n_criterios':              datos['n_criterios'],
+        'n_alternativas':           datos['n_alternativas'],
+    })
+
+
+@algoritmos_aco_bp.get('/algoritmos/topsisaco/plantilla')
+@roles_required('user', 'admin', 'superadmin')
+def api_descargar_plantilla_topsisaco():
+    n = int(request.args.get('criterios',    5))
+    a = int(request.args.get('alternativas', 9))
+    buffer = generar_plantilla_excel_topsisaco(n, a)
+    return send_file(buffer, as_attachment=True,
+                     download_name='plantilla_topsisaco.xlsx',
+                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+
+@algoritmos_aco_bp.post('/algoritmos/topsisaco/plantilla')
+@roles_required('user', 'admin', 'superadmin')
+def api_cargar_plantilla_topsisaco():
+    archivo = request.files.get('archivo')
+    if archivo is None:
+        return jsonify({'error': 'No se recibió archivo.'}), 400
+    try:
+        payload = parsear_plantilla_excel_topsisaco(archivo)
         return jsonify(payload)
     except ValueError as e:
         return jsonify({'error': str(e)}), 400

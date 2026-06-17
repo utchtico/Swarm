@@ -1,19 +1,16 @@
-// static/js/mcdm/topsis.js
-// TOPSIS puro (MCDM, sin metaheurística): matriz de solo lectura, único
-// parámetro editable es el peso w por criterio. Sin tabs, sin stepper,
-// sin historial — es una página de una sola sección porque no hay
-// iteraciones que comparar.
+// static/js/mcdm/da.js
+// DA puro (Análisis Dimensional, MCDM sin metaheurística): matriz de
+// solo lectura, único parámetro editable es el peso w por criterio. Sin
+// tabs, sin stepper, sin historial. Mismo patrón que
+// static/js/mcdm/topsis.js y static/js/mcdm/moorav.js.
 
 document.addEventListener('DOMContentLoaded', function () {
   const matrizHead = document.getElementById('matrizHead');
   const matrizBody = document.getElementById('matrizBody');
   const pesosWrap  = document.getElementById('pesosWrap');
-  const btnEjecutar = document.getElementById('ejecutarTopsis');
+  const btnEjecutar = document.getElementById('ejecutarDa');
   const msgError = document.getElementById('mensajeError');
 
-  // La matriz se pide al backend en la primera carga (de solo lectura,
-  // fija) para no duplicarla hardcodeada también en el frontend.
-  let matrizActual = null;
   let nCriterios = 0;
 
   function renderMatrizSoloLectura(matriz, criterios) {
@@ -66,14 +63,13 @@ document.addEventListener('DOMContentLoaded', function () {
   // Primera carga: solo pedimos la matriz fija para pintarla, sin
   // ejecutar el algoritmo ni generar una ejecución en el historial.
   function inicializar() {
-    fetch('/api/algoritmos/topsis/matriz')
+    fetch('/api/algoritmos/da/matriz')
       .then(async (resp) => {
         const data = await resp.json();
         if (!resp.ok) throw new Error(data.error || `Error ${resp.status}`);
         return data;
       })
       .then((data) => {
-        matrizActual = data.matriz;
         nCriterios = data.n_criterios;
         renderMatrizSoloLectura(data.matriz, data.criterios);
         renderPesos(data.criterios, W_INICIAL);
@@ -112,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
     btnEjecutar.disabled = true;
     btnEjecutar.textContent = 'Calculando…';
     try {
-      const resp = await fetch('/api/algoritmos/topsis', {
+      const resp = await fetch('/api/algoritmos/da', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -162,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function () {
       data: {
         labels: ranking.map((alt) => `A${alt}`),
         datasets: [{
-          label: 'Puntuación',
+          label: 'Índice de similitud',
           data: puntuaciones,
           backgroundColor: 'rgba(59, 130, 246, 0.7)',
           borderColor: 'rgb(59, 130, 246)',
@@ -268,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function cargarHistorial() {
     if (histCache) return;
     estadoHistorial('cargando');
-    fetch('/api/ejecuciones?algoritmo=TOPSIS')
+    fetch('/api/ejecuciones?algoritmo=DA')
       .then(async (resp) => {
         const data = await resp.json();
         if (!resp.ok) throw new Error(data.error || `Error ${resp.status}`);

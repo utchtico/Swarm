@@ -15,6 +15,7 @@ from src.api.algoritmos.ba import algoritmos_ba_bp
 from src.api.algoritmos.aco import algoritmos_aco_bp
 from src.api.algoritmos.topsis import algoritmos_topsis_bp
 from src.api.algoritmos.moorav import algoritmos_moorav_bp
+from src.api.algoritmos.da import algoritmos_da_bp
 from src.api.admin import admin_bp
 from src.views import views_bp
 from src.api.vistas.pso import pso_bp
@@ -52,6 +53,7 @@ app.register_blueprint(algoritmos_ba_bp)    # /api/algoritmos/ba, /api/algoritmo
 app.register_blueprint(algoritmos_aco_bp)   # /api/algoritmos/aco, /api/algoritmos/aco/plantilla
 app.register_blueprint(algoritmos_topsis_bp)  # /api/algoritmos/topsis (MCDM puro, sin metaheurística)
 app.register_blueprint(algoritmos_moorav_bp)  # /api/algoritmos/moorav (MCDM puro, sin metaheurística)
+app.register_blueprint(algoritmos_da_bp)      # /api/algoritmos/da (MCDM puro, sin metaheurística)
 app.register_blueprint(admin_bp)        # /admin/*
 app.register_blueprint(views_bp)        # /, /acercade, /publicaciones, etc.
 app.register_blueprint(pso_bp)          # /pso, /dapso, /moorapso, /topsispso

@@ -125,6 +125,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
+  let grafica = null;
+
   function mostrarResultados(datos) {
     document.getElementById('resultadosVacio').classList.add('hidden');
     document.getElementById('seccionResultados').classList.remove('hidden');
@@ -146,7 +148,138 @@ document.addEventListener('DOMContentLoaded', function () {
         `<td class="border border-slate-200 text-center px-2">${puntuaciones[i] !== undefined ? puntuaciones[i].toFixed(4) : '—'}</td>`;
       cuerpo.appendChild(tr);
     }
+
+    // Gráfica de barras horizontales del ranking final, ordenada de mejor
+    // a peor (de arriba a abajo), mismo estilo Chart.js que PSO/BA/ACO.
+    const ctx = document.getElementById('graficaRanking');
+    if (grafica) grafica.destroy();
+    grafica = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ranking.map((alt) => `A${alt}`),
+        datasets: [{
+          label: 'Puntuación',
+          data: puntuaciones,
+          backgroundColor: 'rgba(59, 130, 246, 0.7)',
+          borderColor: 'rgb(59, 130, 246)',
+          borderWidth: 1,
+        }],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+          title: { display: true, text: 'Clasificación final por alternativa' },
+          legend: { display: false },
+        },
+        scales: {
+          x: { title: { display: true, text: 'Puntuación' } },
+          y: { title: { display: true, text: 'Alternativa' }, reverse: false },
+        },
+      },
+    });
+
+    if (datos.ejecucion_id) {
+      const enlace = document.getElementById('descargarExcel');
+      enlace.href = `/api/ejecuciones/${datos.ejecucion_id}/excel`;
+      enlace.classList.remove('hidden');
+      histCache = null;  // fuerza recargar el historial, ya que hay una ejecución nueva
+      cargarHistorial();
+    }
+  }
+
+  // ===================== HISTORIAL (paginado, estilo Material Design) =====================
+  const histCargando = document.getElementById('histCargando');
+  const histVacio = document.getElementById('histVacio');
+  const histError = document.getElementById('histError');
+  const histTablaWrap = document.getElementById('histTablaWrap');
+  const histCuerpo = document.getElementById('histCuerpo');
+  const histResumen = document.getElementById('histResumen');
+  const histFilasPorPagina = document.getElementById('histFilasPorPagina');
+  const histRangoPagina = document.getElementById('histRangoPagina');
+  const histPagAnterior = document.getElementById('histPagAnterior');
+  const histPagSiguiente = document.getElementById('histPagSiguiente');
+
+  let histCache = null;   // lista completa traída del backend (hasta 50, ver límite del endpoint)
+  let histPagina = 0;     // página actual, 0-indexada
+
+  function estadoHistorial(mostrar) {
+    for (const [el, vis] of [[histCargando, 'cargando'], [histVacio, 'vacio'],
+      [histError, 'error'], [histTablaWrap, 'tabla']]) {
+      el.classList.toggle('hidden', mostrar !== vis);
+    }
+  }
+
+  function formatearFecha(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) +
+      ' ' + d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function filasPorPagina() {
+    return parseInt(histFilasPorPagina.value, 10) || 10;
+  }
+
+  function renderPaginaHistorial() {
+    const porPagina = filasPorPagina();
+    const total = histCache.length;
+    const totalPaginas = Math.max(1, Math.ceil(total / porPagina));
+    histPagina = Math.min(histPagina, totalPaginas - 1);
+
+    const inicio = histPagina * porPagina;
+    const fin = Math.min(inicio + porPagina, total);
+    const pagina = histCache.slice(inicio, fin);
+
+    histCuerpo.innerHTML = '';
+    for (const e of pagina) {
+      const tr = document.createElement('tr');
+      tr.className = 'border-b border-slate-100 hover:bg-slate-50';
+      tr.innerHTML =
+        `<td class="py-2 pr-3 text-gray-400">${e.id}</td>` +
+        `<td class="py-2 pr-3">${formatearFecha(e.fecha_ejecucion)}</td>` +
+        `<td class="py-2 pr-3">${e.usuario ?? '—'}</td>` +
+        `<td class="py-2 pr-3">${e.n_alternativas}×${e.n_criterios}</td>` +
+        `<td class="py-2 pr-3 font-medium">A${e.mejor_alternativa_final ?? '—'}</td>` +
+        `<td class="py-2 pr-3">${e.gbf_final !== null && e.gbf_final !== undefined ? Number(e.gbf_final).toFixed(4) : '—'}</td>` +
+        `<td class="py-2 pr-3">${(e.tiempo_ejecucion_seg ?? 0).toFixed(3)} s</td>` +
+        `<td class="py-2 text-right">
+           <a href="/api/ejecuciones/${e.id}/excel"
+             class="inline-block text-sm text-gray-700 bg-slate-200 hover:bg-slate-300 rounded-lg px-3 py-1.5">XLSX</a>
+         </td>`;
+      histCuerpo.appendChild(tr);
+    }
+
+    histRangoPagina.textContent = total === 0 ? '0–0 de 0' : `${inicio + 1}–${fin} de ${total}`;
+    histPagAnterior.disabled = histPagina === 0;
+    histPagSiguiente.disabled = fin >= total;
+    histResumen.textContent = `${total} ejecución${total === 1 ? '' : 'es'} registrada${total === 1 ? '' : 's'}`;
+    histResumen.classList.remove('hidden');
+  }
+
+  histFilasPorPagina.addEventListener('change', () => { histPagina = 0; renderPaginaHistorial(); });
+  histPagAnterior.addEventListener('click', () => { histPagina--; renderPaginaHistorial(); });
+  histPagSiguiente.addEventListener('click', () => { histPagina++; renderPaginaHistorial(); });
+
+  function cargarHistorial() {
+    if (histCache) return;
+    estadoHistorial('cargando');
+    fetch('/api/ejecuciones?algoritmo=MOORAV')
+      .then(async (resp) => {
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || `Error ${resp.status}`);
+        return data;
+      })
+      .then((lista) => {
+        histCache = lista;
+        histPagina = 0;
+        if (!lista.length) { estadoHistorial('vacio'); histResumen.classList.add('hidden'); return; }
+        estadoHistorial('tabla');
+        renderPaginaHistorial();
+      })
+      .catch((err) => { histError.textContent = err.message; estadoHistorial('error'); });
   }
 
   inicializar();
+  cargarHistorial();
 });

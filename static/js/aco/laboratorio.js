@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const CFG = window.ALGO_CONFIG || {};
   const ALGORITMO = CFG.algoritmo || 'ACO';
   const ENDPOINT  = CFG.endpoint  || '/api/algoritmos/aco';
+  const TIENE_W   = CFG.tiene_w === true;  // default: false (ACO puro no usa w; DA-ACO sí)
   let _labInicializado = false;
 
   // ===================== TABS =====================
@@ -86,12 +87,15 @@ document.addEventListener('DOMContentLoaded', function () {
     [0.083, 0.083, 0.066, 0.051, 0.001],
   ];
 
+  const W_INICIAL = [0.400, 0.200, 0.030, 0.070, 0.300];
+
   let nCriterios = MIN_CRITERIOS;
   let nAlternativas = MIN_ALTERNATIVAS;
   let grafica = null;
 
   const matrizHead = document.getElementById('matrizHead');
   const matrizBody = document.getElementById('matrizBody');
+  const matrizVectores = document.getElementById('matrizVectores');
   const dimsLabel  = document.getElementById('dimensionesMatriz');
   const btnEjecutar = document.getElementById('ejecutarAlgo');
   const msgError = document.getElementById('mensajeError');
@@ -114,9 +118,14 @@ document.addEventListener('DOMContentLoaded', function () {
       ? MATRIZ_INICIAL[f][c] : 0.050;
   }
 
+  function valorInicialW(c) {
+    return c < W_INICIAL.length ? W_INICIAL[c] : 0.100;
+  }
+
   function renderMatriz() {
     const previos = {};
-    document.querySelectorAll('#matrizBody input').forEach((i) => { previos[i.id] = i.value; });
+    document.querySelectorAll('#matrizBody input, #matrizVectores input')
+      .forEach((i) => { previos[i.id] = i.value; });
 
     matrizHead.innerHTML = '<th class="border border-slate-300 px-2 py-1 bg-slate-100"></th>';
     for (let c = 0; c < nCriterios; c++) {
@@ -141,6 +150,24 @@ document.addEventListener('DOMContentLoaded', function () {
         tr.appendChild(td);
       }
       matrizBody.appendChild(tr);
+    }
+
+    // Fila de pesos w — solo para variantes que sí la usan (DA-ACO, no ACO puro)
+    matrizVectores.innerHTML = '';
+    if (TIENE_W) {
+      const tr = document.createElement('tr');
+      const th = document.createElement('th');
+      th.className = 'border border-blue-200 px-2 py-1 bg-blue-50 text-left text-blue-900';
+      th.textContent = 'w (peso)';
+      tr.appendChild(th);
+      for (let c = 0; c < nCriterios; c++) {
+        const td = document.createElement('td');
+        td.className = 'border border-blue-200 p-1 bg-blue-50';
+        const id = `w_${c}`;
+        td.appendChild(crearInput((id in previos) ? previos[id] : valorInicialW(c), id));
+        tr.appendChild(td);
+      }
+      matrizVectores.appendChild(tr);
     }
 
     dimsLabel.textContent = `${nAlternativas} alternativas × ${nCriterios} criterios`;
@@ -202,6 +229,9 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('Q').value = p.Q;
         document.getElementById('n_ants').value = p.n_ants;
         document.getElementById('T').value = p.T;
+        if (TIENE_W && p.w) {
+          for (let c = 0; c < n; c++) document.getElementById(`w_${c}`).value = p.w[c];
+        }
         estado.textContent = `Plantilla cargada (${p.algoritmo_detectado || ALGORITMO}): ` +
           `${a} alternativas × ${n} criterios. Revise y presione Calcular.`;
       })
@@ -236,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const n_ants = parseInt(document.getElementById('n_ants').value, 10);
     if (Number.isNaN(n_ants) || n_ants < 1) throw new Error('n_ants debe ser un entero mayor o igual a 1.');
 
-    return {
+    const payload = {
       matriz,
       alpha: leerNumero(document.getElementById('alpha'), 'alpha'),
       beta:  leerNumero(document.getElementById('beta'), 'beta'),
@@ -245,6 +275,14 @@ document.addEventListener('DOMContentLoaded', function () {
       n_ants,
       T,
     };
+    if (TIENE_W) {
+      const w = [];
+      for (let c = 0; c < nCriterios; c++) {
+        w.push(leerNumero(document.getElementById(`w_${c}`), `el peso w de C${c + 1}`));
+      }
+      payload.w = w;
+    }
+    return payload;
   }
 
   btnEjecutar.addEventListener('click', async function () {

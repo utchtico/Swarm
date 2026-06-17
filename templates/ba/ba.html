@@ -1,29 +1,94 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="/static/css/index.css">
-  <title>BA — Algoritmo de Murciélago — Swarm</title>
-</head>
-<body>
-  {% include '_navbar.html' %}
-  <header class="bg-white border-b border-slate-200">
-    <div class="max-w-5xl mx-auto px-6 pt-8 pb-6">
-      <h1 class="text-2xl lg:text-3xl font-semibold text-gray-800">BA — Algoritmo de Murciélago</h1>
-    </div>
-  </header>
-  <main class="max-w-5xl mx-auto px-6 py-16 text-center">
-    <div class="inline-flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800
-                rounded-xl px-6 py-4 text-sm font-medium">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" aria-hidden="true">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      Este módulo está en desarrollo. Estará disponible próximamente.
-    </div>
-  </main>
-</body>
-</html>
+{% extends "_laboratorio_base.html" %}
+
+{% block titulo %}BA{% endblock %}
+
+{% block encabezado %}
+BA <span class="font-normal text-gray-400">· Bat Algorithm — Algoritmo del Murciélago</span>
+{% endblock %}
+
+{% block chips_familia %}
+<a href="/ba"           class="px-3 py-1.5 rounded-full bg-slate-700 text-white" aria-current="page">BA</a>
+<a href="/daba"         class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">DA-BA</a>
+<a href="/mooraba"      class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">MOORA-BA</a>
+<a href="/topsisba"     class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">TOPSIS-BA</a>
+<a href="/comparacionBa" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">Comparación</a>
+{% endblock %}
+
+{% block nota_vectores %}
+BA no recibe pesos por criterio ni vectores R1/R2: solo necesita la matriz de decisión.
+{% endblock %}
+
+{% block teoria %}
+<p class="text-lg leading-relaxed text-gray-700">
+  El <strong>Bat Algorithm (BA)</strong> es una metaheurística inspirada en la ecolocalización
+  de los murciélagos. Cada murciélago explora el espacio de soluciones emitiendo pulsos de
+  distinta frecuencia y sonoridad, ajustando su vuelo según qué tan cerca está de la mejor
+  solución encontrada hasta el momento.
+</p>
+
+<h2 class="mt-12 mb-6 text-xl font-semibold text-gray-800">¿Cómo funciona el algoritmo?</h2>
+
+<div class="grid gap-5 sm:grid-cols-2">
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Frecuencia y velocidad</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Cada murciélago tiene una frecuencia de pulso que varía aleatoriamente en cada
+      iteración. La velocidad se actualiza combinando la velocidad anterior con la distancia
+      a la mejor posición global, escalada por esa frecuencia.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Sonoridad (loudness) y tasa de pulso</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Cada murciélago tiene una sonoridad (<em>A</em>) y una tasa de emisión de pulso
+      (<em>r</em>) propias. Cuando el murciélago se acerca a la presa (mejora su solución),
+      la sonoridad se reduce con el factor <span class="font-medium">alpha</span> y la tasa
+      de pulso aumenta con el factor <span class="font-medium">gamma</span>.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Paseo aleatorio local</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Cuando todos los murciélagos emiten pulsos por encima de su tasa habitual, el algoritmo
+      explora localmente con un paseo aleatorio alrededor de la mejor solución, usando el
+      promedio de sonoridad del enjambre como amplitud del paso.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Sin pesos ni vectores de referencia</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      A diferencia de PSO, BA no necesita un peso por criterio ni vectores R1/R2: su función
+      objetivo evalúa cada alternativa directamente. Los únicos parámetros que controla el
+      usuario son alpha y gamma.
+    </p>
+  </article>
+</div>
+{% endblock %}
+
+{% block params_control %}
+<div>
+    <label class="block mb-2 text-sm font-medium text-gray-900">Alpha (reduce sonoridad)</label>
+    <input type="number" step="any" value="0.9" id="alpha" name="alpha"
+        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        required />
+</div>
+<div>
+    <label class="block mb-2 text-sm font-medium text-gray-900">Gamma (incrementa tasa de pulso)</label>
+    <input type="number" step="any" value="0.9" id="gamma" name="gamma"
+        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        required />
+</div>
+{% endblock %}
+
+{% block algo_config %}
+<script>
+  window.ALGO_CONFIG = {
+    algoritmo: 'BA',
+    endpoint:  '/api/algoritmos/ba',
+  };
+</script>
+{% endblock %}
+
+{% block laboratorio_js %}
+<script src="{{ url_for('static', filename='js/ba/laboratorio.js') }}"></script>
+{% endblock %}

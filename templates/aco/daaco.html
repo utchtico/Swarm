@@ -1,29 +1,113 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="/static/css/index.css">
-  <title>DA-ACO — Swarm</title>
-</head>
-<body>
-  {% include '_navbar.html' %}
-  <header class="bg-white border-b border-slate-200">
-    <div class="max-w-5xl mx-auto px-6 pt-8 pb-6">
-      <h1 class="text-2xl lg:text-3xl font-semibold text-gray-800">DA-ACO</h1>
-    </div>
-  </header>
-  <main class="max-w-5xl mx-auto px-6 py-16 text-center">
-    <div class="inline-flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800
-                rounded-xl px-6 py-4 text-sm font-medium">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" aria-hidden="true">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      Este módulo está en desarrollo. Estará disponible próximamente.
-    </div>
-  </main>
-</body>
-</html>
+{% extends "_laboratorio_base.html" %}
+
+{% block titulo %}DA-ACO{% endblock %}
+
+{% block encabezado %}
+DA-ACO <span class="font-normal text-gray-400">· Análisis Dimensional + Ant Colony Optimization</span>
+{% endblock %}
+
+{% block chips_familia %}
+<a href="/aco"           class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">ACO</a>
+<a href="/daaco"         class="px-3 py-1.5 rounded-full bg-slate-700 text-white" aria-current="page">DA-ACO</a>
+<a href="/mooraaco"      class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">MOORA-ACO</a>
+<a href="/topsisaco"     class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">TOPSIS-ACO</a>
+<a href="/comparacionAco" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">Comparación</a>
+{% endblock %}
+
+{% block nota_vectores %}
+Incluye el peso <span class="font-medium">w</span> por criterio. Todos los valores de la matriz deben ser mayores a 0. DA-ACO no usa R1 ni R2 — esos vectores son exclusivos de la familia PSO.
+{% endblock %}
+
+{% block teoria %}
+<p class="text-lg leading-relaxed text-gray-700">
+  <strong>DA-ACO</strong> combina el método de decisión <em>Análisis Dimensional</em> (AD) con
+  la mecánica de búsqueda del <em>Ant Colony Optimization</em>. A diferencia de otras
+  combinaciones híbridas del proyecto, aquí el ranking del Análisis Dimensional se calcula
+  <strong>una sola vez</strong> al inicio del experimento, y ese resultado inicializa la
+  feromona de cada repetición independiente del algoritmo de colonia de hormigas.
+</p>
+
+<h2 class="mt-12 mb-6 text-xl font-semibold text-gray-800">¿Cómo funciona el algoritmo?</h2>
+
+<div class="grid gap-5 sm:grid-cols-2">
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Ranking inicial único</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Se calcula una solución ideal (promedio por criterio) y un índice de similitud ponderado
+      por <span class="font-medium">w</span> para cada alternativa. La mejor puntuación de
+      este ranking se usa como valor inicial de la feromona.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Repeticiones independientes</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      El experimento se repite <span class="font-medium">T</span> veces. En cada repetición,
+      la feromona se reinicializa con la misma puntuación del ranking inicial — esto permite
+      observar la consistencia del resultado bajo la misma condición de partida.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Pasos internos de colonia de hormigas</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Dentro de cada repetición, también ocurren <span class="font-medium">T</span> pasos de
+      elección probabilística (ponderada por alpha y beta), refuerzo de feromona y evaporación
+      — la misma mecánica que ACO puro.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Lectura de los resultados</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Cada fila de la tabla de resultados representa una repetición independiente completa,
+      no un paso incremental de optimización — por eso el valor puede repetirse de forma
+      consistente entre repeticiones bajo la misma condición inicial.
+    </p>
+  </article>
+</div>
+{% endblock %}
+
+{% block params_control %}
+<div>
+    <label class="block mb-2 text-sm font-medium text-gray-900">Alpha (peso de feromona)</label>
+    <input type="number" step="any" value="1" id="alpha" name="alpha"
+        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        required />
+</div>
+<div>
+    <label class="block mb-2 text-sm font-medium text-gray-900">Beta (peso heurístico)</label>
+    <input type="number" step="any" value="2" id="beta" name="beta"
+        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        required />
+</div>
+<div>
+    <label class="block mb-2 text-sm font-medium text-gray-900">Rho (tasa de evaporación)</label>
+    <input type="number" step="any" min="0.01" max="0.99" value="0.1" id="rho" name="rho"
+        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        required />
+</div>
+<div>
+    <label class="block mb-2 text-sm font-medium text-gray-900">Q (feromona depositada)</label>
+    <input type="number" step="any" value="100" id="Q" name="Q"
+        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        required />
+</div>
+<div>
+    <label class="block mb-2 text-sm font-medium text-gray-900">Número de hormigas (n_ants)</label>
+    <input type="number" step="1" min="1" value="5" id="n_ants" name="n_ants"
+        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        required />
+</div>
+{% endblock %}
+
+{% block algo_config %}
+<script>
+  window.ALGO_CONFIG = {
+    algoritmo: 'DAACO',
+    endpoint:  '/api/algoritmos/daaco',
+    tiene_w:   true,
+  };
+</script>
+{% endblock %}
+
+{% block laboratorio_js %}
+<script src="{{ url_for('static', filename='js/aco/laboratorio.js') }}"></script>
+{% endblock %}

@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const ALGORITMO = CFG.algoritmo || 'ACO';
   const ENDPOINT  = CFG.endpoint  || '/api/algoritmos/aco';
   const TIENE_W   = CFG.tiene_w === true;  // default: false (ACO puro no usa w; DA-ACO sí)
+  const TIENE_EV  = CFG.tiene_ev === true; // default: false (solo MOORA-ACO usa EV por criterio)
   let _labInicializado = false;
 
   // ===================== TABS =====================
@@ -88,6 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
   ];
 
   const W_INICIAL = [0.400, 0.200, 0.030, 0.070, 0.300];
+  const EV_INICIAL = 'Min';
 
   let nCriterios = MIN_CRITERIOS;
   let nAlternativas = MIN_ALTERNATIVAS;
@@ -124,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function renderMatriz() {
     const previos = {};
-    document.querySelectorAll('#matrizBody input, #matrizVectores input')
+    document.querySelectorAll('#matrizBody input, #matrizVectores input, #matrizVectores select')
       .forEach((i) => { previos[i.id] = i.value; });
 
     matrizHead.innerHTML = '<th class="border border-slate-300 px-2 py-1 bg-slate-100"></th>';
@@ -152,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
       matrizBody.appendChild(tr);
     }
 
-    // Fila de pesos w — solo para variantes que sí la usan (DA-ACO, no ACO puro)
+    // Fila de pesos w — solo para variantes que sí la usan (DA-ACO, MOORA-ACO)
     matrizVectores.innerHTML = '';
     if (TIENE_W) {
       const tr = document.createElement('tr');
@@ -165,6 +167,33 @@ document.addEventListener('DOMContentLoaded', function () {
         td.className = 'border border-blue-200 p-1 bg-blue-50';
         const id = `w_${c}`;
         td.appendChild(crearInput((id in previos) ? previos[id] : valorInicialW(c), id));
+        tr.appendChild(td);
+      }
+      matrizVectores.appendChild(tr);
+    }
+
+    // Fila de EV (Max/Min por criterio) — solo MOORA-ACO la usa
+    if (TIENE_EV) {
+      const tr = document.createElement('tr');
+      const th = document.createElement('th');
+      th.className = 'border border-emerald-200 px-2 py-1 bg-emerald-50 text-left text-emerald-900';
+      th.textContent = 'EV (Max/Min)';
+      tr.appendChild(th);
+      for (let c = 0; c < nCriterios; c++) {
+        const td = document.createElement('td');
+        td.className = 'border border-emerald-200 p-1 bg-emerald-50';
+        const id = `ev_${c}`;
+        const select = document.createElement('select');
+        select.id = id;
+        select.className = 'w-full bg-white border border-gray-300 rounded p-1 text-sm text-center';
+        ['Min', 'Max'].forEach((opcion) => {
+          const option = document.createElement('option');
+          option.value = opcion;
+          option.textContent = opcion;
+          select.appendChild(option);
+        });
+        select.value = (id in previos) ? previos[id] : EV_INICIAL;
+        td.appendChild(select);
         tr.appendChild(td);
       }
       matrizVectores.appendChild(tr);
@@ -232,6 +261,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (TIENE_W && p.w) {
           for (let c = 0; c < n; c++) document.getElementById(`w_${c}`).value = p.w[c];
         }
+        if (TIENE_EV && p.EV) {
+          for (let c = 0; c < n; c++) document.getElementById(`ev_${c}`).value = p.EV[c];
+        }
         estado.textContent = `Plantilla cargada (${p.algoritmo_detectado || ALGORITMO}): ` +
           `${a} alternativas × ${n} criterios. Revise y presione Calcular.`;
       })
@@ -281,6 +313,15 @@ document.addEventListener('DOMContentLoaded', function () {
         w.push(leerNumero(document.getElementById(`w_${c}`), `el peso w de C${c + 1}`));
       }
       payload.w = w;
+    }
+    if (TIENE_EV) {
+      const EV = [];
+      for (let c = 0; c < nCriterios; c++) {
+        const el = document.getElementById(`ev_${c}`);
+        if (!el) throw new Error(`Falta el selector EV de C${c + 1}.`);
+        EV.push(el.value);
+      }
+      payload.EV = EV;
     }
     return payload;
   }

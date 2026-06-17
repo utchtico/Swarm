@@ -1,29 +1,92 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="/static/css/index.css">
-  <title>MOORA-BA — Swarm</title>
-</head>
-<body>
-  {% include '_navbar.html' %}
-  <header class="bg-white border-b border-slate-200">
-    <div class="max-w-5xl mx-auto px-6 pt-8 pb-6">
-      <h1 class="text-2xl lg:text-3xl font-semibold text-gray-800">MOORA-BA</h1>
-    </div>
-  </header>
-  <main class="max-w-5xl mx-auto px-6 py-16 text-center">
-    <div class="inline-flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800
-                rounded-xl px-6 py-4 text-sm font-medium">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" aria-hidden="true">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      Este módulo está en desarrollo. Estará disponible próximamente.
-    </div>
-  </main>
-</body>
-</html>
+{% extends "_laboratorio_base.html" %}
+
+{% block titulo %}MOORA-BA{% endblock %}
+
+{% block encabezado %}
+MOORA-BA <span class="font-normal text-gray-400">· Multi-Objective Optimization by Ratio Analysis + Bat Algorithm</span>
+{% endblock %}
+
+{% block chips_familia %}
+<a href="/ba"           class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">BA</a>
+<a href="/daba"         class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">DA-BA</a>
+<a href="/mooraba"      class="px-3 py-1.5 rounded-full bg-slate-700 text-white" aria-current="page">MOORA-BA</a>
+<a href="/topsisba"     class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">TOPSIS-BA</a>
+<a href="/comparacionBa" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">Comparación</a>
+{% endblock %}
+
+{% block nota_vectores %}
+Incluye el peso <span class="font-medium">w</span> por criterio. MOORA-BA no usa R1 ni R2 — esos vectores son exclusivos de la familia PSO.
+{% endblock %}
+
+{% block teoria %}
+<p class="text-lg leading-relaxed text-gray-700">
+  <strong>MOORA-BA</strong> combina el método de decisión <em>MOORA</em> (Multi-Objective
+  Optimization by Ratio Analysis) con la mecánica de búsqueda del <em>Bat Algorithm</em>. En
+  cada iteración, MOORA normaliza y pondera la matriz para obtener una puntuación por
+  alternativa, y la mejor de ellas guía el vuelo del enjambre de murciélagos.
+</p>
+
+<h2 class="mt-12 mb-6 text-xl font-semibold text-gray-800">¿Cómo funciona el algoritmo?</h2>
+
+<div class="grid gap-5 sm:grid-cols-2">
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Normalización por distancia euclidiana</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Cada fila de la matriz se normaliza dividiendo entre la raíz cuadrada de la suma de
+      cuadrados de sus criterios, eliminando diferencias de escala entre alternativas.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Ponderación y puntuación</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      La matriz normalizada se multiplica por el peso <span class="font-medium">w</span> de
+      cada criterio. La puntuación de cada alternativa es la suma de sus criterios de
+      beneficio menos la suma de sus criterios de costo.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Ranking descendente: mayor es mejor</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Las alternativas se ordenan de mayor a menor puntuación. La de mayor valor es la mejor
+      solución de esa iteración, y se convierte en la guía global para el enjambre.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Mecánica de vuelo de BA</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Con esa mejor alternativa como referencia, cada murciélago actualiza su frecuencia,
+      velocidad y posición igual que en BA puro — incluyendo el paseo aleatorio local y el
+      ajuste de sonoridad y tasa de pulso.
+    </p>
+  </article>
+</div>
+{% endblock %}
+
+{% block params_control %}
+<div>
+    <label class="block mb-2 text-sm font-medium text-gray-900">Alpha (reduce sonoridad)</label>
+    <input type="number" step="any" value="0.9" id="alpha" name="alpha"
+        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        required />
+</div>
+<div>
+    <label class="block mb-2 text-sm font-medium text-gray-900">Gamma (incrementa tasa de pulso)</label>
+    <input type="number" step="any" value="0.9" id="gamma" name="gamma"
+        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        required />
+</div>
+{% endblock %}
+
+{% block algo_config %}
+<script>
+  window.ALGO_CONFIG = {
+    algoritmo: 'MOORABA',
+    endpoint:  '/api/algoritmos/mooraba',
+    tiene_w:   true,
+  };
+</script>
+{% endblock %}
+
+{% block laboratorio_js %}
+<script src="{{ url_for('static', filename='js/ba/laboratorio.js') }}"></script>
+{% endblock %}

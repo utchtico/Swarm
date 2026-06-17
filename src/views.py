@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, session
+from flask import Blueprint, render_template, send_from_directory, session
 
 from src.api.auth import roles_required
 from src.models.models import db, User
+from src.algoritmos.topsis import MATRIZ_FIJA
 
 views_bp = Blueprint('views', __name__)
 
@@ -26,7 +27,22 @@ def acercade():
 @views_bp.route('/casoexperimental')
 @roles_required('user', 'admin', 'superadmin')
 def casoexperimental():
-    return render_template('casoexperimental.html')
+    return render_template('casoexperimental.html', matriz=MATRIZ_FIJA)
+
+
+@views_bp.route('/descargar-parametros')
+@roles_required('user', 'admin', 'superadmin')
+def descargar_parametros():
+    """
+    Sirve el archivo de referencia con rangos y valores comunes para cada
+    algoritmo (w predefinidos, rangos válidos de alpha/beta/rho/Q/n_ants,
+    etc.). Es un archivo estático, no generado dinámicamente — mismo
+    comportamiento que la ruta original (send_from_directory contra
+    'Experiments/static'), apuntando ahora a static/doc/.
+    """
+    directorio = 'static/doc'
+    filename = 'entradas-Programa.xlsx'
+    return send_from_directory(directorio, filename, as_attachment=True)
 
 
 @views_bp.route('/articulos')

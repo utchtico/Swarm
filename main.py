@@ -12,6 +12,7 @@ from src.api.articles import bp as articles_api
 from src.api.algoritmos.pso import algoritmos_bp as algoritmos_pso_bp
 from src.api.ejecuciones import ejecuciones_bp
 from src.api.algoritmos.ba import algoritmos_ba_bp
+from src.api.algoritmos.aco import algoritmos_aco_bp
 from src.api.admin import admin_bp
 from src.views import views_bp
 from src.api.vistas.pso import pso_bp
@@ -46,6 +47,7 @@ app.register_blueprint(articles_api)
 app.register_blueprint(algoritmos_pso_bp)  # /api/algoritmos/{pso,dapso,moorapso,topsispso}
 app.register_blueprint(ejecuciones_bp)      # /api/ejecuciones/*  (genérico, todas las familias)
 app.register_blueprint(algoritmos_ba_bp)    # /api/algoritmos/ba, /api/algoritmos/ba/plantilla
+app.register_blueprint(algoritmos_aco_bp)   # /api/algoritmos/aco, /api/algoritmos/aco/plantilla
 app.register_blueprint(admin_bp)        # /admin/*
 app.register_blueprint(views_bp)        # /, /acercade, /publicaciones, etc.
 app.register_blueprint(pso_bp)          # /pso, /dapso, /moorapso, /topsispso

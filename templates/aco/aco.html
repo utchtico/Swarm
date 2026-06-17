@@ -1,29 +1,112 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="/static/css/index.css">
-  <title>ACO — Colonia de Hormigas — Swarm</title>
-</head>
-<body>
-  {% include '_navbar.html' %}
-  <header class="bg-white border-b border-slate-200">
-    <div class="max-w-5xl mx-auto px-6 pt-8 pb-6">
-      <h1 class="text-2xl lg:text-3xl font-semibold text-gray-800">ACO — Colonia de Hormigas</h1>
-    </div>
-  </header>
-  <main class="max-w-5xl mx-auto px-6 py-16 text-center">
-    <div class="inline-flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800
-                rounded-xl px-6 py-4 text-sm font-medium">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" aria-hidden="true">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      Este módulo está en desarrollo. Estará disponible próximamente.
-    </div>
-  </main>
-</body>
-</html>
+{% extends "_laboratorio_base.html" %}
+
+{% block titulo %}ACO{% endblock %}
+
+{% block encabezado %}
+ACO <span class="font-normal text-gray-400">· Ant Colony Optimization — Colonia de Hormigas</span>
+{% endblock %}
+
+{% block chips_familia %}
+<a href="/aco"           class="px-3 py-1.5 rounded-full bg-slate-700 text-white" aria-current="page">ACO</a>
+<a href="/daaco"         class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">DA-ACO</a>
+<a href="/mooraaco"      class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">MOORA-ACO</a>
+<a href="/topsisaco"     class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">TOPSIS-ACO</a>
+<a href="/comparacionAco" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">Comparación</a>
+{% endblock %}
+
+{% block nota_vectores %}
+ACO no recibe pesos por criterio ni vectores R1/R2: la mejor alternativa se determina por la matriz de feromona, no por ponderación. Todos los valores de la matriz deben ser mayores a 0.
+{% endblock %}
+
+{% block teoria %}
+<p class="text-lg leading-relaxed text-gray-700">
+  El <strong>Ant Colony Optimization (ACO)</strong> es una metaheurística inspirada en cómo las
+  colonias de hormigas encuentran rutas eficientes depositando feromona en el camino. En cada
+  iteración, un grupo de hormigas elige alternativas de forma probabilística, refuerza la
+  feromona de sus elecciones, y la feromona acumulada determina la mejor alternativa global.
+</p>
+
+<h2 class="mt-12 mb-6 text-xl font-semibold text-gray-800">¿Cómo funciona el algoritmo?</h2>
+
+<div class="grid gap-5 sm:grid-cols-2">
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Heurística y feromona</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Cada hormiga elige una alternativa por criterio combinando dos factores: la feromona
+      acumulada en esa elección (ponderada por <span class="font-medium">alpha</span>) y una
+      heurística simple inversa a la matriz de decisión (ponderada por
+      <span class="font-medium">beta</span>).
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Refuerzo de feromona</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Cada hormiga deposita una cantidad de feromona (<span class="font-medium">Q</span>) en
+      la elección que realizó, proporcional al inverso del valor de la matriz en esa posición.
+      Alternativas con valores pequeños reciben más refuerzo.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Evaporación</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      Al final de cada iteración, toda la feromona se reduce en un factor
+      <span class="font-medium">rho</span>, evitando que el algoritmo converja prematuramente
+      a una sola alternativa sin explorar otras opciones.
+    </p>
+  </article>
+  <article class="rounded-lg border border-slate-200 border-l-4 border-l-slate-600 bg-white p-5">
+    <h3 class="font-semibold text-gray-900 mb-2">Sin posición que evolucione</h3>
+    <p class="text-sm leading-relaxed text-gray-600">
+      A diferencia de PSO y BA, la matriz de decisión es una referencia fija durante toda la
+      ejecución. Lo que evoluciona es la matriz de feromona; la mejor alternativa de cada
+      iteración es la que acumula mayor feromona ponderada por la matriz original.
+    </p>
+  </article>
+</div>
+{% endblock %}
+
+{% block params_control %}
+<div>
+    <label class="block mb-2 text-sm font-medium text-gray-900">Alpha (peso de feromona)</label>
+    <input type="number" step="any" value="1" id="alpha" name="alpha"
+        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        required />
+</div>
+<div>
+    <label class="block mb-2 text-sm font-medium text-gray-900">Beta (peso heurístico)</label>
+    <input type="number" step="any" value="2" id="beta" name="beta"
+        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        required />
+</div>
+<div>
+    <label class="block mb-2 text-sm font-medium text-gray-900">Rho (tasa de evaporación)</label>
+    <input type="number" step="any" min="0.01" max="0.99" value="0.1" id="rho" name="rho"
+        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        required />
+</div>
+<div>
+    <label class="block mb-2 text-sm font-medium text-gray-900">Q (feromona depositada)</label>
+    <input type="number" step="any" value="100" id="Q" name="Q"
+        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        required />
+</div>
+<div>
+    <label class="block mb-2 text-sm font-medium text-gray-900">Número de hormigas (n_ants)</label>
+    <input type="number" step="1" min="1" value="5" id="n_ants" name="n_ants"
+        class="bg-slate-300 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        required />
+</div>
+{% endblock %}
+
+{% block algo_config %}
+<script>
+  window.ALGO_CONFIG = {
+    algoritmo: 'ACO',
+    endpoint:  '/api/algoritmos/aco',
+  };
+</script>
+{% endblock %}
+
+{% block laboratorio_js %}
+<script src="{{ url_for('static', filename='js/aco/laboratorio.js') }}"></script>
+{% endblock %}

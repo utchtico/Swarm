@@ -1,33 +1,189 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-    <title>Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+  <title>Acceso — Swarm</title>
 </head>
-
 <body>
-    <main class="login-bg">
-        <section class="login-section">
-            <h2>Iniciar sesión</h2>
-            {% if msg %}
-            <div class="login-error" role="alert">{{ msg }}</div>
-            {% endif %}
-            <form action="{{ url_for('auth.login') }}" method="POST" class="login-form" autocomplete="on">
-                <input class="login-input" type="text" id="username" name="username" placeholder="Usuario"
-                    aria-label="Usuario" autocomplete="username" required value="{{ request.form.username or '' }}">
-                <input class="login-input" type="password" id="password" name="password" placeholder="Contraseña"
-                    aria-label="Contraseña" autocomplete="current-password" required>
-                <button class="login-btn" type="submit">Ingresar</button>
-            </form>
-            <p class="login-bottom-text" style="color:#9ca3af;font-size:0.8rem;">
-                El acceso es solo por invitación.
-                Contacta al administrador si necesitas una cuenta.
-            </p>
-        </section>
-    </main>
-</body>
+  <main class="login-bg">
+    <canvas id="loginCanvas"></canvas>
 
+    <div class="login-card">
+
+      <section class="login-visual" aria-hidden="true">
+        <div class="login-visual-text">
+          <p class="login-visual-sub">Universidad Autónoma de Ciudad Juárez</p>
+          <p class="login-visual-title">Doctorado en Tecnología</p>
+          <p class="login-visual-desc">Optimización e inteligencia computacional</p>
+        </div>
+      </section>
+
+      <section class="login-form-panel">
+        <h2 class="login-heading">Iniciar sesión</h2>
+        <p class="login-subheading">Accede con tu cuenta para continuar</p>
+
+        {% if msg %}
+        <div class="login-error" role="alert">{{ msg }}</div>
+        {% endif %}
+
+        <form action="{{ url_for('auth.login') }}" method="POST"
+              class="login-form" autocomplete="on">
+          <div class="login-field">
+            <label for="username">Usuario</label>
+            <input type="text" id="username" name="username"
+                   placeholder="usuario" aria-label="Usuario"
+                   autocomplete="username" required
+                   value="{{ request.form.username or '' }}">
+          </div>
+          <div class="login-field">
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" name="password"
+                   placeholder="••••••••" aria-label="Contraseña"
+                   autocomplete="current-password" required>
+          </div>
+          <button class="login-btn" type="submit">Ingresar</button>
+        </form>
+
+        <p class="login-footer">
+          El acceso es solo por invitación.
+          Contacta al administrador si necesitas una cuenta.
+        </p>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    const bg     = document.querySelector('.login-bg');
+    const canvas = document.getElementById('loginCanvas');
+    if (!bg || !canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const CELL   = 36;
+    const COLORS = ['#94a3b8', '#7dd3fc', '#123B63', '#cbd5e1', '#93c5fd'];
+
+    function resize() {
+      canvas.width  = bg.offsetWidth;
+      canvas.height = bg.offsetHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function snapToGrid() {
+      const cols = Math.max(1, Math.floor(canvas.width  / CELL));
+      const rows = Math.max(1, Math.floor(canvas.height / CELL));
+      return {
+        x: Math.floor(Math.random() * cols) * CELL + CELL / 2,
+        y: Math.floor(Math.random() * rows) * CELL + CELL / 2,
+      };
+    }
+
+    function Spark(delay) {
+      this.alpha = 0;
+      this.phase = 'wait';
+      this.timer = delay || 0;
+      this.reset();
+    }
+    Spark.prototype.reset = function () {
+      const p       = snapToGrid();
+      this.x        = p.x;
+      this.y        = p.y;
+      this.r        = 1.3 + Math.random() * 1.5;
+      this.peak     = 0.45 + Math.random() * 0.45;
+      this.color    = COLORS[Math.floor(Math.random() * COLORS.length)];
+      this.inDur    = 400  + Math.random() * 500;
+      this.holdDur  = 300  + Math.random() * 700;
+      this.outDur   = 500  + Math.random() * 600;
+      this.waitDur  = 600  + Math.random() * 2200;
+    };
+    Spark.prototype.tick = function (dt) {
+      this.timer -= dt;
+      if (this.timer > 0) return;
+      const e = -this.timer;
+      if (this.phase === 'wait') {
+        this.phase = 'in'; this.timer = this.inDur; this.alpha = 0; return;
+      }
+      if (this.phase === 'in') {
+        this.alpha = Math.min(1, e / this.inDur) * this.peak;
+        if (e >= this.inDur) { this.phase = 'hold'; this.timer = this.holdDur; }
+        return;
+      }
+      if (this.phase === 'hold') {
+        this.alpha = this.peak;
+        if (e >= this.holdDur) { this.phase = 'out'; this.timer = this.outDur; }
+        return;
+      }
+      if (this.phase === 'out') {
+        this.alpha = this.peak * (1 - Math.min(1, e / this.outDur));
+        if (e >= this.outDur) {
+          this.alpha = 0; this.reset();
+          this.phase = 'wait'; this.timer = this.waitDur;
+        }
+      }
+    };
+
+    var sparks = [];
+    for (var i = 0; i < 60; i++) sparks.push(new Spark(Math.random() * 3500));
+
+    function draw() {
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      ctx.strokeStyle = 'rgba(100,116,139,0.12)';
+      ctx.lineWidth   = 0.5;
+      for (var x = 0; x <= W; x += CELL) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      for (var y = 0; y <= H; y += CELL) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+
+      sparks.forEach(function (s) {
+        ctx.globalAlpha = s.alpha;
+        ctx.fillStyle   = s.color;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+
+      var fadeL = ctx.createLinearGradient(0, 0, W * 0.18, 0);
+      fadeL.addColorStop(0, 'rgba(241,245,249,1)');
+      fadeL.addColorStop(1, 'rgba(241,245,249,0)');
+      ctx.fillStyle = fadeL;
+      ctx.fillRect(0, 0, W * 0.18, H);
+
+      var fadeT = ctx.createLinearGradient(0, 0, 0, H * 0.18);
+      fadeT.addColorStop(0, 'rgba(241,245,249,1)');
+      fadeT.addColorStop(1, 'rgba(241,245,249,0)');
+      ctx.fillStyle = fadeT;
+      ctx.fillRect(0, 0, W, H * 0.18);
+
+      var fadeB = ctx.createLinearGradient(0, H * 0.82, 0, H);
+      fadeB.addColorStop(0, 'rgba(241,245,249,0)');
+      fadeB.addColorStop(1, 'rgba(241,245,249,1)');
+      ctx.fillStyle = fadeB;
+      ctx.fillRect(0, H * 0.82, W, H * 0.18);
+
+      var fadeR = ctx.createLinearGradient(W * 0.72, 0, W, 0);
+      fadeR.addColorStop(0, 'rgba(241,245,249,0)');
+      fadeR.addColorStop(1, 'rgba(255,255,255,1)');
+      ctx.fillStyle = fadeR;
+      ctx.fillRect(W * 0.72, 0, W * 0.28, H);
+    }
+
+    var last = performance.now();
+    function loop(now) {
+      var dt = now - last; last = now;
+      sparks.forEach(function (s) { s.tick(dt); });
+      draw();
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  })();
+  </script>
+</body>
 </html>

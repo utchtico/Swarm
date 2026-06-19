@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Comparación General — Swarm</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/static/css/index.css">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='icons/favicon.svg') }}">
+
 </head>
+
 <body>
   {% include '_navbar.html' %}
 
@@ -20,10 +24,14 @@
         TOPSIS-BA, DA-ACO, MOORA-ACO, TOPSIS-ACO) con los mismos datos de entrada.
       </p>
       <div class="mt-4 flex flex-wrap gap-2 text-sm" aria-label="Comparaciones por familia">
-        <a href="/comparacionPso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">Solo PSO</a>
-        <a href="/comparacionBa"  class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">Solo BA</a>
-        <a href="/comparacionAco" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">Solo ACO</a>
-        <a href="/comparacionGeneral" class="px-3 py-1.5 rounded-full bg-slate-700 text-white" aria-current="page">General</a>
+        <a href="/comparacionPso" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">Solo
+          PSO</a>
+        <a href="/comparacionBa" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">Solo
+          BA</a>
+        <a href="/comparacionAco" class="px-3 py-1.5 rounded-full bg-slate-100 text-gray-700 hover:bg-slate-200">Solo
+          ACO</a>
+        <a href="/comparacionGeneral" class="px-3 py-1.5 rounded-full bg-slate-700 text-white"
+          aria-current="page">General</a>
       </div>
     </div>
   </header>
@@ -60,7 +68,9 @@
 
       <div class="overflow-x-auto mb-6">
         <table id="tablaMatriz" class="table-auto border-separate border border-slate-400 text-sm">
-          <thead><tr id="matrizHead"></tr></thead>
+          <thead>
+            <tr id="matrizHead"></tr>
+          </thead>
           <tbody id="matrizBody"></tbody>
           <tbody id="matrizVectores"></tbody>
         </table>
@@ -146,15 +156,15 @@
     <!-- ============ RESULTADOS: 9 TARJETAS EN GRID ============ -->
     <div class="grid gap-6 lg:grid-cols-3">
       {% for algo, label, color in [
-        ('dapso','DA-PSO','bg-blue-700'),
-        ('moorapso','MOORA-PSO','bg-emerald-700'),
-        ('topsispso','TOPSIS-PSO','bg-amber-700'),
-        ('daba','DA-BA','bg-blue-700'),
-        ('mooraba','MOORA-BA','bg-emerald-700'),
-        ('topsisba','TOPSIS-BA','bg-amber-700'),
-        ('daaco','DA-ACO','bg-blue-700'),
-        ('mooraaco','MOORA-ACO','bg-emerald-700'),
-        ('topsisaco','TOPSIS-ACO','bg-amber-700')
+      ('dapso','DA-PSO','bg-blue-700'),
+      ('moorapso','MOORA-PSO','bg-emerald-700'),
+      ('topsispso','TOPSIS-PSO','bg-amber-700'),
+      ('daba','DA-BA','bg-blue-700'),
+      ('mooraba','MOORA-BA','bg-emerald-700'),
+      ('topsisba','TOPSIS-BA','bg-amber-700'),
+      ('daaco','DA-ACO','bg-blue-700'),
+      ('mooraaco','MOORA-ACO','bg-emerald-700'),
+      ('topsisaco','TOPSIS-ACO','bg-amber-700')
       ] %}
       <section class="rounded-xl bg-white px-6 py-6 shadow-2xl">
         <div class="flex items-center justify-between mb-3">
@@ -203,4 +213,5 @@
 
   <script src="{{ url_for('static', filename='js/comparacionGeneral.js') }}"></script>
 </body>
+
 </html>

@@ -166,7 +166,13 @@ def init_db(app):
 
     with app.app_context():
         uri = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+       
+        # ── SQLite fallback: crear carpeta db/ solo si realmente se va a usar ──
         if uri.startswith('sqlite'):
+            # Extraemos la ruta del archivo .db desde la URI
+            # (uri tiene la forma sqlite:////ruta/absoluta/db/swarm.db)
+            db_file = uri.replace('sqlite:///', '', 1)
+            os.makedirs(os.path.dirname(db_file), exist_ok=True)
             db.create_all()
 
         inspector = inspect(db.engine)

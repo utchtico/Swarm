@@ -23,16 +23,14 @@ from src.api.vistas.ba import ba_bp
 from src.api.vistas.aco import aco_bp
 from src.api.vistas.compara import compara_bp
 
-# ── Base de datos (SQLite fallback) ──────────────────────────────────────────
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-DB_PATH  = os.path.join(BASE_DIR, 'db', 'swarm.db')
-os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-
 # ── Configuración de Flask ────────────────────────────────────────────────────
 load_dotenv()
 
+_BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+_DB_PATH  = os.path.join(_BASE_DIR, 'db', 'swarm.db')  # solo se usa si no hay DATABASE_URL
+
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI']    = os.environ.get('DATABASE_URL', f'sqlite:///{DB_PATH}')
+app.config['SQLALCHEMY_DATABASE_URI']    = os.environ.get('DATABASE_URL', f'sqlite:///{_DB_PATH}')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY']                 = os.environ.get('SECRET_KEY', 'dev-insecure-key')
 

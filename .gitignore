@@ -35,3 +35,10 @@ htmlcov/
 # Archivos del sistema operativo
 .DS_Store
 Thumbs.db
+ddns_godaddy.ps1
+reload_nginx.ps1
+ssh-key-ca-tico
+ssh-key-ca-tico.pub
+
+#Directorios del sistema
+/ssl

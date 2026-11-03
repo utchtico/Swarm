@@ -34,6 +34,7 @@ from src.algoritmos.ba import ejecutar_ba
 from src.algoritmos.daba import ejecutar_daba
 from src.algoritmos.mooraba import ejecutar_mooraba
 from src.algoritmos.topsisba import ejecutar_topsisba
+from src.services.limites import dimensiones_plantilla
 
 algoritmos_ba_bp = Blueprint('algoritmos_ba_api', __name__, url_prefix='/api')
 
@@ -85,8 +86,7 @@ def api_calcular_ba():
 @algoritmos_ba_bp.get('/algoritmos/ba/plantilla')
 @roles_required('user', 'admin', 'superadmin')
 def api_descargar_plantilla_ba():
-    n = int(request.args.get('criterios',    5))
-    a = int(request.args.get('alternativas', 9))
+    n, a = dimensiones_plantilla(request.args)
     buffer = generar_plantilla_excel_ba(n, a)
     return send_file(buffer, as_attachment=True,
                      download_name='plantilla_ba.xlsx',
@@ -148,8 +148,7 @@ def api_calcular_daba():
 @algoritmos_ba_bp.get('/algoritmos/daba/plantilla')
 @roles_required('user', 'admin', 'superadmin')
 def api_descargar_plantilla_daba():
-    n = int(request.args.get('criterios',    5))
-    a = int(request.args.get('alternativas', 9))
+    n, a = dimensiones_plantilla(request.args)
     buffer = generar_plantilla_excel_daba(n, a)
     return send_file(buffer, as_attachment=True,
                      download_name='plantilla_daba.xlsx',
@@ -211,8 +210,7 @@ def api_calcular_mooraba():
 @algoritmos_ba_bp.get('/algoritmos/mooraba/plantilla')
 @roles_required('user', 'admin', 'superadmin')
 def api_descargar_plantilla_mooraba():
-    n = int(request.args.get('criterios',    5))
-    a = int(request.args.get('alternativas', 9))
+    n, a = dimensiones_plantilla(request.args)
     buffer = generar_plantilla_excel_mooraba(n, a)
     return send_file(buffer, as_attachment=True,
                      download_name='plantilla_mooraba.xlsx',
@@ -274,8 +272,7 @@ def api_calcular_topsisba():
 @algoritmos_ba_bp.get('/algoritmos/topsisba/plantilla')
 @roles_required('user', 'admin', 'superadmin')
 def api_descargar_plantilla_topsisba():
-    n = int(request.args.get('criterios',    5))
-    a = int(request.args.get('alternativas', 9))
+    n, a = dimensiones_plantilla(request.args)
     buffer = generar_plantilla_excel_topsisba(n, a)
     return send_file(buffer, as_attachment=True,
                      download_name='plantilla_topsisba.xlsx',

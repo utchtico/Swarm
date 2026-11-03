@@ -11,6 +11,7 @@ from io import BytesIO
 import pandas as pd
 
 from src.services.ejecuciones_pso import guardar_ejecucion  # genérico, reutilizado
+from src.services.limites import verificar_max_dimensiones, verificar_max_T, verificar_max_n_ants
 
 MIN_CRITERIOS    = 5
 MIN_ALTERNATIVAS = 9
@@ -56,6 +57,7 @@ def validar_entrada_daaco(payload: dict) -> dict:
         raise ValueError(f"La matriz requiere al menos {MIN_CRITERIOS} criterios (recibió {n}).")
     if a < MIN_ALTERNATIVAS:
         raise ValueError(f"La matriz requiere al menos {MIN_ALTERNATIVAS} alternativas (recibió {a}).")
+    verificar_max_dimensiones(n, a)
 
     try:
         matriz = [[float(v) for v in fila] for fila in matriz]
@@ -101,10 +103,12 @@ def validar_entrada_daaco(payload: dict) -> dict:
     n_ants = _int('n_ants')
     if n_ants < 1:
         raise ValueError("'n_ants' debe ser al menos 1.")
+    verificar_max_n_ants(n_ants)
 
     T = _int('T')
     if T < 1:
         raise ValueError("'T' debe ser al menos 1.")
+    verificar_max_T(T)
 
     return {'matriz': matriz, 'w': w, 'alpha': alpha, 'beta': beta,
             'rho': rho, 'Q': Q, 'n_ants': n_ants, 'T': T}

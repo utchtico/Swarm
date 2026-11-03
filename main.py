@@ -33,6 +33,9 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']    = os.environ.get('DATABASE_URL', f'sqlite:///{_DB_PATH}')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY']                 = os.environ.get('SECRET_KEY', 'dev-insecure-key')
+# Tope al tamaño de cualquier petición (plantillas Excel incluidas). Por
+# encima de esto Flask responde 413 sin leer el archivo completo.
+app.config['MAX_CONTENT_LENGTH'] = int(os.environ.get('MAX_UPLOAD_MB', '5')) * 1024 * 1024
 
 init_security(app)
 
@@ -62,4 +65,7 @@ app.register_blueprint(compara_bp)      # /comparacionGeneral, /comparacionBa, e
 # ── Arranque ──────────────────────────────────────────────────────────────────
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5001))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    # El modo debug expone la consola interactiva de Werkzeug, que permite
+    # ejecutar código en el servidor. Solo se activa con FLASK_DEBUG=1.
+    debug = os.environ.get('FLASK_DEBUG', '0') == '1'
+    app.run(host='0.0.0.0', port=port, debug=debug)

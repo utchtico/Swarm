@@ -21,6 +21,7 @@ from src.algoritmos.pso import ejecutar_pso
 from src.algoritmos.dapso import ejecutar_dapso
 from src.algoritmos.moorapso import ejecutar_moorapso
 from src.algoritmos.topsispso import ejecutar_topsispso
+from src.services.limites import dimensiones_plantilla
 
 algoritmos_bp = Blueprint('algoritmos_api', __name__, url_prefix='/api')
 
@@ -124,8 +125,7 @@ def api_descargar_plantilla(algoritmo):
     if algoritmo not in ALGORITMOS_VALIDOS_PLANTILLA:
         return jsonify({'error': f"Algoritmo '{algoritmo}' no reconocido."}), 404
 
-    n = int(request.args.get('criterios',    5))
-    a = int(request.args.get('alternativas', 9))
+    n, a = dimensiones_plantilla(request.args)
     buffer = generar_plantilla_excel(n, a, algoritmo=algoritmo.upper())
     return send_file(buffer, as_attachment=True,
                      download_name=f'plantilla_{algoritmo}.xlsx',

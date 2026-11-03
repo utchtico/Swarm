@@ -11,15 +11,16 @@ Para agregar o quitar links, editar SOLO este archivo.
 <nav class="navbar-principal" role="navigation" aria-label="Navegación principal">
     <a class="brand" href="/">Algorithms App</a>
 
+    {% if role in ('admin', 'superadmin','user') %}
     <button class="nav-toggle" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú">
         <span class="hamburger" aria-hidden="true"></span>
     </button>
-
     <ul id="menu" class="menu">
         <li><a href="/" {% if path=='/' %}class="nav-active" aria-current="page" {% endif %}>Inicio</a></li>
         <li><a href="/casoexperimental" {% if path=='/casoexperimental' %}class="nav-active" aria-current="page" {%
                 endif %}>Caso Experimental</a></li>
-        <li><a href="/topsis" {% if path=='/topsis' %}class="nav-active" aria-current="page" {% endif %}>MCDM</a></li>
+        <li><a href="/topsis" {% if path=='/topsis' %}class="nav-active" aria-current="page" {% endif %}>Métodos</a>
+        </li>
         <li><a href="/pso" {% if path.startswith('/pso') %}class="nav-active" aria-current="page" {% endif %}>PSO</a>
         </li>
         <li><a href="/ba" {% if path.startswith('/ba') %}class="nav-active" aria-current="page" {% endif %}>BA</a></li>
@@ -71,6 +72,8 @@ Para agregar o quitar links, editar SOLO este archivo.
             </ul>
         </li>
     </ul>
+    {% endif %}
+
 </nav>
 
 <script>

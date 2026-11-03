@@ -1,5 +1,5 @@
 # src/algoritmos/da.py
-# DA — Análisis Dimensional (no confundir con Dragonfly Algorithm)
+# DA — Análisis Dimensional 
 # Universidad Autónoma de Ciudad Juárez · Doctorado en Tecnología
 #
 # Igual que TOPSIS y MOORA puros: no hay metaheurística, no hay

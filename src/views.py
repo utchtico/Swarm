@@ -20,6 +20,7 @@ def home():
 
 
 @views_bp.route('/acercade')
+@roles_required('user', 'admin', 'superadmin')
 def acercade():
     return render_template('acercade.html')
 

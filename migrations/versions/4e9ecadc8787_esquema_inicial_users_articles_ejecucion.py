@@ -1,8 +1,8 @@
-"""esquema inicial con seguridad
+"""esquema inicial: users, articles, ejecucion
 
-Revision ID: 8963ce505da3
+Revision ID: 4e9ecadc8787
 Revises: 
-Create Date: 2026-06-15 10:08:48.466997
+Create Date: 2026-06-28 18:50:52.806214
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '8963ce505da3'
+revision = '4e9ecadc8787'
 down_revision = None
 branch_labels = None
 depends_on = None

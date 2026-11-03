@@ -1,7 +1,7 @@
 # src/algoritmos/daba.py
 # DA-BA — Análisis Dimensional (ranking) + Bat Algorithm (mecánica de búsqueda)
-# NOTA: 'DA' aquí significa Análisis Dimensional (Dimensional Analysis),
-# NO Dragonfly Algorithm. Es uno de los métodos MCDM del proyecto junto a
+# NOTA: 'DA' aquí significa Análisis Dimensional (Dimensional Analysis).
+# Es uno de los métodos MCDM del proyecto junto a
 # TOPSIS y MOORA — ver templates/mcdm/da.html para la explicación completa.
 # Universidad Autónoma de Ciudad Juárez · Doctorado en Tecnología
 #

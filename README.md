@@ -97,6 +97,19 @@ SESSION_IDLE_MINUTES=480
 # HTTPS real configurado; en 1 las sesiones no funcionarán por HTTP plano)
 SESSION_COOKIE_SECURE=0
 
+# Modo debug de Flask (0 por defecto). Solo actívalo en tu máquina: con
+# FLASK_DEBUG=1 la consola de errores permite ejecutar código en el servidor.
+FLASK_DEBUG=0
+
+# Topes de entrada para los algoritmos (valores por defecto mostrados)
+MAX_CRITERIOS=20
+MAX_ALTERNATIVAS=30
+MAX_ITERACIONES=1000
+MAX_N_ANTS=1000
+
+# Tamaño máximo de archivo subido (plantillas Excel), en MB
+MAX_UPLOAD_MB=5
+
 # Envío de correo (invitaciones, recuperación de contraseña). Si se omiten,
 # el envío de correo queda configurado pero sin credenciales válidas.
 MAIL_USERNAME=correo@gmail.com

@@ -1,3 +1,5 @@
+import re
+
 from flask import (Blueprint, jsonify, render_template,
                    request, session, url_for)
 from werkzeug.security import generate_password_hash
@@ -9,6 +11,12 @@ from src.services.email import enviar_invitacion, enviar_reset_password, generar
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 ROLES_PERMITIDOS = ('user', 'admin', 'superadmin')
+
+# Nombre de usuario: letras, números, punto, guion y guion bajo (3 a 40).
+# Evita HTML/JS en el panel y separadores de ruta en los nombres de archivo
+# de log (src/utils/execution_logger.py usa el username en el nombre).
+_RE_USERNAME = re.compile(r'^[A-Za-z0-9._-]{3,40}$')
+_RE_EMAIL    = re.compile(r'''^[^@\s<>"']+@[^@\s<>"']+\.[^@\s<>"']+$''')
 
 
 def _usuario_actual() -> User | None:
@@ -50,7 +58,10 @@ def crear_usuario():
     # Validaciones
     if not username:
         return jsonify({'error': 'El nombre de usuario es obligatorio.'}), 400
-    if not email or '@' not in email:
+    if not _RE_USERNAME.match(username):
+        return jsonify({'error': 'El nombre de usuario debe tener de 3 a 40 caracteres: '
+                                 'letras, números, punto, guion o guion bajo.'}), 400
+    if len(email) > 120 or not _RE_EMAIL.match(email):
         return jsonify({'error': 'Se requiere un email válido para enviar la invitación.'}), 400
     if role not in ROLES_PERMITIDOS:
         return jsonify({'error': f'Rol no válido. Opciones: {ROLES_PERMITIDOS}'}), 400

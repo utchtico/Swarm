@@ -15,6 +15,7 @@ from io import BytesIO
 import pandas as pd
 
 from src.models.models import db, Ejecucion
+from src.services.limites import verificar_max_dimensiones, verificar_max_T
 
 
 # Mínimos definidos por la especificación del proyecto:
@@ -70,6 +71,7 @@ def validar_entrada_pso(payload: dict) -> dict:
         raise ValueError(f"La matriz requiere al menos {MIN_CRITERIOS} criterios (recibió {n}).")
     if a < MIN_ALTERNATIVAS:
         raise ValueError(f"La matriz requiere al menos {MIN_ALTERNATIVAS} alternativas (recibió {a}).")
+    verificar_max_dimensiones(n, a)
 
     try:
         matriz = [[float(v) for v in fila] for fila in matriz]
@@ -113,6 +115,7 @@ def validar_entrada_pso(payload: dict) -> dict:
         raise ValueError("'T' debe ser un entero.")
     if T < 1:
         raise ValueError("'T' debe ser al menos 1.")
+    verificar_max_T(T)
 
     return {'matriz': matriz, 'w': w, 'wwi': wwi, 'c1': c1, 'c2': c2,
             'T': T, 'r1': r1, 'r2': r2}

@@ -12,6 +12,7 @@ from io import BytesIO
 import pandas as pd
 
 from src.services.ejecuciones_pso import guardar_ejecucion  # genérico, reutilizado
+from src.services.limites import verificar_max_dimensiones, verificar_max_T
 
 MIN_CRITERIOS    = 5
 MIN_ALTERNATIVAS = 9
@@ -61,6 +62,7 @@ def validar_entrada_ba(payload: dict) -> dict:
         raise ValueError(f"La matriz requiere al menos {MIN_CRITERIOS} criterios (recibió {n}).")
     if a < MIN_ALTERNATIVAS:
         raise ValueError(f"La matriz requiere al menos {MIN_ALTERNATIVAS} alternativas (recibió {a}).")
+    verificar_max_dimensiones(n, a)
 
     try:
         matriz = [[float(v) for v in fila] for fila in matriz]
@@ -86,6 +88,7 @@ def validar_entrada_ba(payload: dict) -> dict:
         raise ValueError("'T' debe ser un entero.")
     if T < 1:
         raise ValueError("'T' debe ser al menos 1.")
+    verificar_max_T(T)
 
     return {'matriz': matriz, 'alpha': alpha, 'gamma': gamma, 'T': T}
 

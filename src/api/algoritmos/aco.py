@@ -34,6 +34,7 @@ from src.algoritmos.aco import ejecutar_aco
 from src.algoritmos.daaco import ejecutar_daaco
 from src.algoritmos.mooraaco import ejecutar_mooraaco
 from src.algoritmos.topsisaco import ejecutar_topsisaco
+from src.services.limites import dimensiones_plantilla
 
 algoritmos_aco_bp = Blueprint('algoritmos_aco_api', __name__, url_prefix='/api')
 
@@ -86,8 +87,7 @@ def api_calcular_aco():
 @algoritmos_aco_bp.get('/algoritmos/aco/plantilla')
 @roles_required('user', 'admin', 'superadmin')
 def api_descargar_plantilla_aco():
-    n = int(request.args.get('criterios',    5))
-    a = int(request.args.get('alternativas', 9))
+    n, a = dimensiones_plantilla(request.args)
     buffer = generar_plantilla_excel_aco(n, a)
     return send_file(buffer, as_attachment=True,
                      download_name='plantilla_aco.xlsx',
@@ -150,8 +150,7 @@ def api_calcular_daaco():
 @algoritmos_aco_bp.get('/algoritmos/daaco/plantilla')
 @roles_required('user', 'admin', 'superadmin')
 def api_descargar_plantilla_daaco():
-    n = int(request.args.get('criterios',    5))
-    a = int(request.args.get('alternativas', 9))
+    n, a = dimensiones_plantilla(request.args)
     buffer = generar_plantilla_excel_daaco(n, a)
     return send_file(buffer, as_attachment=True,
                      download_name='plantilla_daaco.xlsx',
@@ -215,8 +214,7 @@ def api_calcular_mooraaco():
 @algoritmos_aco_bp.get('/algoritmos/mooraaco/plantilla')
 @roles_required('user', 'admin', 'superadmin')
 def api_descargar_plantilla_mooraaco():
-    n = int(request.args.get('criterios',    5))
-    a = int(request.args.get('alternativas', 9))
+    n, a = dimensiones_plantilla(request.args)
     buffer = generar_plantilla_excel_mooraaco(n, a)
     return send_file(buffer, as_attachment=True,
                      download_name='plantilla_mooraaco.xlsx',
@@ -279,8 +277,7 @@ def api_calcular_topsisaco():
 @algoritmos_aco_bp.get('/algoritmos/topsisaco/plantilla')
 @roles_required('user', 'admin', 'superadmin')
 def api_descargar_plantilla_topsisaco():
-    n = int(request.args.get('criterios',    5))
-    a = int(request.args.get('alternativas', 9))
+    n, a = dimensiones_plantilla(request.args)
     buffer = generar_plantilla_excel_topsisaco(n, a)
     return send_file(buffer, as_attachment=True,
                      download_name='plantilla_topsisaco.xlsx',
